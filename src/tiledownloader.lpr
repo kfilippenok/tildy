@@ -6,8 +6,7 @@ uses
   {$IFDEF UNIX}
   cthreads,
   {$ENDIF}
-  SysUtils, Classes, fphttpclient
-  { you can add units after this };
+  SysUtils, Classes, fphttpclient, openssl, opensslsockets;
 
 type
 
@@ -66,10 +65,8 @@ type
   procedure CTilesDownloader.Download;
   begin
     if not DirectoryExists(DownloadDir) then
-    if not CreateDir(GetCurrentDir + DownloadDir) then
+    if not CreateDir(GetCurrentDir + PathDelim + DownloadDir) then
       Halt(1);
-
-
   end;
 
 var
