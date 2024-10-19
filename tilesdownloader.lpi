@@ -9,7 +9,7 @@
         <MainUnitHasScaledStatement Value="False"/>
       </Flags>
       <SessionStorage Value="InProjectDir"/>
-      <Title Value="tiledownloader"/>
+      <Title Value="tilesdownloader"/>
       <UseAppBundle Value="False"/>
       <ResourceType Value="res"/>
     </General>
@@ -19,10 +19,11 @@
         <CompilerOptions>
           <Version Value="11"/>
           <Target>
-            <Filename Value="tiledownloader"/>
+            <Filename Value="tilesdownloader"/>
           </Target>
           <SearchPaths>
             <IncludeFiles Value="$(ProjOutDir)"/>
+            <OtherUnitFiles Value="src"/>
             <UnitOutputDirectory Value="lib/$(TargetCPU)-$(TargetOS)"/>
           </SearchPaths>
           <Parsing>
@@ -55,10 +56,11 @@
         <CompilerOptions>
           <Version Value="11"/>
           <Target>
-            <Filename Value="tiledownloader"/>
+            <Filename Value="tilesdownloader"/>
           </Target>
           <SearchPaths>
             <IncludeFiles Value="$(ProjOutDir)"/>
+            <OtherUnitFiles Value="src"/>
             <UnitOutputDirectory Value="lib/$(TargetCPU)-$(TargetOS)"/>
           </SearchPaths>
           <CodeGeneration>
@@ -87,18 +89,25 @@
     </RunParams>
     <Units>
       <Unit>
-        <Filename Value="src/tiledownloader.lpr"/>
+        <Filename Value="src/tilesdownloader.lpr"/>
         <IsPartOfProject Value="True"/>
+        <UnitName Value="tilesdownloader"/>
+      </Unit>
+      <Unit>
+        <Filename Value="src/tilesdownload.pas"/>
+        <IsPartOfProject Value="True"/>
+        <UnitName Value="TilesDownload"/>
       </Unit>
     </Units>
   </ProjectOptions>
   <CompilerOptions>
     <Version Value="11"/>
     <Target>
-      <Filename Value="tiledownloader"/>
+      <Filename Value="tilesdownloader"/>
     </Target>
     <SearchPaths>
       <IncludeFiles Value="$(ProjOutDir)"/>
+      <OtherUnitFiles Value="src"/>
       <UnitOutputDirectory Value="lib/$(TargetCPU)-$(TargetOS)"/>
     </SearchPaths>
     <Linking>

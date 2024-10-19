@@ -1,6 +1,6 @@
 backup
 lib
 *.exe
-tiledownloader
+tilesdownloader
 *.lps
 tiles

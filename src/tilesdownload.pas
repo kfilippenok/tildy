@@ -1,12 +1,12 @@
-program tiledownloader;
+unit TilesDownload;
 
-{$mode objfpc}{$H+}
+{$mode ObjFPC}{$H+}
+
+interface
 
 uses
-  {$IFDEF UNIX}
-  cthreads,
-  {$ENDIF}
-  SysUtils, Classes, fphttpclient, openssl, opensslsockets, Math;
+  SysUtils, Classes, Math,
+  fphttpclient, openssl, opensslsockets;
 
 type
 
@@ -20,18 +20,10 @@ type
     lon: Float;
   end;
 
-  operator = (const First, Second: RCoordinate) R : boolean;
-  begin
-    R := SameValue(First.lat, Second.lat) and SameValue(First.lon, Second.lon);
-  end;
-
-type
   RTile = record
     x: Integer;
     y: Integer;
   end;
-
-  { CTilesDownloader }
 
   CTilesDownloader = class(TFPCustomHTTPClient)
   private
@@ -61,7 +53,12 @@ type
     procedure Download;
   end;
 
-  { CTilesDownloader }
+implementation
+
+  operator = (const First, Second: RCoordinate) R : boolean;
+  begin
+    R := SameValue(First.lat, Second.lat) and SameValue(First.lon, Second.lon);
+  end;
 
   function CTilesDownloader.getProviderLink: String;
   begin
@@ -177,30 +174,5 @@ type
     end;
   end;
 
-var
-  TilesDownloader: CTilesDownloader;
-  Coordinate: RCoordinate;
-begin
-  TilesDownloader := CTilesDownloader.Create(nil);
-  with TilesDownloader do
-  begin
-      ProviderName := 'OpenStreetMap-Mapnik';
-      ProviderLink := 'http://a.tile.openstreetmap.org';
-      //ProviderLink := 'http://b.tiles.openrailwaymap.org/standard';
-      MinZoom := 6;
-      MaxZoom := 6;
-      DownloadDir := 'tiles';
-      Coordinate.lat := 42.7;
-      Coordinate.lon := 120;
-      Coordinates[0] := Coordinate;
-      Coordinate.lat := 57.02137756;
-      Coordinate.lon := 143.1;
-      Coordinates[1] := Coordinate;
-  end;
-  try
-    TilesDownloader.Download;
-  finally
-    TilesDownloader.Free;
-  end;
 end.
 
