@@ -91,7 +91,6 @@
       <Unit>
         <Filename Value="src/tilesdownloader.lpr"/>
         <IsPartOfProject Value="True"/>
-        <UnitName Value="tilesdownloader"/>
       </Unit>
       <Unit>
         <Filename Value="src/tilesdownload.pas"/>

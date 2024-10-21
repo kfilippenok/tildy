@@ -56,14 +56,23 @@ type
   procedure ATilesDownloader.DoRun;
   var
     objTilesDownloader: CTilesDownloader;
+    ConcreteCTilesDownloader: class of CTilesDownloader;
     Coordinate: RCoordinate;
   begin
     parseParameters;
 
-    objTilesDownloader := CTilesDownloader.Create(nil);
+    case OptionParameter[okProvider] of
+      'osm': ConcreteCTilesDownloader := CTDOpenStreetMap;
+      'otm': ConcreteCTilesDownloader := CTDOpenTopotMap;
+      'cycle-osm': ConcreteCTilesDownloader := CTDCycleOSM;
+      'railway': ConcreteCTilesDownloader := CTDOpenRailwayMap;
+    else
+      ConcreteCTilesDownloader := CTilesDownloader;
+    end;
+
+    objTilesDownloader := ConcreteCTilesDownloader.Create(nil);
     with objTilesDownloader do
     begin
-        //ProviderLink := 'http://b.tiles.openrailwaymap.org/standard';
         MinZoom := OptionParameter[okMinZoom].ToInteger;
         MaxZoom := OptionParameter[okMaxZoom].ToInteger;
         Coordinate.lat := OptionParameter[okFirstCoordLat].ToDouble; // 42.7

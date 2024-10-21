@@ -68,6 +68,27 @@ type
     Constructor Create(AOwner: TComponent); override;
   end;
 
+  { CTDOpenTopotMap }
+
+  CTDOpenTopotMap = class(CTilesDownloader)
+  public
+    Constructor Create(AOwner: TComponent); override;
+  end;
+
+  { CTDCycleOSM }
+
+  CTDCycleOSM = class(CTilesDownloader)
+  public
+    Constructor Create(AOwner: TComponent); override;
+  end;
+
+  { CTDOpenRailwayMap }
+
+  CTDOpenRailwayMap = class(CTilesDownloader)
+  public
+    Constructor Create(AOwner: TComponent); override;
+  end;
+
 implementation
 
 operator = (const First, Second: RCoordinate) R : boolean;
@@ -197,6 +218,36 @@ end;
 constructor CTDOpenStreetMap.Create(AOwner: TComponent);
 begin
   inherited Create(AOwner);
+end;
+
+{ CTDOpenTopotMap }
+
+constructor CTDOpenTopotMap.Create(AOwner: TComponent);
+begin
+  inherited Create(AOwner);
+
+  ProviderName := 'Open Topo Map';
+  ProviderLink := 'http://a.tile.opentopomap.org';
+end;
+
+{ CTDCycleOSM }
+
+constructor CTDCycleOSM.Create(AOwner: TComponent);
+begin
+  inherited Create(AOwner);
+
+  ProviderName := 'CycleOSM';
+  ProviderLink := 'https://c.tile-cyclosm.openstreetmap.fr/cyclosm/';
+end;
+
+{ CTDOpenRailwayMap }
+
+constructor CTDOpenRailwayMap.Create(AOwner: TComponent);
+begin
+  inherited Create(AOwner);
+
+  ProviderName := 'OpenRailwayMap';
+  ProviderLink := 'http://b.tiles.openrailwaymap.org/standard';
 end;
 
 end.
