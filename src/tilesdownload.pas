@@ -5,16 +5,8 @@ unit TilesDownload;
 interface
 
 uses
-  SysUtils, Classes, Math,
+  SysUtils, Classes, StrUtils, Math,
   fphttpclient, openssl, opensslsockets;
-
-const
-  defProvider = 'osm';
-  defDownloadDir = 'tiles';
-  defProviderName = 'OpenStreetMap';
-  defProviderLink = 'http://a.tile.openstreetmap.org';
-  defMinZoom = 6;
-  defMaxZoom = 7;
 
 type
 
@@ -33,13 +25,33 @@ type
     y: Integer;
   end;
 
+  TSaveMethod = (smFolders, smPattern);
+
+const
+  defUserAgent = 'Mozilla/5.0 (compatible; fpweb)';
+  defProvider = 'osm';
+  defOutPath = 'tiles';
+  defSaveMethod = smFolders;
+  defDivider = '_';
+  defProviderName = 'OpenStreetMap';
+  defProviderLink = 'http://a.tile.openstreetmap.org';
+  defMinZoom = 6;
+  defMaxZoom = 7;
+  defShowFileTypes = False;
+
+type
+
   CTilesDownloader = class(TFPCustomHTTPClient)
   private
-    FMapProvider:  RMapProvider;
-    FDownloadDir:  String;
-    FMinZoom:      Integer;
-    FMaxZoom:      Integer;
-    FCoordinates:  array[0..1] of RCoordinate;
+    FUserAgent: String;
+    FMapProvider: RMapProvider;
+    FOutPath: String;
+    FSaveMethod: TSaveMethod;
+    FDivider: String;
+    FMinZoom: Integer;
+    FMaxZoom: Integer;
+    FCoordinates: array[0..1] of RCoordinate;
+    FShowFileTypes: Boolean;
   private
     function getProviderLink: String;
     procedure setProviderLink(AValue: String);
@@ -52,11 +64,14 @@ type
     procedure DownloadTile(const AZoom: Integer; const ATile: RTile);
   public
     Constructor Create(AOwner: TComponent); override;
-    property ProviderName: String read getProviderName write setProviderName;
-    property ProviderLink: String read getProviderLink write setProviderLink;
-    property DownloadDir:  String read FDownloadDir    write FDownloadDir;
-    property MinZoom: Integer read FMinZoom write FMinZoom default 6;
-    property MaxZoom: Integer read FMaxZoom write FMaxZoom default 7;
+    property ProviderName : String      read getProviderName write setProviderName;
+    property ProviderLink : String      read getProviderLink write setProviderLink;
+    property OutPath      : String      read FOutPath        write FOutPath       ;
+    property SaveMethod   : TSaveMethod read FSaveMethod     write FSaveMethod     default defSaveMethod;
+    property Divider      : String      read FDivider        write FDivider       ;
+    property MinZoom      : Integer     read FMinZoom        write FMinZoom        default defMinZoom;
+    property MaxZoom      : Integer     read FMaxZoom        write FMaxZoom        default defMaxZoom;
+    property ShowFileTypes: Boolean     read FShowFileTypes  write FShowFileTypes  default defShowFileTypes;
     property Coordinates[Index: Integer]: RCoordinate read getCoordinate write setCoordinate;
     procedure Download;
   end;
@@ -133,11 +148,15 @@ constructor CTilesDownloader.Create(AOwner: TComponent);
 begin
   inherited Create(AOwner);
 
-  DownloadDir := defDownloadDir;
+  FUserAgent := defUserAgent;
   ProviderName := defProviderName;
   ProviderLink := defProviderLink;
+  OutPath := defOutPath;
+  SaveMethod := smFolders;
+  Divider := defDivider;
   MinZoom := defMinZoom;
   MaxZoom := defMinZoom;
+  ShowFileTypes := defShowFileTypes;
 end;
 
 procedure CTilesDownloader.calcTileNumber(const ACoordinate: RCoordinate;
@@ -152,15 +171,28 @@ begin
 end;
 
 procedure CTilesDownloader.DownloadTile(const AZoom: Integer; const ATile: RTile);
+
+  function _getFileName: String;
+  begin
+    case SaveMethod of
+      smFolders:
+        begin
+          Result := Format('%s%s%d%s%d%s%d%s', [ProviderName, PathDelim, AZoom, PathDelim, ATile.x, PathDelim, ATile.y, IfThen(ShowFileTypes, '.png')]);
+        end;
+      smPattern:
+        begin
+          Result := Format('%s%s%d%s%d%s%d%s', [ProviderName, Divider, AZoom, Divider, ATile.x, Divider, ATile.y, IfThen(ShowFileTypes, '.png', '')]);
+        end;
+    end;
+  end;
+
 var
   LStream: TStream;
   LFileName, LFilePath: String;
 begin
-  LFileName := Format('%s_%d_%d_%d.png', [ProviderName, AZoom,  ATile.x, ATile.y]);
-  LFilePath := Format('%s/%s', [DownloadDir, LFileName]);
-  {$IFDEF DEBUG}
+  LFileName := _getFileName;
+  LFilePath := Format('%s%s%s', [OutPath, PathDelim, LFileName]);
   WriteLn(Format('FilePath: %s', [LFilePath]));
-  {$ENDIF}
   LStream := TFileStream.Create(LFilePath, fmCreate or fmOpenWrite);
 
   InitSSLInterface;
@@ -168,11 +200,9 @@ begin
     try
       Self.AllowRedirect := true;
       Self.ConnectTimeOut := 10000;
-      Self.AddHeader('User-Agent', 'Mozilla/5.0 (compatible; fpweb)');
+      Self.AddHeader('User-Agent', FUserAgent);
       //Self.AddHeader('User-Agent', 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 YaBrowser/24.6.0.0 Safari/537.36\');
-      {$IFDEF DEBUG}
       WriteLn(Format('TileLink: %s/%d/%d/%d.png', [ProviderLink, AZoom,  ATile.x, ATile.y]));
-      {$ENDIF}
       Self.Get(Format('%s/%d/%d/%d.png', [ProviderLink, AZoom,  ATile.x, ATile.y]), LStream);
     except
       on E: EHttpClient do
@@ -190,12 +220,16 @@ var
   LTile1, LTile2, LTileTmp: RTile;
   iz, ix, iy: Integer;
 begin
-  if not DirectoryExists(DownloadDir) then
-  if not CreateDir(GetCurrentDir + PathDelim + DownloadDir) then
+  if not DirectoryExists(OutPath) then
+  if not ForceDirectories(Format('%s%s%s%s%s', [GetCurrentDir, PathDelim, OutPath, PathDelim, ProviderName])) then
     Halt(1);
 
   for iz := MinZoom to MaxZoom do
   begin
+    if SaveMethod = smFolders then
+    if not DirectoryExists(Format('%s/%s/%d', [OutPath, ProviderName, iz])) then
+      CreateDir(Format('%s/%s/%d', [OutPath, ProviderName, iz]));
+
     calcTileNumber(Coordinates[0], iz, LTile1);
     calcTileNumber(Coordinates[1], iz, LTile2);
     {$IFDEF DEBUG}
@@ -203,11 +237,16 @@ begin
     WriteLn(Format('Coordinates[1]: %f, %fm Zoom: %d -> Tile: %d, %d', [Coordinates[1].lat, Coordinates[1].lon, iz,  LTile2.x, LTile2.y]));
     {$ENDIF}
     for ix := LTile1.X to LTile2.x do
-    for iy := LTile2.y to LTile1.y do
     begin
-      LTileTmp.x := ix;
-      LTileTmp.y := iy;
-      DownloadTile(iz, LTileTmp);
+      if SaveMethod = smFolders then
+      if not DirectoryExists(Format('%s/%s/%d/%d', [OutPath, ProviderName, iz, ix])) then
+           CreateDir(Format('%s/%s/%d/%d', [OutPath, ProviderName, iz, ix]));
+      for iy := LTile2.y to LTile1.y do
+      begin
+        LTileTmp.x := ix;
+        LTileTmp.y := iy;
+        DownloadTile(iz, LTileTmp);
+      end;
     end;
   end;
 end;
@@ -245,6 +284,7 @@ constructor CTDOpenRailwayMap.Create(AOwner: TComponent);
 begin
   inherited Create(AOwner);
 
+  FUserAgent := 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 YaBrowser/24.6.0.0 Safari/537.36\';
   ProviderName := 'OpenRailwayMap';
   ProviderLink := 'http://b.tiles.openrailwaymap.org/standard';
 end;

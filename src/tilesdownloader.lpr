@@ -12,10 +12,11 @@ uses
 type
   TOptionKind = (okHelp,
                  okProvider,
-                 okOutput,
-                 okSaveMethod,
                  okProviderName,
                  okProviderLink,
+                 okOutput,
+                 okSaveMethod,
+                 okDivider,
                  okMinZoom,
                  okMaxZoom,
                  okFirstCoordLat,
@@ -25,10 +26,11 @@ type
 var
   OptionName : array[TOptionKind] of String = ('help',
                                               'provider',
-                                              'output',
-                                              'save-method',
                                               'provider-name',
                                               'provider-link',
+                                              'output',
+                                              'save-method',
+                                              'divider',
                                               'min-zoom',
                                               'max-zoom',
                                               'fсoord-lat',
@@ -64,7 +66,7 @@ type
     case OptionParameter[okProvider] of
       'osm': ConcreteCTilesDownloader := CTDOpenStreetMap;
       'otm': ConcreteCTilesDownloader := CTDOpenTopotMap;
-      'cycle-osm': ConcreteCTilesDownloader := CTDCycleOSM;
+      'osm-cycle': ConcreteCTilesDownloader := CTDCycleOSM;
       'railway': ConcreteCTilesDownloader := CTDOpenRailwayMap;
     else
       ConcreteCTilesDownloader := CTilesDownloader;
@@ -73,8 +75,19 @@ type
     objTilesDownloader := ConcreteCTilesDownloader.Create(nil);
     with objTilesDownloader do
     begin
-        MinZoom := OptionParameter[okMinZoom].ToInteger;
-        MaxZoom := OptionParameter[okMaxZoom].ToInteger;
+        if not OptionParameter[okMinZoom].IsEmpty then
+          MinZoom := OptionParameter[okMinZoom].ToInteger;
+        if not OptionParameter[okMaxZoom].IsEmpty then
+          MaxZoom := OptionParameter[okMaxZoom].ToInteger;
+        if not OptionParameter[okSaveMethod].IsEmpty then
+          case OptionParameter[okSaveMethod] of
+            'pattern':
+              begin
+                SaveMethod := smPattern;
+                Divider := OptionParameter[okDivider];
+              end;
+          end;
+
         Coordinate.lat := OptionParameter[okFirstCoordLat].ToDouble; // 42.7
         Coordinate.lon := OptionParameter[okFirstCoordLon].ToDouble; // 120
         Coordinates[0] := Coordinate;
