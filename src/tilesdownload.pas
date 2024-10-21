@@ -188,28 +188,27 @@ end;
 procedure CTilesDownloader.Download;
 var
   LTile1, LTile2, LTileTmp: RTile;
-  LZoom: Integer;
   iz, ix, iy: Integer;
 begin
   if not DirectoryExists(DownloadDir) then
   if not CreateDir(GetCurrentDir + PathDelim + DownloadDir) then
     Halt(1);
 
-  LZoom := MinZoom;
-  calcTileNumber(Coordinates[0], LZoom, LTile1);
-  calcTileNumber(Coordinates[1], LZoom, LTile2);
-  {$IFDEF DEBUG}
-  WriteLn(Format('Coordinates[0]: %f, %f -> Tile: %d, %d', [Coordinates[0].lat, Coordinates[0].lon,  LTile1.x, LTile1.y]));
-  WriteLn(Format('Coordinates[1]: %f, %f -> Tile: %d, %d', [Coordinates[1].lat, Coordinates[1].lon,  LTile2.x, LTile2.y]));
-  {$ENDIF}
-
   for iz := MinZoom to MaxZoom do
-  for ix := LTile1.X to LTile2.x do
-  for iy := LTile2.y to LTile1.y do
   begin
-    LTileTmp.x := ix;
-    LTileTmp.y := iy;
-    DownloadTile(iz, LTileTmp);
+    calcTileNumber(Coordinates[0], iz, LTile1);
+    calcTileNumber(Coordinates[1], iz, LTile2);
+    {$IFDEF DEBUG}
+    WriteLn(Format('Coordinates[0]: %f, %f, Zoom: %d -> Tile: %d, %d', [Coordinates[0].lat, Coordinates[0].lon, iz,  LTile1.x, LTile1.y]));
+    WriteLn(Format('Coordinates[1]: %f, %fm Zoom: %d -> Tile: %d, %d', [Coordinates[1].lat, Coordinates[1].lon, iz,  LTile2.x, LTile2.y]));
+    {$ENDIF}
+    for ix := LTile1.X to LTile2.x do
+    for iy := LTile2.y to LTile1.y do
+    begin
+      LTileTmp.x := ix;
+      LTileTmp.y := iy;
+      DownloadTile(iz, LTileTmp);
+    end;
   end;
 end;
 
