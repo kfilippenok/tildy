@@ -121,6 +121,8 @@ type
 
 implementation
 
+uses ssockets;
+
 operator = (const First, Second: RCoordinate) R : boolean;
 begin
   R := SameValue(First.lat, Second.lat) and SameValue(First.lon, Second.lon);
@@ -217,14 +219,14 @@ begin
   //Self.AddHeader('User-Agent', 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 YaBrowser/24.6.0.0 Safari/537.36\');
   WriteLn(Format('TileLink: %s/%d/%d/%d.png', [ProviderLink, AZoom,  ATile.x, ATile.y]));
   try
-    repeat
+    while True do
       try
         Self.Get(Format('%s/%d/%d/%d.png', [ProviderLink, AZoom,  ATile.x, ATile.y]), LStream);
+        break;
       except
         on E: ESocketError do
           continue;
       end;
-    until FileExists(LFilePath);
   finally
     LStream.Free;
   end;
@@ -251,6 +253,7 @@ begin
     WriteLn(Format('Coordinates[0]: %f, %f, Zoom: %d -> Tile: %d, %d', [Coordinates[0].lat, Coordinates[0].lon, iz,  LTile1.x, LTile1.y]));
     WriteLn(Format('Coordinates[1]: %f, %fm Zoom: %d -> Tile: %d, %d', [Coordinates[1].lat, Coordinates[1].lon, iz,  LTile2.x, LTile2.y]));
     {$ENDIF}
+
     for ix := LTile1.X to LTile2.x do
     begin
       if SaveMethod = smFolders then
@@ -263,6 +266,7 @@ begin
         DownloadTile(iz, LTileTmp);
       end;
     end;
+
   end;
 end;
 
