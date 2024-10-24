@@ -211,20 +211,20 @@ begin
   LStream := TFileStream.Create(LFilePath, fmCreate or fmOpenWrite);
 
   InitSSLInterface;
+  Self.AllowRedirect := true;
+  Self.ConnectTimeOut := 10000;
+  Self.AddHeader('User-Agent', FUserAgent);
+  //Self.AddHeader('User-Agent', 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 YaBrowser/24.6.0.0 Safari/537.36\');
+  WriteLn(Format('TileLink: %s/%d/%d/%d.png', [ProviderLink, AZoom,  ATile.x, ATile.y]));
   try
-    try
-      Self.AllowRedirect := true;
-      Self.ConnectTimeOut := 10000;
-      Self.AddHeader('User-Agent', FUserAgent);
-      //Self.AddHeader('User-Agent', 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 YaBrowser/24.6.0.0 Safari/537.36\');
-      WriteLn(Format('TileLink: %s/%d/%d/%d.png', [ProviderLink, AZoom,  ATile.x, ATile.y]));
-      Self.Get(Format('%s/%d/%d/%d.png', [ProviderLink, AZoom,  ATile.x, ATile.y]), LStream);
-    except
-      on E: EHttpClient do
-        writeln(E.Message)
-      else
-        raise;
-    end;
+    repeat
+      try
+        Self.Get(Format('%s/%d/%d/%d.png', [ProviderLink, AZoom,  ATile.x, ATile.y]), LStream);
+      except
+        on E: ESocketError do
+          continue;
+      end;
+    until FileExists(LFilePath);
   finally
     LStream.Free;
   end;
