@@ -93,9 +93,16 @@
         <IsPartOfProject Value="True"/>
       </Unit>
       <Unit>
-        <Filename Value="src/tilesdownload.pas"/>
+        <Filename Value="src/TilesDownload.Classes.pas"/>
         <IsPartOfProject Value="True"/>
-        <UnitName Value="TilesDownload"/>
+      </Unit>
+      <Unit>
+        <Filename Value="src/TilesDownload.Types.pas"/>
+        <IsPartOfProject Value="True"/>
+      </Unit>
+      <Unit>
+        <Filename Value="src/TilesDownload.Exceptions.pas"/>
+        <IsPartOfProject Value="True"/>
       </Unit>
     </Units>
   </ProjectOptions>

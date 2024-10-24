@@ -22,38 +22,11 @@ uses
   cthreads,
   {$ENDIF}
   SysUtils, Classes, CustApp,
-  TilesDownload;
+  TilesDownload.Classes, TilesDownload.Types, TilesDownload.Exceptions;
 
-type
-  TOptionKind = (okHelp,
-                 okProvider,
-                 okProviderName,
-                 okProviderLink,
-                 okOutput,
-                 okSaveMethod,
-                 okDivider,
-                 okMinZoom,
-                 okMaxZoom,
-                 okFirstCoordLat,
-                 okFirstCoordLon,
-                 okSecondCoordLat,
-                 okSecondCoordLon);
 var
-  OptionName : array[TOptionKind] of String = ('help',
-                                              'provider',
-                                              'provider-name',
-                                              'provider-link',
-                                              'output',
-                                              'save-method',
-                                              'divider',
-                                              'min-zoom',
-                                              'max-zoom',
-                                              'fсoord-lat',
-                                              'fсoord-lon',
-                                              'scoord-lat',
-                                              'scoord-lon');
   OptionParameter: array[TOptionKind] of String;
-  Options: Set of TOptionKind;
+  Options: TOptions;
 
 type
 
@@ -90,25 +63,38 @@ type
     objTilesDownloader := ConcreteCTilesDownloader.Create(nil);
     with objTilesDownloader do
     begin
-        if not OptionParameter[okMinZoom].IsEmpty then
-          MinZoom := OptionParameter[okMinZoom].ToInteger;
-        if not OptionParameter[okMaxZoom].IsEmpty then
-          MaxZoom := OptionParameter[okMaxZoom].ToInteger;
-        if not OptionParameter[okSaveMethod].IsEmpty then
-          case OptionParameter[okSaveMethod] of
-            'pattern':
-              begin
-                SaveMethod := smPattern;
+      if not OptionParameter[okMinZoom].IsEmpty then
+        MinZoom := OptionParameter[okMinZoom].ToInteger;
+      if not OptionParameter[okMaxZoom].IsEmpty then
+        MaxZoom := OptionParameter[okMaxZoom].ToInteger;
+      if not OptionParameter[okSaveMethod].IsEmpty then
+        case OptionParameter[okSaveMethod] of
+          'pattern':
+            begin
+              SaveMethod := smPattern;
+              if not OptionParameter[okDivider].IsEmpty then
                 Divider := OptionParameter[okDivider];
-              end;
-          end;
+            end;
+        end;
+      if not OptionParameter[okProviderName].IsEmpty then
+        ProviderName := OptionParameter[okProviderName];
+      if not OptionParameter[okOutput].IsEmpty then
+        OutPath := OptionParameter[okProviderName];
 
-        Coordinate.lat := OptionParameter[okFirstCoordLat].ToDouble; // 42.7
-        Coordinate.lon := OptionParameter[okFirstCoordLon].ToDouble; // 120
-        Coordinates[0] := Coordinate;
-        Coordinate.lat := OptionParameter[okSecondCoordLat].ToDouble; // 57.02137756
-        Coordinate.lon := OptionParameter[okSecondCoordLon].ToDouble; // 143.1
-        Coordinates[1] := Coordinate;
+      if OptionParameter[okFirstCoordLat].IsEmpty
+      or OptionParameter[okFirstCoordLon].IsEmpty
+      or OptionParameter[okSecondCoordLat].IsEmpty
+      or OptionParameter[okSecondCoordLon].IsEmpty then
+      begin
+        WriteLn('error: Not all coordinate values are specified');
+        Halt(1);
+      end;
+      Coordinate.lat := OptionParameter[okFirstCoordLat].ToDouble;
+      Coordinate.lon := OptionParameter[okFirstCoordLon].ToDouble;
+      Coordinates[0] := Coordinate;
+      Coordinate.lat := OptionParameter[okSecondCoordLat].ToDouble;
+      Coordinate.lon := OptionParameter[okSecondCoordLon].ToDouble;
+      Coordinates[1] := Coordinate;
     end;
     try
       objTilesDownloader.Download;
@@ -134,14 +120,14 @@ type
 
     for OptionKind := Low(TOptionKind) to High(TOptionKind) do
     begin
-      writeLn(OptionName[OptionKind]);
-      if hasOption(OptionName[OptionKind]) then
+      writeLn(getOptionName(OptionKind));
+      if hasOption(getOptionName(OptionKind)) then
       begin
          Include(Options, OptionKind);
          {$IFDEF DEBUG}
-         write(OptionName[OptionKind] + ' finded, value = ');
+         write(getOptionName(OptionKind) + ' finded, value = ');
          {$ENDIF}
-         OptionParameter[OptionKind] := getOptionValue(OptionName[OptionKind]);
+         OptionParameter[OptionKind] := getOptionValue(getOptionName(OptionKind));
          {$IFDEF DEBUG}
          writeLn(OptionParameter[OptionKind]);
          {$ENDIF}
