@@ -1,5 +1,7 @@
 # tiledownloader
 
+English | [Russian](./README_RU.md)
+
 ## Synopsis
 ./tilesdownloader **[OPTION]** **[PARAMETER]** ...
 
@@ -26,7 +28,7 @@ You can use prepared providers.
 
 ### provider-name [String]
 
-You can specify provider name. You will need this when saving images. Can be used in conjunction with **provider**.
+You can specify provider name. You will need this when saving images. Can be used in conjunction with [provider](#provider).
 
 Example:
 ```
@@ -79,7 +81,7 @@ Default: *folders*
 
 ### divider [String]
 
-Used in conjunction with ```-save-method pattern```. It is a symbol that will separate the keywords in the file name.
+Used in conjunction with ```pattern``` [save-method](#save-method). It is a symbol that will separate the keywords in the file name.
 
 Example: 
 ```
@@ -116,13 +118,21 @@ Default: *7*
 ****
 ![coordinates](docs/img/coordinates.png)
 
+
+**Attention!** To work with negative values, you must use the following syntax
+
+```
+... --fcoord-lat=-56.674619
+```
+
+
 ### fсoord-lat [Double]
 
 Latitude of first coordinate.
 
 Example:
 ```
-... -fсoord-lat 56.674619
+... --fсoord-lat=56.674619
 ```
 
 
@@ -132,7 +142,7 @@ Longtitude of first coordinate.
 
 Example:
 ```
-... -fсoord-lon 60.287416
+... --fсoord-lon=60.287416
 ```
 
 
@@ -142,7 +152,7 @@ Latitude of second coordinate.
 
 Example:
 ```
-... -fсoord-lat 57.029763
+... --fсoord-lat=57.029763
 ```
 
 ### sсoord-lon [Double]
@@ -151,7 +161,7 @@ Longtitude of second coordinate.
 
 Example:
 ```
-... -fсoord-lat 60.921877
+... --fсoord-lat=60.921877
 ```
 
 ****
