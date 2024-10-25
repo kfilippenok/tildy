@@ -15,7 +15,7 @@
 
 unit TilesDownload.Classes;
 
-{$mode ObjFPC}{$H+}
+{$mode ObjFPC}{$H+}{$MODESWITCH ADVANCEDRECORDS}
 
 interface
 
@@ -40,6 +40,12 @@ type
     y: Integer;
   end;
 
+  { HTileHelper }
+
+  HTileHelper = record helper for RTile
+    procedure SetValues(x, y: Integer);
+  end;
+
   TSaveMethod = (smFolders, smPattern);
 
 const
@@ -55,6 +61,8 @@ const
   defShowFileTypes = False;
 
 type
+
+  { CTilesDownloader }
 
   CTilesDownloader = class(TFPCustomHTTPClient)
   private
@@ -89,6 +97,7 @@ type
     property ShowFileTypes: Boolean     read FShowFileTypes  write FShowFileTypes  default defShowFileTypes;
     property Coordinates[Index: Integer]: RCoordinate read getCoordinate write setCoordinate;
     procedure Download;
+    procedure DownloadFullMap;
   end;
 
   { CTDOpenStreetMap }
@@ -126,6 +135,13 @@ uses ssockets;
 operator = (const First, Second: RCoordinate) R : boolean;
 begin
   R := SameValue(First.lat, Second.lat) and SameValue(First.lon, Second.lon);
+end;
+
+{ HTileHelper }
+
+procedure HTileHelper.SetValues(x, y: Integer);
+begin
+  Self.x := x; Self.y := y;
 end;
 
 function CTilesDownloader.getProviderLink: String;
@@ -208,7 +224,7 @@ var
   LFileName, LFilePath: String;
 begin
   LFileName := _getFileName;
-  LFilePath := Format('%s%s%s', [OutPath, PathDelim, LFileName]);
+  LFilePath := Format('%s%s%s%s%s', [GetCurrentDir, PathDelim, OutPath, PathDelim, LFileName]);
   WriteLn(Format('FilePath: %s', [LFilePath]));
   LStream := TFileStream.Create(LFilePath, fmCreate or fmOpenWrite);
 
@@ -264,6 +280,44 @@ begin
         LTileTmp.x := ix;
         LTileTmp.y := iy;
         DownloadTile(iz, LTileTmp);
+      end;
+    end;
+
+  end;
+end;
+
+procedure CTilesDownloader.DownloadFullMap;
+var
+  LTile: RTile;
+  max: Integer;
+  iz, ix, iy: Integer;
+begin
+  if not DirectoryExists(OutPath) then
+  if not ForceDirectories(Format('%s%s%s%s%s', [GetCurrentDir, PathDelim, OutPath, PathDelim, ProviderName])) then
+    Halt(1);
+
+  for iz := MinZoom to MaxZoom do
+  begin
+    if SaveMethod = smFolders then
+    if not DirectoryExists(Format('%s%s%s%s%s%s%d', [GetCurrentDir, PathDelim, OutPath, PathDelim, ProviderName, PathDelim, iz])) then
+      ForceDirectories(Format('%s%s%s%s%s%s%d', [GetCurrentDir, PathDelim, OutPath, PathDelim, ProviderName, PathDelim, iz]));
+
+    max := Trunc(Power(2, iz))-1;
+    {$IFDEF DEBUG}
+    WriteLn(max);
+    {$ENDIF}
+    for ix := 0 to max do
+    begin
+      {$IFDEF DEBUG}
+      WriteLn(Format('%s%s%s%s%s%s%d%s%d', [GetCurrentDir, PathDelim, OutPath, PathDelim, ProviderName, PathDelim, iz, PathDelim, ix]));
+      {$ENDIF}
+      if SaveMethod = smFolders then
+      if not DirectoryExists(Format('%s%s%s%s%s%s%d%s%d', [GetCurrentDir, PathDelim, OutPath, PathDelim, ProviderName, PathDelim, iz, PathDelim, ix])) then
+           ForceDirectories(Format('%s%s%s%s%s%s%d%s%d', [GetCurrentDir, PathDelim, OutPath, PathDelim, ProviderName, PathDelim, iz, PathDelim, ix]));
+      for iy := 0 to max do
+      begin
+        LTile.SetValues(ix, iy);
+        DownloadTile(iz, LTile);
       end;
     end;
 

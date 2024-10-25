@@ -36,7 +36,8 @@ TOptionKind = (okHelp,
                okFirstCoordLat,
                okFirstCoordLon,
                okSecondCoordLat,
-               okSecondCoordLon);
+               okSecondCoordLon,
+               okFullMap);
 
 TOptions = Set of TOptionKind;
 
@@ -60,6 +61,7 @@ begin
     okFirstCoordLon : Exit('fсoord-lon');
     okSecondCoordLat: Exit('scoord-lat');
     okSecondCoordLon: Exit('scoord-lon');
+    okFullMap       : Exit('full-map');
   else
     Exit('unknown');
   end;

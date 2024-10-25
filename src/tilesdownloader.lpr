@@ -26,7 +26,7 @@ uses
 
 var
   OptionParameter: array[TOptionKind] of String;
-  Options: TOptions;
+  glOptions: TOptions;
 
 type
 
@@ -81,6 +81,7 @@ type
       if not OptionParameter[okOutput].IsEmpty then
         OutPath := OptionParameter[okProviderName];
 
+      if not (okFullMap in glOptions) then
       if OptionParameter[okFirstCoordLat].IsEmpty
       or OptionParameter[okFirstCoordLon].IsEmpty
       or OptionParameter[okSecondCoordLat].IsEmpty
@@ -88,16 +89,22 @@ type
       begin
         WriteLn('error: Not all coordinate values are specified');
         Halt(1);
+      end
+      else
+      begin
+        Coordinate.lat := OptionParameter[okFirstCoordLat].ToDouble;
+        Coordinate.lon := OptionParameter[okFirstCoordLon].ToDouble;
+        Coordinates[0] := Coordinate;
+        Coordinate.lat := OptionParameter[okSecondCoordLat].ToDouble;
+        Coordinate.lon := OptionParameter[okSecondCoordLon].ToDouble;
+        Coordinates[1] := Coordinate;
       end;
-      Coordinate.lat := OptionParameter[okFirstCoordLat].ToDouble;
-      Coordinate.lon := OptionParameter[okFirstCoordLon].ToDouble;
-      Coordinates[0] := Coordinate;
-      Coordinate.lat := OptionParameter[okSecondCoordLat].ToDouble;
-      Coordinate.lon := OptionParameter[okSecondCoordLon].ToDouble;
-      Coordinates[1] := Coordinate;
     end;
     try
-      objTilesDownloader.Download;
+      if (okFullMap in glOptions) then
+        objTilesDownloader.DownloadFullMap
+      else
+        objTilesDownloader.Download;
     finally
       objTilesDownloader.Free;
     end;
@@ -123,7 +130,7 @@ type
       writeLn(getOptionName(OptionKind));
       if hasOption(getOptionName(OptionKind)) then
       begin
-         Include(Options, OptionKind);
+         Include(glOptions, OptionKind);
          {$IFDEF DEBUG}
          write(getOptionName(OptionKind) + ' finded, value = ');
          {$ENDIF}

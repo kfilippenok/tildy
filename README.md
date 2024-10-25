@@ -169,3 +169,14 @@ Example:
 ### show-file-type
 
 If you need the file extension in the name, use this option. The parameter with the file extension is not specified, since the image is always downloaded as a *PNG*.
+
+****
+
+### full-map
+
+Download full map. Coordinates are not used.
+
+Example:
+```
+./tilesdownloader -provider osm -full-map
+```
