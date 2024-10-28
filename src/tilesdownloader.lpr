@@ -49,6 +49,13 @@ type
     ConcreteCTilesDownloader: class of CTilesDownloader;
     Coordinate: RCoordinate;
   begin
+    if hasOption(getOptionName(okHelp)) then
+    begin
+      writeHelp;
+      Terminate;
+      Exit;
+    end;
+
     parseParameters;
 
     case OptionParameter[okProvider] of
@@ -155,8 +162,29 @@ type
 
   procedure ATilesDownloader.writeHelp;
   begin
-    { add your help code here }
-    writeln('Usage: ', ExeName, ' -h');
+    WriteLn('tilesdownloader : Usage : ');
+    WriteLn('    ./tilesdownloader [OPTION] [PARAMETER]...');
+    WriteLn('');
+    WriteLn('Donwload tiles from map providers.');
+    WriteLn('');
+    WriteLn('    -provider            prepared provider.');
+    WriteLn('    -provider-name       specify provider name.');
+    WriteLn('    -provider-link       custom link to provider.');
+    WriteLn('    -output              out path, default is current path in dir "tiles".');
+    WriteLn('    -save-method         save by folders or by pattern in one dir.');
+    WriteLn('    -divider             divider which using in pattern save method.');
+    WriteLn('    -min-zoom            lower zoom limit, in range 0..19.');
+    WriteLn('    -max-zoom            highest zoom limit, in range 0..19.');
+    WriteLn('    -fсoord-lat          latitude of first coordinate.');
+    WriteLn('    -fсoord-lon          longtitude of first coordinate.');
+    WriteLn('    -sсoord-lat          latitude of second coordinate.');
+    WriteLn('    -sсoord-lon          longtitude of second coordinate.');
+    WriteLn('    -show-file-type      show file extension in filename.');
+    WriteLn('    -full-map            download full map.');
+    WriteLn('');
+    WriteLn('Examples:');
+    WriteLn('    ./tilesdownloader -provider osm -min-zoom 1 -max-zoom 7 -full-map');
+    WriteLn('    ./tilesdownloader -provider osm -min-zoom 1 -max-zoom 7 -provider-name MyProviderName --fсoord-lat=56.674619 --fсoord-lon=60.287416 --sсoord-lat=57.029763 --sсoord-lat=60.921877');
   end;
 
 var

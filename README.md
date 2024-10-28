@@ -152,7 +152,7 @@ Latitude of second coordinate.
 
 Example:
 ```
-... --fсoord-lat=57.029763
+... --sсoord-lat=57.029763
 ```
 
 ### sсoord-lon [Double]
@@ -161,7 +161,7 @@ Longtitude of second coordinate.
 
 Example:
 ```
-... --fсoord-lat=60.921877
+... --sсoord-lon=60.921877
 ```
 
 ****
