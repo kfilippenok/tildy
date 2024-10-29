@@ -1,0 +1,472 @@
+object fMain: TfMain
+  Left = 2810
+  Height = 759
+  Top = 32
+  Width = 1097
+  Caption = 'fMain'
+  ClientHeight = 759
+  ClientWidth = 1097
+  Color = clForm
+  OnActivate = FormActivate
+  object Settings: TPageControl
+    AnchorSideLeft.Control = Splitter
+    AnchorSideLeft.Side = asrBottom
+    AnchorSideTop.Control = Owner
+    AnchorSideRight.Control = Owner
+    AnchorSideRight.Side = asrBottom
+    AnchorSideBottom.Control = Owner
+    AnchorSideBottom.Side = asrBottom
+    Left = 618
+    Height = 759
+    Top = 0
+    Width = 479
+    ActivePage = pageMapView
+    Align = alCustom
+    Anchors = [akTop, akLeft, akRight, akBottom]
+    TabIndex = 0
+    TabOrder = 0
+    object pageMapView: TTabSheet
+      Caption = 'MapView'
+      ChildSizing.VerticalSpacing = 10
+      ChildSizing.ControlsPerLine = 1
+      ClientHeight = 726
+      ClientWidth = 469
+      object mvScrollBox: TScrollBox
+        Left = 0
+        Height = 726
+        Top = 0
+        Width = 469
+        HorzScrollBar.Page = 132
+        VertScrollBar.Page = 387
+        Align = alClient
+        ClientHeight = 724
+        ClientWidth = 467
+        ParentBackground = False
+        TabOrder = 0
+        object groupProviderMap: TGroupBox
+          AnchorSideLeft.Control = mvScrollBox
+          AnchorSideTop.Control = mvScrollBox
+          AnchorSideRight.Control = mvScrollBox
+          AnchorSideRight.Side = asrBottom
+          Left = 10
+          Height = 70
+          Top = 10
+          Width = 447
+          Anchors = [akTop, akLeft, akRight]
+          AutoSize = True
+          BorderSpacing.Around = 10
+          Caption = 'Provider'
+          ClientHeight = 50
+          ClientWidth = 445
+          ParentBackground = False
+          TabOrder = 0
+          object ProviderVariationsMap: TComboBox
+            AnchorSideLeft.Control = groupProviderMap
+            AnchorSideTop.Control = groupProviderMap
+            AnchorSideRight.Control = groupProviderMap
+            AnchorSideRight.Side = asrBottom
+            AnchorSideBottom.Control = groupProviderMap
+            AnchorSideBottom.Side = asrBottom
+            Left = 5
+            Height = 40
+            Top = 5
+            Width = 435
+            Align = alCustom
+            Anchors = [akTop, akLeft, akRight]
+            AutoSize = False
+            BorderSpacing.Around = 5
+            ItemHeight = 0
+            ItemIndex = 0
+            Items.Strings = (
+              'OpenStreetMap Mapnik'
+              'Open Topo Map'
+              'OpenStreetMap.fr Cycle Map'
+              'OpenRailwayMap'
+            )
+            Style = csDropDownList
+            TabOrder = 0
+            Text = 'OpenStreetMap Mapnik'
+            OnChange = ProviderVariationsMapChange
+          end
+        end
+        object groupCache: TGroupBox
+          AnchorSideLeft.Control = groupProviderMap
+          AnchorSideTop.Control = groupOther
+          AnchorSideTop.Side = asrBottom
+          AnchorSideRight.Control = groupProviderMap
+          AnchorSideRight.Side = asrBottom
+          Left = 10
+          Height = 66
+          Top = 321
+          Width = 447
+          Anchors = [akTop, akLeft, akRight]
+          AutoSize = True
+          BorderSpacing.Top = 10
+          Caption = 'Cache'
+          ClientHeight = 46
+          ClientWidth = 445
+          ParentBackground = False
+          TabOrder = 1
+          object DirectoryCache: TDirectoryEdit
+            AnchorSideLeft.Control = groupCache
+            AnchorSideTop.Control = groupCache
+            AnchorSideRight.Control = groupCache
+            AnchorSideRight.Side = asrBottom
+            AnchorSideBottom.Control = groupCache
+            AnchorSideBottom.Side = asrBottom
+            Left = 5
+            Height = 36
+            Top = 5
+            Width = 435
+            ShowHidden = False
+            ButtonWidth = 40
+            NumGlyphs = 1
+            Anchors = [akTop, akLeft, akRight]
+            BorderSpacing.Around = 5
+            MaxLength = 0
+            TabOrder = 0
+            OnChange = DirectoryCacheChange
+          end
+        end
+        object groupOther: TGroupBox
+          AnchorSideLeft.Control = groupProviderMap
+          AnchorSideTop.Control = groupProviderMap
+          AnchorSideTop.Side = asrBottom
+          AnchorSideRight.Control = groupProviderMap
+          AnchorSideRight.Side = asrBottom
+          Left = 10
+          Height = 221
+          Top = 90
+          Width = 447
+          Anchors = [akTop, akLeft, akRight]
+          AutoSize = True
+          BorderSpacing.Bottom = 10
+          Caption = 'Other'
+          ClientHeight = 201
+          ClientWidth = 445
+          ParentBackground = False
+          TabOrder = 2
+          object chkActive: TCheckBox
+            AnchorSideLeft.Control = groupOther
+            AnchorSideTop.Control = groupOther
+            AnchorSideRight.Control = groupOther
+            AnchorSideRight.Side = asrBottom
+            Left = 5
+            Height = 23
+            Top = 5
+            Width = 435
+            Anchors = [akTop, akLeft, akRight]
+            BorderSpacing.Around = 5
+            Caption = 'Active'
+            TabOrder = 0
+            OnChange = chkActiveChange
+          end
+          object chkCyclic: TCheckBox
+            AnchorSideLeft.Control = chkActive
+            AnchorSideTop.Control = chkActive
+            AnchorSideTop.Side = asrBottom
+            AnchorSideRight.Control = chkActive
+            AnchorSideRight.Side = asrBottom
+            Left = 5
+            Height = 23
+            Top = 33
+            Width = 435
+            Anchors = [akTop, akLeft, akRight]
+            BorderSpacing.Bottom = 5
+            Caption = 'Cyclic view'
+            TabOrder = 1
+            OnChange = chkCyclicChange
+          end
+          object chkDoubleBuff: TCheckBox
+            AnchorSideLeft.Control = chkActive
+            AnchorSideTop.Control = chkCyclic
+            AnchorSideTop.Side = asrBottom
+            AnchorSideRight.Control = chkActive
+            AnchorSideRight.Side = asrBottom
+            Left = 5
+            Height = 23
+            Top = 61
+            Width = 435
+            Anchors = [akTop, akLeft, akRight]
+            BorderSpacing.Bottom = 5
+            Caption = 'Double buffering'
+            Checked = True
+            State = cbChecked
+            TabOrder = 2
+            OnChange = chkDoubleBuffChange
+          end
+          object chkDebugTiles: TCheckBox
+            AnchorSideLeft.Control = chkActive
+            AnchorSideTop.Control = chkDoubleBuff
+            AnchorSideTop.Side = asrBottom
+            AnchorSideRight.Control = chkActive
+            AnchorSideRight.Side = asrBottom
+            Left = 5
+            Height = 23
+            Top = 89
+            Width = 435
+            Anchors = [akTop, akLeft, akRight]
+            BorderSpacing.Bottom = 5
+            Caption = 'Debug tiles'
+            Checked = True
+            State = cbChecked
+            TabOrder = 3
+            OnChange = chkDebugTilesChange
+          end
+          object chkPreviewTiles: TCheckBox
+            AnchorSideLeft.Control = chkActive
+            AnchorSideTop.Control = chkDebugTiles
+            AnchorSideTop.Side = asrBottom
+            AnchorSideRight.Control = chkActive
+            AnchorSideRight.Side = asrBottom
+            Left = 5
+            Height = 23
+            Top = 117
+            Width = 435
+            Anchors = [akTop, akLeft, akRight]
+            BorderSpacing.Bottom = 5
+            Caption = 'Preview tiles'
+            Checked = True
+            State = cbChecked
+            TabOrder = 4
+            OnChange = chkPreviewTilesChange
+          end
+          object chkUseThreads: TCheckBox
+            AnchorSideLeft.Control = chkActive
+            AnchorSideTop.Control = chkPreviewTiles
+            AnchorSideTop.Side = asrBottom
+            AnchorSideRight.Control = chkActive
+            AnchorSideRight.Side = asrBottom
+            Left = 5
+            Height = 23
+            Top = 145
+            Width = 435
+            Anchors = [akTop, akLeft, akRight]
+            BorderSpacing.Bottom = 5
+            Caption = 'Use threads'
+            Checked = True
+            State = cbChecked
+            TabOrder = 5
+            OnChange = chkUseThreadsChange
+          end
+          object chkZoomToCursor: TCheckBox
+            AnchorSideLeft.Control = chkActive
+            AnchorSideTop.Control = chkUseThreads
+            AnchorSideTop.Side = asrBottom
+            AnchorSideRight.Control = chkActive
+            AnchorSideRight.Side = asrBottom
+            Left = 5
+            Height = 23
+            Top = 173
+            Width = 435
+            Anchors = [akTop, akLeft, akRight]
+            BorderSpacing.Bottom = 5
+            Caption = 'Zoom to cursor'
+            Checked = True
+            State = cbChecked
+            TabOrder = 6
+            OnChange = chkZoomToCursorChange
+          end
+        end
+      end
+    end
+    object pageTilesDownloader: TTabSheet
+      Caption = 'TilesDownloader'
+      ClientHeight = 726
+      ClientWidth = 469
+      object ConsoleOutput: TMemo
+        AnchorSideLeft.Control = pageTilesDownloader
+        AnchorSideTop.Control = Splitter1
+        AnchorSideTop.Side = asrBottom
+        AnchorSideRight.Control = pageTilesDownloader
+        AnchorSideRight.Side = asrBottom
+        AnchorSideBottom.Control = btnStartDownload
+        Left = 10
+        Height = 322
+        Top = 340
+        Width = 449
+        Anchors = [akTop, akLeft, akRight, akBottom]
+        BorderSpacing.Left = 10
+        BorderSpacing.Top = 10
+        BorderSpacing.Right = 10
+        TabOrder = 0
+      end
+      object btnStartDownload: TButton
+        AnchorSideLeft.Control = pageTilesDownloader
+        AnchorSideRight.Control = pageTilesDownloader
+        AnchorSideRight.Side = asrBottom
+        AnchorSideBottom.Control = pageTilesDownloader
+        AnchorSideBottom.Side = asrBottom
+        Left = 10
+        Height = 44
+        Top = 672
+        Width = 449
+        Anchors = [akLeft, akRight, akBottom]
+        BorderSpacing.Around = 10
+        Caption = 'Download'
+        TabOrder = 1
+      end
+      object tdScrollBox: TScrollBox
+        AnchorSideLeft.Control = pageTilesDownloader
+        AnchorSideTop.Control = pageTilesDownloader
+        AnchorSideRight.Control = pageTilesDownloader
+        AnchorSideRight.Side = asrBottom
+        AnchorSideBottom.Control = Splitter1
+        Left = 0
+        Height = 310
+        Top = 0
+        Width = 469
+        HorzScrollBar.Page = 140
+        VertScrollBar.Page = 156
+        Anchors = [akTop, akLeft, akRight, akBottom]
+        BorderSpacing.Bottom = 10
+        ClientHeight = 308
+        ClientWidth = 467
+        ParentBackground = False
+        TabOrder = 2
+        object groupProviderTiles: TGroupBox
+          AnchorSideLeft.Control = tdScrollBox
+          AnchorSideTop.Control = tdScrollBox
+          AnchorSideRight.Control = tdScrollBox
+          AnchorSideRight.Side = asrBottom
+          Left = 10
+          Height = 136
+          Top = 10
+          Width = 447
+          Anchors = [akTop, akLeft, akRight]
+          AutoSize = True
+          BorderSpacing.Around = 10
+          Caption = 'Provider'
+          ClientHeight = 116
+          ClientWidth = 445
+          ParentBackground = False
+          TabOrder = 0
+          object ProviderVariationsTiles: TComboBox
+            AnchorSideRight.Side = asrBottom
+            Left = 5
+            Height = 40
+            Top = 5
+            Width = 435
+            Align = alTop
+            AutoSize = False
+            BorderSpacing.Left = 5
+            BorderSpacing.Top = 5
+            BorderSpacing.Right = 5
+            BorderSpacing.Bottom = 30
+            ItemHeight = 0
+            ItemIndex = 0
+            Items.Strings = (
+              'OpenStreetMap Mapnik'
+              'Open Topo Map'
+              'OpenStreetMap.fr Cycle Map'
+              'OpenRailwayMap'
+            )
+            Style = csDropDownList
+            TabOrder = 0
+            Text = 'OpenStreetMap Mapnik'
+          end
+          object ProviderName: TLabeledEdit
+            AnchorSideLeft.Control = ProviderVariationsTiles
+            AnchorSideTop.Control = ProviderVariationsTiles
+            AnchorSideTop.Side = asrBottom
+            AnchorSideRight.Control = chkProviderName
+            Left = 5
+            Height = 36
+            Top = 75
+            Width = 407
+            Anchors = [akTop, akLeft, akRight]
+            BorderSpacing.Right = 5
+            BorderSpacing.Bottom = 5
+            EditLabel.Height = 19
+            EditLabel.Width = 407
+            EditLabel.Caption = 'ProviderName'
+            TabOrder = 1
+          end
+          object chkProviderName: TCheckBox
+            AnchorSideTop.Control = ProviderName
+            AnchorSideRight.Control = ProviderVariationsTiles
+            AnchorSideRight.Side = asrBottom
+            AnchorSideBottom.Control = ProviderName
+            AnchorSideBottom.Side = asrBottom
+            Left = 417
+            Height = 36
+            Top = 75
+            Width = 23
+            Anchors = [akTop, akRight, akBottom]
+            TabOrder = 2
+          end
+        end
+      end
+      object Splitter1: TSplitter
+        AnchorSideLeft.Control = pageTilesDownloader
+        AnchorSideRight.Control = pageTilesDownloader
+        AnchorSideRight.Side = asrBottom
+        Cursor = crVSplit
+        Left = 0
+        Height = 10
+        Top = 320
+        Width = 469
+        Align = alCustom
+        Anchors = [akLeft, akRight]
+        ResizeAnchor = akTop
+      end
+    end
+  end
+  object Splitter: TSplitter
+    AnchorSideTop.Control = Owner
+    AnchorSideRight.Side = asrBottom
+    AnchorSideBottom.Control = Owner
+    AnchorSideBottom.Side = asrBottom
+    Left = 608
+    Height = 759
+    Top = 0
+    Width = 10
+    Align = alNone
+    Anchors = [akTop, akRight, akBottom]
+    Color = clInactiveCaption
+    ParentColor = False
+    ResizeStyle = rsLine
+  end
+  object panMV: TPanel
+    AnchorSideLeft.Control = Owner
+    AnchorSideTop.Control = Owner
+    AnchorSideRight.Control = Splitter
+    AnchorSideBottom.Control = Owner
+    AnchorSideBottom.Side = asrBottom
+    Left = 0
+    Height = 759
+    Top = 0
+    Width = 608
+    Align = alCustom
+    Anchors = [akTop, akLeft, akRight, akBottom]
+    Caption = 'panMV'
+    ClientHeight = 759
+    ClientWidth = 608
+    ParentBackground = False
+    TabOrder = 2
+    object MapView: TMapView
+      Left = 1
+      Height = 757
+      Top = 1
+      Width = 606
+      Align = alClient
+      CacheLocation = clCustom
+      DownloadEngine = MVDECache
+      DrawingEngine = MapView.BuiltInDE
+      Layers = <>
+      Font.Color = clBlack
+    end
+  end
+  object MVDECache: TMVDECache
+    Left = 165
+    Top = 134
+  end
+  object ActionList: TActionList
+    Left = 341
+    Top = 236
+    object actStartStop: TAction
+      Caption = 'Start'
+      OnExecute = actStartStopExecute
+    end
+  end
+end
