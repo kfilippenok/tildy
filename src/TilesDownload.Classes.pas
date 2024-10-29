@@ -210,11 +210,11 @@ procedure CTilesDownloader.DownloadTile(const AZoom: Integer; const ATile: RTile
     case SaveMethod of
       smFolders:
         begin
-          Result := Format('%s%s%d%s%d%s%d%s', [ProviderName, PathDelim, AZoom, PathDelim, ATile.x, PathDelim, ATile.y, IfThen(ShowFileTypes, '.png')]);
+          Result := Format('%d%s%d%s%d%s', [AZoom, PathDelim, ATile.x, PathDelim, ATile.y, IfThen(ShowFileTypes, '.png')]);
         end;
       smPattern:
         begin
-          Result := Format('%s%s%d%s%d%s%d%s', [ProviderName, Divider, AZoom, Divider, ATile.x, Divider, ATile.y, IfThen(ShowFileTypes, '.png', '')]);
+          Result := Format('%s%s%d%s%d%s%d%s', [ProviderName, Divider, ATile.x, Divider, ATile.y, Divider, AZoom, IfThen(ShowFileTypes, '.png', '')]);
         end;
     end;
   end;
@@ -224,7 +224,7 @@ var
   LFileName, LFilePath: String;
 begin
   LFileName := _getFileName;
-  LFilePath := Format('%s%s%s%s%s', [GetCurrentDir, PathDelim, OutPath, PathDelim, LFileName]);
+  LFilePath := Format('%s%s%s%s%s%s%s', [GetCurrentDir, PathDelim, OutPath, PathDelim, ProviderName, PathDelim, LFileName]);
   WriteLn(Format('FilePath: %s', [LFilePath]));
   LStream := TFileStream.Create(LFilePath, fmCreate or fmOpenWrite);
 

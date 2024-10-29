@@ -1,6 +1,6 @@
 # tiledownloader
 
-English | [Russian](./README_RU.md)
+English | [Русский](./README_RU.md)
 
 ## Synopsis
 ./tilesdownloader **[OPTION]** **[PARAMETER]** ...
@@ -28,7 +28,7 @@ You can use prepared providers.
 
 ### provider-name [String]
 
-You can specify provider name. You will need this when saving images. Can be used in conjunction with [provider](#provider).
+You can specify provider name. You will need this when saving images. Can be used in conjunction with [provider](#provider-[string]).
 
 Example:
 ```
@@ -74,7 +74,7 @@ tiles
 You can choose which way the images will be sorted when downloading.  
 
 * *folders* - By folders: ```provider/zoom/x/y```
-* *pattern* - By divider in one folder: ```provider_zoom_x_y``` (Here used "_" as divider)
+* *pattern* - By divider in one folder: ```provider_x_y_zoom``` (Here used "_" as divider)
 
 Default: *folders*
 
