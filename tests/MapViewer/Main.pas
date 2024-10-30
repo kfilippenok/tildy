@@ -7,7 +7,7 @@ interface
 uses
   Classes, SysUtils, process, Forms, Controls, Graphics, Dialogs, ExtCtrls,
   StdCtrls, ComCtrls, ActnList, EditBtn, mvMapViewer,
-  mvDLECache, indSliders;
+  mvDLECache, indSliders, LazFileUtils;
 
 type
 
@@ -28,7 +28,9 @@ type
     chkUseThreads: TCheckBox;
     chkZoomToCursor: TCheckBox;
     CoordSecondLatitude: TLabeledEdit;
+    PathExecutable: TFileNameEdit;
     groupCoordinates: TGroupBox;
+    groupExecutable: TGroupBox;
     groupZoom: TGroupBox;
     CoordFirstLatitude: TLabeledEdit;
     CoordFirstLongtitude: TLabeledEdit;
@@ -42,6 +44,7 @@ type
     lblMinZoom: TLabel;
     FullyOrPartially: TComboBox;
     panDebug: TPanel;
+    ProcessTilesdownloader: TProcess;
     ZoomRange: TMultiSlider;
     panZoom: TPanel;
     SaveMethodVariations: TComboBox;
@@ -69,6 +72,7 @@ type
     mvSsettings: TSplitter;
     optionsSoutlog: TSplitter;
     procedure actStartStopExecute(Sender: TObject);
+    procedure btnStartDownloadClick(Sender: TObject);
     procedure chkActiveChange(Sender: TObject);
     procedure chkCyclicChange(Sender: TObject);
     procedure chkDebugTilesChange(Sender: TObject);
@@ -85,6 +89,7 @@ type
     procedure MapViewMouseMove(Sender: TObject; Shift: TShiftState; X,
       Y: Integer);
     procedure MapViewZoomChange(Sender: TObject);
+    procedure PathExecutableChange(Sender: TObject);
     procedure ProviderVariationsMapChange(Sender: TObject);
     procedure ZoomRangePositionChange(Sender: TObject; AKind: TThumbKind;
       AValue: Integer);
@@ -114,6 +119,54 @@ begin
     actStartStop.Caption := 'Stop'
   else
     actStartStop.Caption := 'Start';
+end;
+
+procedure TfMain.btnStartDownloadClick(Sender: TObject);
+var
+  StrVariation: String;
+begin
+  ProcessTilesdownloader.Executable := PathExecutable.FileName;
+  ProcessTilesdownloader.Options := [poWaitOnExit, poUsePipes];
+
+  // -provider
+  StrVariation := ProviderVariationsTiles.Items[ProviderVariationsTiles.ItemIndex];
+  case StrVariation of
+    'OpenStreetMap Mapnik'      : StrVariation := 'osm';
+    'Open Topo Map'             : StrVariation := 'otm';
+    'OpenStreetMap.fr Cycle Map': StrVariation := 'osm-cycle';
+    'OpenRailwayMap'            : StrVariation := 'railway';
+  end;
+  ProcessTilesdownloader.Parameters.Add('-provider ' + StrVariation);
+
+  // -provider-name
+  if chkProviderName.Checked then
+    ProcessTilesdownloader.Parameters.Add('-provider-name ' + ProviderName.Text);
+
+  // -output
+  if chkOutput.Checked then
+    ProcessTilesdownloader.Parameters.Add('-output ' + DirectoryOutput.Directory);
+
+  // -save-method
+  StrVariation := SaveMethodVariations.Items[SaveMethodVariations.ItemIndex];
+  case StrVariation of
+    'pattern': ProcessTilesdownloader.Parameters.Add('-save-method pattern ' + '-divider ' + edDivider.Text);
+  end;
+
+  // -min-zoom
+  ProcessTilesdownloader.Parameters.Add('-min-zoom ' + ZoomRange.MinPosition.ToString);
+  // max zoom
+  ProcessTilesdownloader.Parameters.Add('-max-zoom ' + ZoomRange.MaxPosition.ToString);
+
+  // coordinates or full-map
+  StrVariation := FullyOrPartially.Items[FullyOrPartially.ItemIndex];
+  case StrVariation of
+    'Full map': ProcessTilesdownloader.Parameters.Add('-full-map');
+    'Coordinates' :;
+  end;
+
+  ProcessTilesdownloader.Execute;
+
+  ConsoleOutput.Lines.LoadFromStream(ProcessTilesdownloader.Output);
 end;
 
 procedure TfMain.chkActiveChange(Sender: TObject);
@@ -222,6 +275,16 @@ end;
 procedure TfMain.MapViewZoomChange(Sender: TObject);
 begin
   lblDebugZoom.Caption := 'Zoom: ' + MapView.Zoom.ToString;
+end;
+
+procedure TfMain.PathExecutableChange(Sender: TObject);
+begin
+  if FileIsExecutable(PathExecutable.FileName) then
+  begin
+    btnStartDownload.Enabled := True
+  end
+  else
+    btnStartDownload.Enabled := False;
 end;
 
 procedure TfMain.ProviderVariationsMapChange(Sender: TObject);

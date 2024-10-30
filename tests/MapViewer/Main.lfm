@@ -38,13 +38,13 @@ object fMain: TfMain
         Top = 0
         Width = 469
         HorzScrollBar.Page = 132
-        VertScrollBar.Increment = 37
-        VertScrollBar.Page = 378
+        VertScrollBar.Increment = 38
+        VertScrollBar.Page = 387
         VertScrollBar.Smooth = True
         VertScrollBar.Tracking = True
         Align = alClient
-        ClientHeight = 697
-        ClientWidth = 465
+        ClientHeight = 699
+        ClientWidth = 467
         ParentBackground = False
         TabOrder = 0
         object groupProviderMap: TGroupBox
@@ -55,13 +55,13 @@ object fMain: TfMain
           Left = 10
           Height = 70
           Top = 10
-          Width = 445
+          Width = 447
           Anchors = [akTop, akLeft, akRight]
           AutoSize = True
           BorderSpacing.Around = 10
           Caption = 'Provider'
           ClientHeight = 50
-          ClientWidth = 443
+          ClientWidth = 445
           ParentBackground = False
           TabOrder = 0
           object ProviderVariationsMap: TComboBox
@@ -74,7 +74,7 @@ object fMain: TfMain
             Left = 5
             Height = 40
             Top = 5
-            Width = 433
+            Width = 435
             Align = alCustom
             Anchors = [akTop, akLeft, akRight]
             AutoSize = False
@@ -100,15 +100,15 @@ object fMain: TfMain
           AnchorSideRight.Control = groupProviderMap
           AnchorSideRight.Side = asrBottom
           Left = 10
-          Height = 57
+          Height = 66
           Top = 321
-          Width = 445
+          Width = 447
           Anchors = [akTop, akLeft, akRight]
           AutoSize = True
           BorderSpacing.Top = 10
           Caption = 'Cache'
-          ClientHeight = 37
-          ClientWidth = 443
+          ClientHeight = 46
+          ClientWidth = 445
           ParentBackground = False
           TabOrder = 1
           object DirectoryCache: TDirectoryEdit
@@ -119,9 +119,9 @@ object fMain: TfMain
             AnchorSideBottom.Control = groupCache
             AnchorSideBottom.Side = asrBottom
             Left = 5
-            Height = 27
+            Height = 36
             Top = 5
-            Width = 433
+            Width = 435
             ShowHidden = False
             ButtonWidth = 40
             NumGlyphs = 1
@@ -141,13 +141,13 @@ object fMain: TfMain
           Left = 10
           Height = 221
           Top = 90
-          Width = 445
+          Width = 447
           Anchors = [akTop, akLeft, akRight]
           AutoSize = True
           BorderSpacing.Bottom = 10
           Caption = 'Other'
           ClientHeight = 201
-          ClientWidth = 443
+          ClientWidth = 445
           ParentBackground = False
           TabOrder = 2
           object chkActive: TCheckBox
@@ -158,7 +158,7 @@ object fMain: TfMain
             Left = 5
             Height = 23
             Top = 5
-            Width = 433
+            Width = 435
             Anchors = [akTop, akLeft, akRight]
             BorderSpacing.Around = 5
             Caption = 'Active'
@@ -174,7 +174,7 @@ object fMain: TfMain
             Left = 5
             Height = 23
             Top = 33
-            Width = 433
+            Width = 435
             Anchors = [akTop, akLeft, akRight]
             BorderSpacing.Bottom = 5
             Caption = 'Cyclic view'
@@ -190,7 +190,7 @@ object fMain: TfMain
             Left = 5
             Height = 23
             Top = 61
-            Width = 433
+            Width = 435
             Anchors = [akTop, akLeft, akRight]
             BorderSpacing.Bottom = 5
             Caption = 'Double buffering'
@@ -208,7 +208,7 @@ object fMain: TfMain
             Left = 5
             Height = 23
             Top = 89
-            Width = 433
+            Width = 435
             Anchors = [akTop, akLeft, akRight]
             BorderSpacing.Bottom = 5
             Caption = 'Debug tiles'
@@ -226,7 +226,7 @@ object fMain: TfMain
             Left = 5
             Height = 23
             Top = 117
-            Width = 433
+            Width = 435
             Anchors = [akTop, akLeft, akRight]
             BorderSpacing.Bottom = 5
             Caption = 'Preview tiles'
@@ -244,7 +244,7 @@ object fMain: TfMain
             Left = 5
             Height = 23
             Top = 145
-            Width = 433
+            Width = 435
             Anchors = [akTop, akLeft, akRight]
             BorderSpacing.Bottom = 5
             Caption = 'Use threads'
@@ -262,7 +262,7 @@ object fMain: TfMain
             Left = 5
             Height = 23
             Top = 173
-            Width = 433
+            Width = 435
             Anchors = [akTop, akLeft, akRight]
             BorderSpacing.Bottom = 5
             Caption = 'Zoom to cursor'
@@ -308,7 +308,9 @@ object fMain: TfMain
         Anchors = [akLeft, akRight, akBottom]
         BorderSpacing.Around = 10
         Caption = 'Download'
+        Enabled = False
         TabOrder = 1
+        OnClick = btnStartDownloadClick
       end
       object tdScrollBox: TScrollBox
         AnchorSideLeft.Control = pageTilesDownloader
@@ -332,19 +334,19 @@ object fMain: TfMain
         ParentBackground = False
         TabOrder = 2
         object groupProviderTiles: TGroupBox
-          AnchorSideLeft.Control = tdScrollBox
-          AnchorSideTop.Control = tdScrollBox
-          AnchorSideRight.Control = tdScrollBox
+          AnchorSideLeft.Control = groupExecutable
+          AnchorSideTop.Control = groupExecutable
+          AnchorSideTop.Side = asrBottom
+          AnchorSideRight.Control = groupExecutable
           AnchorSideRight.Side = asrBottom
           Left = 10
-          Height = 140
-          Top = 10
+          Height = 139
+          Top = 86
           Width = 434
           Anchors = [akTop, akLeft, akRight]
           AutoSize = True
-          BorderSpacing.Around = 10
           Caption = 'Provider'
-          ClientHeight = 120
+          ClientHeight = 119
           ClientWidth = 432
           ParentBackground = False
           ParentFont = False
@@ -352,7 +354,7 @@ object fMain: TfMain
           object ProviderVariationsTiles: TComboBox
             AnchorSideRight.Side = asrBottom
             Left = 5
-            Height = 40
+            Height = 43
             Top = 5
             Width = 422
             Align = alTop
@@ -379,11 +381,10 @@ object fMain: TfMain
             AnchorSideTop.Side = asrBottom
             AnchorSideRight.Control = chkProviderName
             Left = 5
-            Height = 40
-            Top = 75
+            Height = 36
+            Top = 78
             Width = 394
             Anchors = [akTop, akLeft, akRight]
-            AutoSize = False
             BorderSpacing.Right = 5
             BorderSpacing.Bottom = 5
             EditLabel.Height = 19
@@ -399,8 +400,8 @@ object fMain: TfMain
             AnchorSideBottom.Control = ProviderName
             AnchorSideBottom.Side = asrBottom
             Left = 404
-            Height = 40
-            Top = 75
+            Height = 36
+            Top = 78
             Width = 23
             Anchors = [akTop, akRight, akBottom]
             TabOrder = 2
@@ -414,14 +415,14 @@ object fMain: TfMain
           AnchorSideRight.Control = groupProviderTiles
           AnchorSideRight.Side = asrBottom
           Left = 10
-          Height = 70
-          Top = 160
+          Height = 66
+          Top = 235
           Width = 434
           Anchors = [akTop, akLeft, akRight]
           AutoSize = True
           BorderSpacing.Top = 10
           Caption = 'Output'
-          ClientHeight = 50
+          ClientHeight = 46
           ClientWidth = 432
           ParentBackground = False
           TabOrder = 1
@@ -432,14 +433,13 @@ object fMain: TfMain
             AnchorSideBottom.Control = groupOutput
             AnchorSideBottom.Side = asrBottom
             Left = 5
-            Height = 40
+            Height = 36
             Top = 5
             Width = 394
             ShowHidden = False
             ButtonWidth = 40
             NumGlyphs = 1
             Anchors = [akTop, akLeft, akRight]
-            AutoSize = False
             BorderSpacing.Around = 5
             Enabled = False
             MaxLength = 0
@@ -453,7 +453,7 @@ object fMain: TfMain
             AnchorSideRight.Side = asrBottom
             Left = 404
             Height = 23
-            Top = 14
+            Top = 12
             Width = 23
             Anchors = [akTop, akRight]
             BorderSpacing.Around = 5
@@ -469,7 +469,7 @@ object fMain: TfMain
           AnchorSideRight.Side = asrBottom
           Left = 10
           Height = 70
-          Top = 240
+          Top = 311
           Width = 434
           Anchors = [akTop, akLeft, akRight]
           AutoSize = True
@@ -528,7 +528,7 @@ object fMain: TfMain
           AnchorSideRight.Side = asrBottom
           Left = 10
           Height = 95
-          Top = 320
+          Top = 391
           Width = 434
           Anchors = [akTop, akLeft, akRight]
           AutoSize = True
@@ -635,7 +635,7 @@ object fMain: TfMain
           AnchorSideRight.Side = asrBottom
           Left = 10
           Height = 203
-          Top = 430
+          Top = 501
           Width = 434
           Anchors = [akTop, akLeft, akRight]
           AutoSize = True
@@ -750,11 +750,49 @@ object fMain: TfMain
           AnchorSideTop.Side = asrBottom
           Left = 10
           Height = 23
-          Top = 643
+          Top = 714
           Width = 116
           BorderSpacing.Bottom = 6
           Caption = 'Show file type'
           TabOrder = 5
+        end
+        object groupExecutable: TGroupBox
+          AnchorSideLeft.Control = tdScrollBox
+          AnchorSideTop.Control = tdScrollBox
+          AnchorSideRight.Control = tdScrollBox
+          AnchorSideRight.Side = asrBottom
+          Left = 10
+          Height = 66
+          Top = 10
+          Width = 434
+          Anchors = [akTop, akLeft, akRight]
+          AutoSize = True
+          BorderSpacing.Around = 10
+          Caption = 'Executable'
+          ClientHeight = 46
+          ClientWidth = 432
+          ParentBackground = False
+          ParentFont = False
+          TabOrder = 6
+          object PathExecutable: TFileNameEdit
+            AnchorSideLeft.Control = groupExecutable
+            AnchorSideTop.Control = groupExecutable
+            AnchorSideRight.Control = groupExecutable
+            AnchorSideRight.Side = asrBottom
+            Left = 5
+            Height = 36
+            Top = 5
+            Width = 422
+            FilterIndex = 0
+            HideDirectories = False
+            ButtonWidth = 23
+            NumGlyphs = 1
+            Anchors = [akTop, akLeft, akRight]
+            BorderSpacing.Around = 5
+            MaxLength = 0
+            TabOrder = 0
+            OnChange = PathExecutableChange
+          end
         end
       end
       object optionsSoutlog: TSplitter
@@ -891,5 +929,27 @@ object fMain: TfMain
       Caption = 'Start'
       OnExecute = actStartStopExecute
     end
+  end
+  object ProcessTilesdownloader: TProcess
+    Active = False
+    Options = []
+    Priority = ppNormal
+    StartupOptions = []
+    ShowWindow = swoNone
+    WindowColumns = 0
+    WindowHeight = 0
+    WindowLeft = 0
+    WindowRows = 0
+    WindowTop = 0
+    WindowWidth = 0
+    FillAttribute = 0
+    InputDescriptor.IOType = iotDefault
+    InputDescriptor.FileWriteMode = fwmTruncate
+    OutputDescriptor.IOType = iotDefault
+    OutputDescriptor.FileWriteMode = fwmTruncate
+    ErrorDescriptor.IOType = iotDefault
+    ErrorDescriptor.FileWriteMode = fwmTruncate
+    Left = 928
+    Top = 40
   end
 end
