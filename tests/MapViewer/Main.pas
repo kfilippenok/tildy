@@ -7,7 +7,7 @@ interface
 uses
   Classes, SysUtils, process, Forms, Controls, Graphics, Dialogs, ExtCtrls,
   StdCtrls, ComCtrls, ActnList, ValEdit, ColorBox, EditBtn, mvMapViewer,
-  mvDLECache;
+  mvDLECache, indSliders;
 
 type
 
@@ -17,6 +17,8 @@ type
     actStartStop: TAction;
     ActionList: TActionList;
     btnStartDownload: TButton;
+    chShowFileType: TCheckBox;
+    chkOutput: TCheckBox;
     chkProviderName: TCheckBox;
     chkActive: TCheckBox;
     chkCyclic: TCheckBox;
@@ -25,9 +27,27 @@ type
     chkPreviewTiles: TCheckBox;
     chkUseThreads: TCheckBox;
     chkZoomToCursor: TCheckBox;
+    CoordSecondLatitude: TLabeledEdit;
+    groupCoordinates: TGroupBox;
+    groupZoom: TGroupBox;
+    CoordFirstLatitude: TLabeledEdit;
+    CoordFirstLongtitude: TLabeledEdit;
+    CoordSecondLongtitude: TLabeledEdit;
+    lblMaxZoom: TLabel;
+    lblMinZoomValue: TLabel;
+    lblMaxZoomValue: TLabel;
+    lblMinZoom: TLabel;
+    FullyOrPartially: TComboBox;
+    ZoomRange: TMultiSlider;
+    panZoom: TPanel;
+    SaveMethodVariations: TComboBox;
     DirectoryCache: TDirectoryEdit;
+    DirectoryOutput: TDirectoryEdit;
+    edDivider: TEdit;
+    groupOutput: TGroupBox;
     groupOther: TGroupBox;
     groupCache: TGroupBox;
+    groupSaveMethod: TGroupBox;
     groupProviderTiles: TGroupBox;
     groupProviderMap: TGroupBox;
     ProviderName: TLabeledEdit;
@@ -42,19 +62,25 @@ type
     Settings: TPageControl;
     pageMapView: TTabSheet;
     pageTilesDownloader: TTabSheet;
-    Splitter: TSplitter;
-    Splitter1: TSplitter;
+    mvSsettings: TSplitter;
+    optionsSoutlog: TSplitter;
     procedure actStartStopExecute(Sender: TObject);
     procedure chkActiveChange(Sender: TObject);
     procedure chkCyclicChange(Sender: TObject);
     procedure chkDebugTilesChange(Sender: TObject);
     procedure chkDoubleBuffChange(Sender: TObject);
+    procedure chkOutputChange(Sender: TObject);
     procedure chkPreviewTilesChange(Sender: TObject);
+    procedure chkProviderNameChange(Sender: TObject);
     procedure chkUseThreadsChange(Sender: TObject);
     procedure chkZoomToCursorChange(Sender: TObject);
     procedure DirectoryCacheChange(Sender: TObject);
     procedure FormActivate(Sender: TObject);
+    procedure FullyOrPartiallySelect(Sender: TObject);
+    procedure groupCoordinatesChangeBounds(Sender: TObject);
     procedure ProviderVariationsMapChange(Sender: TObject);
+    procedure ZoomRangePositionChange(Sender: TObject; AKind: TThumbKind;
+      AValue: Integer);
   private
 
   public
@@ -100,9 +126,19 @@ begin
   MapView.DoubleBuffered := chkDoubleBuff.Checked;
 end;
 
+procedure TfMain.chkOutputChange(Sender: TObject);
+begin
+  DirectoryOutput.Enabled := chkOutput.Checked;
+end;
+
 procedure TfMain.chkPreviewTilesChange(Sender: TObject);
 begin
   MapView.DrawPreviewTiles := chkPreviewTiles.Checked;
+end;
+
+procedure TfMain.chkProviderNameChange(Sender: TObject);
+begin
+  ProviderName.Enabled := chkProviderName.Checked;
 end;
 
 procedure TfMain.chkUseThreadsChange(Sender: TObject);
@@ -131,12 +167,49 @@ begin
   chkUseThreadsChange(Self);
   chkZoomToCursorChange(Self);
   ProviderVariationsMapChange(Self);
+  ZoomRange.MinPosition := 1;
+  ZoomRange.MaxPosition := 4;
+end;
+
+procedure TfMain.FullyOrPartiallySelect(Sender: TObject);
+begin
+  case FullyOrPartially.ItemIndex of
+    0:
+      begin
+        CoordFirstLatitude.Enabled := False;
+        CoordFirstLongtitude.Enabled := False;
+        CoordSecondLatitude.Enabled := False;
+        CoordSecondLongtitude.Enabled := False;
+      end;
+    1:
+      begin
+        CoordFirstLatitude.Enabled := True;
+        CoordFirstLongtitude.Enabled := True;
+        CoordSecondLatitude.Enabled := True;
+        CoordSecondLongtitude.Enabled := True;
+      end;
+  end;
+end;
+
+procedure TfMain.groupCoordinatesChangeBounds(Sender: TObject);
+begin
+
 end;
 
 procedure TfMain.ProviderVariationsMapChange(Sender: TObject);
 begin
   with ProviderVariationsMap do
     MapView.MapProvider := Items[ItemIndex];
+end;
+
+procedure TfMain.ZoomRangePositionChange(Sender: TObject; AKind: TThumbKind;
+  AValue: Integer);
+begin
+  case AKind of
+    tkMin: lblMinZoomValue.Caption := AValue.ToString;
+    tkMax: lblMaxZoomValue.Caption := AValue.ToString;
+  else
+  end;
 end;
 
 end.

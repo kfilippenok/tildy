@@ -11,8 +11,8 @@
       </Target>
       <Target FileName="tests/MapViewer/test_mapviewer.lpi">
         <BuildModes>
-          <Mode Name="Default" Compile="True"/>
-          <Mode Name="Debug"/>
+          <Mode Name="Default"/>
+          <Mode Name="Debug" Compile="True"/>
           <Mode Name="Release"/>
         </BuildModes>
       </Target>

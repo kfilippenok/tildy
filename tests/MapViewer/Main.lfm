@@ -1,40 +1,40 @@
 object fMain: TfMain
   Left = 2810
-  Height = 759
+  Height = 734
   Top = 32
-  Width = 1097
+  Width = 1119
   Caption = 'fMain'
-  ClientHeight = 759
-  ClientWidth = 1097
+  ClientHeight = 734
+  ClientWidth = 1119
   Color = clForm
   Position = poDesktopCenter
   OnActivate = FormActivate
   object Settings: TPageControl
-    AnchorSideLeft.Control = Splitter
+    AnchorSideLeft.Control = mvSsettings
     AnchorSideLeft.Side = asrBottom
     AnchorSideTop.Control = Owner
     AnchorSideRight.Control = Owner
     AnchorSideRight.Side = asrBottom
     AnchorSideBottom.Control = Owner
     AnchorSideBottom.Side = asrBottom
-    Left = 618
-    Height = 759
+    Left = 640
+    Height = 734
     Top = 0
     Width = 479
-    ActivePage = pageTilesDownloader
+    ActivePage = pageMapView
     Align = alCustom
     Anchors = [akTop, akLeft, akRight, akBottom]
-    TabIndex = 1
+    TabIndex = 0
     TabOrder = 0
     object pageMapView: TTabSheet
       Caption = 'MapView'
       ChildSizing.VerticalSpacing = 10
       ChildSizing.ControlsPerLine = 1
-      ClientHeight = 726
+      ClientHeight = 701
       ClientWidth = 469
       object mvScrollBox: TScrollBox
         Left = 0
-        Height = 726
+        Height = 701
         Top = 0
         Width = 469
         HorzScrollBar.Page = 132
@@ -43,7 +43,7 @@ object fMain: TfMain
         VertScrollBar.Smooth = True
         VertScrollBar.Tracking = True
         Align = alClient
-        ClientHeight = 724
+        ClientHeight = 699
         ClientWidth = 467
         ParentBackground = False
         TabOrder = 0
@@ -276,18 +276,18 @@ object fMain: TfMain
     end
     object pageTilesDownloader: TTabSheet
       Caption = 'TilesDownloader'
-      ClientHeight = 726
+      ClientHeight = 701
       ClientWidth = 469
       object ConsoleOutput: TMemo
         AnchorSideLeft.Control = pageTilesDownloader
-        AnchorSideTop.Control = Splitter1
+        AnchorSideTop.Control = optionsSoutlog
         AnchorSideTop.Side = asrBottom
         AnchorSideRight.Control = pageTilesDownloader
         AnchorSideRight.Side = asrBottom
         AnchorSideBottom.Control = btnStartDownload
         Left = 10
-        Height = 321
-        Top = 341
+        Height = 180
+        Top = 457
         Width = 449
         Anchors = [akTop, akLeft, akRight, akBottom]
         BorderSpacing.Left = 10
@@ -303,7 +303,7 @@ object fMain: TfMain
         AnchorSideBottom.Side = asrBottom
         Left = 10
         Height = 44
-        Top = 672
+        Top = 647
         Width = 449
         Anchors = [akLeft, akRight, akBottom]
         BorderSpacing.Around = 10
@@ -315,20 +315,20 @@ object fMain: TfMain
         AnchorSideTop.Control = pageTilesDownloader
         AnchorSideRight.Control = pageTilesDownloader
         AnchorSideRight.Side = asrBottom
-        AnchorSideBottom.Control = Splitter1
+        AnchorSideBottom.Control = optionsSoutlog
         Left = 0
-        Height = 311
+        Height = 427
         Top = 0
         Width = 469
-        HorzScrollBar.Page = 140
-        VertScrollBar.Increment = 15
-        VertScrollBar.Page = 156
+        HorzScrollBar.Page = 328
+        VertScrollBar.Increment = 42
+        VertScrollBar.Page = 425
         VertScrollBar.Smooth = True
         VertScrollBar.Tracking = True
         Anchors = [akTop, akLeft, akRight, akBottom]
         BorderSpacing.Bottom = 10
-        ClientHeight = 309
-        ClientWidth = 467
+        ClientHeight = 425
+        ClientWidth = 454
         ParentBackground = False
         TabOrder = 2
         object groupProviderTiles: TGroupBox
@@ -337,15 +337,15 @@ object fMain: TfMain
           AnchorSideRight.Control = tdScrollBox
           AnchorSideRight.Side = asrBottom
           Left = 10
-          Height = 136
+          Height = 140
           Top = 10
-          Width = 447
+          Width = 434
           Anchors = [akTop, akLeft, akRight]
           AutoSize = True
           BorderSpacing.Around = 10
           Caption = 'Provider'
-          ClientHeight = 116
-          ClientWidth = 445
+          ClientHeight = 120
+          ClientWidth = 432
           ParentBackground = False
           TabOrder = 0
           object ProviderVariationsTiles: TComboBox
@@ -353,7 +353,7 @@ object fMain: TfMain
             Left = 5
             Height = 40
             Top = 5
-            Width = 435
+            Width = 422
             Align = alTop
             AutoSize = False
             BorderSpacing.Left = 5
@@ -378,15 +378,17 @@ object fMain: TfMain
             AnchorSideTop.Side = asrBottom
             AnchorSideRight.Control = chkProviderName
             Left = 5
-            Height = 36
+            Height = 40
             Top = 75
-            Width = 407
+            Width = 394
             Anchors = [akTop, akLeft, akRight]
+            AutoSize = False
             BorderSpacing.Right = 5
             BorderSpacing.Bottom = 5
             EditLabel.Height = 19
-            EditLabel.Width = 407
+            EditLabel.Width = 394
             EditLabel.Caption = 'ProviderName'
+            Enabled = False
             TabOrder = 1
           end
           object chkProviderName: TCheckBox
@@ -395,23 +397,371 @@ object fMain: TfMain
             AnchorSideRight.Side = asrBottom
             AnchorSideBottom.Control = ProviderName
             AnchorSideBottom.Side = asrBottom
-            Left = 417
-            Height = 36
+            Left = 404
+            Height = 40
             Top = 75
             Width = 23
             Anchors = [akTop, akRight, akBottom]
             TabOrder = 2
+            OnChange = chkProviderNameChange
           end
         end
+        object groupOutput: TGroupBox
+          AnchorSideLeft.Control = groupProviderTiles
+          AnchorSideTop.Control = groupProviderTiles
+          AnchorSideTop.Side = asrBottom
+          AnchorSideRight.Control = groupProviderTiles
+          AnchorSideRight.Side = asrBottom
+          Left = 10
+          Height = 70
+          Top = 160
+          Width = 434
+          Anchors = [akTop, akLeft, akRight]
+          AutoSize = True
+          BorderSpacing.Top = 10
+          Caption = 'Output'
+          ClientHeight = 50
+          ClientWidth = 432
+          ParentBackground = False
+          TabOrder = 1
+          object DirectoryOutput: TDirectoryEdit
+            AnchorSideLeft.Control = groupOutput
+            AnchorSideTop.Control = groupOutput
+            AnchorSideRight.Control = chkOutput
+            AnchorSideBottom.Control = groupOutput
+            AnchorSideBottom.Side = asrBottom
+            Left = 5
+            Height = 40
+            Top = 5
+            Width = 394
+            ShowHidden = False
+            ButtonWidth = 40
+            NumGlyphs = 1
+            Anchors = [akTop, akLeft, akRight]
+            AutoSize = False
+            BorderSpacing.Around = 5
+            Enabled = False
+            MaxLength = 0
+            TabOrder = 0
+            OnChange = DirectoryCacheChange
+          end
+          object chkOutput: TCheckBox
+            AnchorSideTop.Control = DirectoryOutput
+            AnchorSideTop.Side = asrCenter
+            AnchorSideRight.Control = groupOutput
+            AnchorSideRight.Side = asrBottom
+            Left = 404
+            Height = 23
+            Top = 14
+            Width = 23
+            Anchors = [akTop, akRight]
+            BorderSpacing.Around = 5
+            TabOrder = 1
+            OnChange = chkOutputChange
+          end
+        end
+        object groupSaveMethod: TGroupBox
+          AnchorSideLeft.Control = groupProviderTiles
+          AnchorSideTop.Control = groupOutput
+          AnchorSideTop.Side = asrBottom
+          AnchorSideRight.Control = groupProviderTiles
+          AnchorSideRight.Side = asrBottom
+          Left = 10
+          Height = 70
+          Top = 240
+          Width = 434
+          Anchors = [akTop, akLeft, akRight]
+          AutoSize = True
+          BorderSpacing.Top = 10
+          BorderSpacing.Bottom = 10
+          Caption = 'Save method'
+          ClientHeight = 50
+          ClientWidth = 432
+          ParentBackground = False
+          TabOrder = 2
+          object SaveMethodVariations: TComboBox
+            AnchorSideLeft.Control = groupSaveMethod
+            AnchorSideTop.Control = groupSaveMethod
+            AnchorSideRight.Control = edDivider
+            AnchorSideBottom.Control = groupSaveMethod
+            AnchorSideBottom.Side = asrBottom
+            Left = 5
+            Height = 40
+            Top = 5
+            Width = 385
+            Anchors = [akTop, akLeft, akRight]
+            AutoSize = False
+            BorderSpacing.Around = 5
+            Enabled = False
+            ItemHeight = 0
+            ItemIndex = 1
+            Items.Strings = (
+              'folders'
+              'pattern'
+            )
+            Style = csDropDownList
+            TabOrder = 0
+            Text = 'pattern'
+          end
+          object edDivider: TEdit
+            AnchorSideTop.Control = SaveMethodVariations
+            AnchorSideTop.Side = asrCenter
+            AnchorSideRight.Control = groupSaveMethod
+            AnchorSideRight.Side = asrBottom
+            Left = 395
+            Height = 36
+            Top = 7
+            Width = 32
+            Anchors = [akTop, akRight]
+            BorderSpacing.Around = 5
+            Enabled = False
+            TabOrder = 1
+            Text = '_'
+          end
+        end
+        object groupZoom: TGroupBox
+          AnchorSideLeft.Control = groupProviderTiles
+          AnchorSideTop.Control = groupSaveMethod
+          AnchorSideTop.Side = asrBottom
+          AnchorSideRight.Control = groupProviderTiles
+          AnchorSideRight.Side = asrBottom
+          Left = 10
+          Height = 105
+          Top = 320
+          Width = 434
+          Anchors = [akTop, akLeft, akRight]
+          AutoSize = True
+          Caption = 'Zoom'
+          ClientHeight = 85
+          ClientWidth = 432
+          ParentBackground = False
+          TabOrder = 3
+          object panZoom: TPanel
+            Left = 5
+            Height = 50
+            Top = 30
+            Width = 422
+            Align = alBottom
+            BorderSpacing.Around = 5
+            BevelOuter = bvNone
+            Caption = 'panZoom'
+            ClientHeight = 50
+            ClientWidth = 422
+            ParentBackground = False
+            TabOrder = 0
+            object ZoomRange: TMultiSlider
+              Left = 0
+              Height = 50
+              Top = 0
+              Width = 422
+              ColorBetween = clHighlight
+              Flat = True
+              MaxPosition = 4
+              MinPosition = 1
+              RangeMax = 19
+              ThumbStyle = tsRoundedRect
+              OnPositionChange = ZoomRangePositionChange
+              Align = alClient
+            end
+          end
+          object lblMinZoomValue: TLabel
+            AnchorSideLeft.Control = lblMinZoom
+            AnchorSideLeft.Side = asrBottom
+            AnchorSideBottom.Control = panZoom
+            Left = 57
+            Height = 20
+            Top = 5
+            Width = 7
+            Anchors = [akLeft, akBottom]
+            BorderSpacing.Left = 6
+            Caption = '1'
+            Font.Height = -16
+            ParentFont = False
+          end
+          object lblMaxZoomValue: TLabel
+            AnchorSideLeft.Control = panZoom
+            AnchorSideRight.Control = panZoom
+            AnchorSideRight.Side = asrBottom
+            AnchorSideBottom.Control = panZoom
+            Left = 400
+            Height = 20
+            Top = 5
+            Width = 7
+            Anchors = [akRight, akBottom]
+            BorderSpacing.Left = 6
+            BorderSpacing.Right = 20
+            Caption = '1'
+            Font.Height = -16
+            ParentFont = False
+          end
+          object lblMinZoom: TLabel
+            AnchorSideLeft.Control = panZoom
+            AnchorSideBottom.Control = panZoom
+            Left = 20
+            Height = 20
+            Top = 5
+            Width = 31
+            Anchors = [akLeft, akBottom]
+            BorderSpacing.Left = 15
+            BorderSpacing.Top = 5
+            Caption = 'Min:'
+            Font.Height = -16
+            ParentFont = False
+          end
+          object lblMaxZoom: TLabel
+            AnchorSideLeft.Control = panZoom
+            AnchorSideRight.Control = lblMaxZoomValue
+            AnchorSideBottom.Control = panZoom
+            Left = 360
+            Height = 20
+            Top = 5
+            Width = 34
+            Anchors = [akRight, akBottom]
+            BorderSpacing.Left = 15
+            BorderSpacing.Right = 5
+            Caption = 'Max:'
+            Font.Height = -16
+            ParentFont = False
+          end
+        end
+        object groupCoordinates: TGroupBox
+          AnchorSideLeft.Control = tdScrollBox
+          AnchorSideTop.Control = groupZoom
+          AnchorSideTop.Side = asrBottom
+          AnchorSideRight.Control = tdScrollBox
+          AnchorSideRight.Side = asrBottom
+          Left = 10
+          Height = 203
+          Top = 440
+          Width = 434
+          Anchors = [akTop, akLeft, akRight]
+          AutoSize = True
+          BorderSpacing.Top = 5
+          BorderSpacing.Around = 10
+          Caption = 'Coordinates'
+          ClientHeight = 183
+          ClientWidth = 432
+          ParentBackground = False
+          TabOrder = 4
+          OnChangeBounds = groupCoordinatesChangeBounds
+          object FullyOrPartially: TComboBox
+            AnchorSideRight.Side = asrBottom
+            Left = 5
+            Height = 40
+            Top = 5
+            Width = 422
+            Align = alTop
+            AutoSize = False
+            BorderSpacing.Left = 5
+            BorderSpacing.Top = 5
+            BorderSpacing.Right = 5
+            BorderSpacing.Bottom = 30
+            ItemHeight = 0
+            ItemIndex = 0
+            Items.Strings = (
+              'Full map'
+              'Coordinates'
+            )
+            Style = csDropDownList
+            TabOrder = 0
+            Text = 'Full map'
+            OnSelect = FullyOrPartiallySelect
+          end
+          object CoordFirstLatitude: TLabeledEdit
+            AnchorSideLeft.Control = FullyOrPartially
+            AnchorSideTop.Control = FullyOrPartially
+            AnchorSideTop.Side = asrBottom
+            AnchorSideRight.Control = CoordFirstLongtitude
+            Left = 5
+            Height = 36
+            Top = 75
+            Width = 211
+            BorderSpacing.Bottom = 30
+            EditLabel.Height = 19
+            EditLabel.Width = 211
+            EditLabel.Caption = 'First:  Latitude'
+            Enabled = False
+            TabOrder = 1
+            Text = '10.23244'
+          end
+          object CoordFirstLongtitude: TLabeledEdit
+            AnchorSideLeft.Control = CoordFirstLatitude
+            AnchorSideLeft.Side = asrBottom
+            AnchorSideTop.Control = FullyOrPartially
+            AnchorSideTop.Side = asrBottom
+            AnchorSideRight.Control = FullyOrPartially
+            AnchorSideRight.Side = asrBottom
+            Left = 221
+            Height = 36
+            Top = 75
+            Width = 206
+            Anchors = [akTop, akLeft, akRight]
+            BorderSpacing.Left = 5
+            EditLabel.Height = 19
+            EditLabel.Width = 206
+            EditLabel.Caption = 'First: Longtitude'
+            Enabled = False
+            TabOrder = 2
+            Text = '10.23478'
+          end
+          object CoordSecondLatitude: TLabeledEdit
+            AnchorSideLeft.Control = FullyOrPartially
+            AnchorSideTop.Control = CoordFirstLatitude
+            AnchorSideTop.Side = asrBottom
+            AnchorSideRight.Control = CoordSecondLongtitude
+            Left = 5
+            Height = 36
+            Top = 141
+            Width = 211
+            BorderSpacing.Bottom = 6
+            EditLabel.Height = 19
+            EditLabel.Width = 211
+            EditLabel.Caption = 'Second:  Latitude'
+            Enabled = False
+            TabOrder = 3
+            Text = '10.23244'
+          end
+          object CoordSecondLongtitude: TLabeledEdit
+            AnchorSideLeft.Control = CoordSecondLatitude
+            AnchorSideLeft.Side = asrBottom
+            AnchorSideTop.Control = CoordSecondLatitude
+            AnchorSideTop.Side = asrCenter
+            AnchorSideRight.Control = FullyOrPartially
+            AnchorSideRight.Side = asrBottom
+            Left = 221
+            Height = 36
+            Top = 141
+            Width = 206
+            Anchors = [akTop, akLeft, akRight]
+            BorderSpacing.Left = 5
+            EditLabel.Height = 19
+            EditLabel.Width = 206
+            EditLabel.Caption = 'Second: Longtitude'
+            Enabled = False
+            TabOrder = 4
+            Text = '10.23478'
+          end
+        end
+        object chShowFileType: TCheckBox
+          AnchorSideTop.Control = groupCoordinates
+          AnchorSideTop.Side = asrBottom
+          Left = 10
+          Height = 23
+          Top = 653
+          Width = 116
+          BorderSpacing.Bottom = 6
+          Caption = 'Show file type'
+          TabOrder = 5
+        end
       end
-      object Splitter1: TSplitter
+      object optionsSoutlog: TSplitter
         AnchorSideLeft.Control = pageTilesDownloader
         AnchorSideRight.Control = pageTilesDownloader
         AnchorSideRight.Side = asrBottom
         Cursor = crVSplit
         Left = 0
         Height = 10
-        Top = 321
+        Top = 437
         Width = 469
         Align = alCustom
         Anchors = [akLeft, akRight]
@@ -419,43 +769,43 @@ object fMain: TfMain
       end
     end
   end
-  object Splitter: TSplitter
+  object mvSsettings: TSplitter
     AnchorSideTop.Control = Owner
     AnchorSideRight.Side = asrBottom
     AnchorSideBottom.Control = Owner
     AnchorSideBottom.Side = asrBottom
-    Left = 608
-    Height = 759
+    Left = 630
+    Height = 734
     Top = 0
     Width = 10
     Align = alNone
     Anchors = [akTop, akRight, akBottom]
-    Color = clInactiveCaption
+    Color = clForm
     ParentColor = False
     ResizeStyle = rsLine
   end
   object panMV: TPanel
     AnchorSideLeft.Control = Owner
     AnchorSideTop.Control = Owner
-    AnchorSideRight.Control = Splitter
+    AnchorSideRight.Control = mvSsettings
     AnchorSideBottom.Control = Owner
     AnchorSideBottom.Side = asrBottom
     Left = 0
-    Height = 759
+    Height = 734
     Top = 0
-    Width = 608
+    Width = 630
     Align = alCustom
     Anchors = [akTop, akLeft, akRight, akBottom]
     Caption = 'panMV'
-    ClientHeight = 759
-    ClientWidth = 608
+    ClientHeight = 734
+    ClientWidth = 630
     ParentBackground = False
     TabOrder = 2
     object MapView: TMapView
       Left = 1
-      Height = 757
+      Height = 732
       Top = 1
-      Width = 606
+      Width = 628
       Align = alClient
       CacheLocation = clCustom
       DownloadEngine = MVDECache

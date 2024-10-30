@@ -95,6 +95,9 @@
     </RunParams>
     <RequiredPackages>
       <Item>
+        <PackageName Value="industrial"/>
+      </Item>
+      <Item>
         <PackageName Value="FCL"/>
       </Item>
       <Item>
