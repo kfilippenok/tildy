@@ -7,6 +7,7 @@ object fMain: TfMain
   ClientHeight = 759
   ClientWidth = 1097
   Color = clForm
+  Position = poDesktopCenter
   OnActivate = FormActivate
   object Settings: TPageControl
     AnchorSideLeft.Control = Splitter
@@ -20,10 +21,10 @@ object fMain: TfMain
     Height = 759
     Top = 0
     Width = 479
-    ActivePage = pageMapView
+    ActivePage = pageTilesDownloader
     Align = alCustom
     Anchors = [akTop, akLeft, akRight, akBottom]
-    TabIndex = 0
+    TabIndex = 1
     TabOrder = 0
     object pageMapView: TTabSheet
       Caption = 'MapView'
@@ -37,7 +38,10 @@ object fMain: TfMain
         Top = 0
         Width = 469
         HorzScrollBar.Page = 132
+        VertScrollBar.Increment = 38
         VertScrollBar.Page = 387
+        VertScrollBar.Smooth = True
+        VertScrollBar.Tracking = True
         Align = alClient
         ClientHeight = 724
         ClientWidth = 467
@@ -282,8 +286,8 @@ object fMain: TfMain
         AnchorSideRight.Side = asrBottom
         AnchorSideBottom.Control = btnStartDownload
         Left = 10
-        Height = 322
-        Top = 340
+        Height = 321
+        Top = 341
         Width = 449
         Anchors = [akTop, akLeft, akRight, akBottom]
         BorderSpacing.Left = 10
@@ -313,14 +317,17 @@ object fMain: TfMain
         AnchorSideRight.Side = asrBottom
         AnchorSideBottom.Control = Splitter1
         Left = 0
-        Height = 310
+        Height = 311
         Top = 0
         Width = 469
         HorzScrollBar.Page = 140
+        VertScrollBar.Increment = 15
         VertScrollBar.Page = 156
+        VertScrollBar.Smooth = True
+        VertScrollBar.Tracking = True
         Anchors = [akTop, akLeft, akRight, akBottom]
         BorderSpacing.Bottom = 10
-        ClientHeight = 308
+        ClientHeight = 309
         ClientWidth = 467
         ParentBackground = False
         TabOrder = 2
@@ -404,7 +411,7 @@ object fMain: TfMain
         Cursor = crVSplit
         Left = 0
         Height = 10
-        Top = 320
+        Top = 321
         Width = 469
         Align = alCustom
         Anchors = [akLeft, akRight]
