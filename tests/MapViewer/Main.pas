@@ -6,7 +6,7 @@ interface
 
 uses
   Classes, SysUtils, process, Forms, Controls, Graphics, Dialogs, ExtCtrls,
-  StdCtrls, ComCtrls, ActnList, ValEdit, ColorBox, EditBtn, mvMapViewer,
+  StdCtrls, ComCtrls, ActnList, EditBtn, mvMapViewer,
   mvDLECache, indSliders;
 
 type
@@ -33,11 +33,15 @@ type
     CoordFirstLatitude: TLabeledEdit;
     CoordFirstLongtitude: TLabeledEdit;
     CoordSecondLongtitude: TLabeledEdit;
+    lblDebugZoom: TLabel;
+    lblDebugLon: TLabel;
+    lblDebugLat: TLabel;
     lblMaxZoom: TLabel;
     lblMinZoomValue: TLabel;
     lblMaxZoomValue: TLabel;
     lblMinZoom: TLabel;
     FullyOrPartially: TComboBox;
+    panDebug: TPanel;
     ZoomRange: TMultiSlider;
     panZoom: TPanel;
     SaveMethodVariations: TComboBox;
@@ -77,7 +81,10 @@ type
     procedure DirectoryCacheChange(Sender: TObject);
     procedure FormActivate(Sender: TObject);
     procedure FullyOrPartiallySelect(Sender: TObject);
-    procedure groupCoordinatesChangeBounds(Sender: TObject);
+    procedure groupCoordinatesResize(Sender: TObject);
+    procedure MapViewMouseMove(Sender: TObject; Shift: TShiftState; X,
+      Y: Integer);
+    procedure MapViewZoomChange(Sender: TObject);
     procedure ProviderVariationsMapChange(Sender: TObject);
     procedure ZoomRangePositionChange(Sender: TObject; AKind: TThumbKind;
       AValue: Integer);
@@ -93,6 +100,9 @@ var
 implementation
 
 {$R *.lfm}
+
+uses
+  mvEngine, mvTypes;
 
 { TfMain }
 
@@ -191,9 +201,27 @@ begin
   end;
 end;
 
-procedure TfMain.groupCoordinatesChangeBounds(Sender: TObject);
+procedure TfMain.groupCoordinatesResize(Sender: TObject);
 begin
+  CoordFirstLatitude.Width := Trunc(FullyOrPartially.Width / 2);
+  CoordSecondLatitude.Width := Trunc(FullyOrPartially.Width / 2);
+end;
 
+procedure TfMain.MapViewMouseMove(Sender: TObject; Shift: TShiftState; X,
+  Y: Integer);
+var
+  LRealPoint: TRealPoint;
+  LPoint: TPoint;
+begin
+  LPoint.X := X; LPoint.Y := Y;
+  LRealPoint := MapView.Engine.ScreenToLatLon(LPoint);
+  lblDebugLat.Caption := 'Lat: ' + Format('%13.10f', [LRealPoint.Lat]);
+  lblDebugLon.Caption := 'Lon: ' + Format('%14.10f', [LRealPoint.Lon]);
+end;
+
+procedure TfMain.MapViewZoomChange(Sender: TObject);
+begin
+  lblDebugZoom.Caption := 'Zoom: ' + MapView.Zoom.ToString;
 end;
 
 procedure TfMain.ProviderVariationsMapChange(Sender: TObject);

@@ -21,10 +21,10 @@ object fMain: TfMain
     Height = 734
     Top = 0
     Width = 479
-    ActivePage = pageMapView
+    ActivePage = pageTilesDownloader
     Align = alCustom
     Anchors = [akTop, akLeft, akRight, akBottom]
-    TabIndex = 0
+    TabIndex = 1
     TabOrder = 0
     object pageMapView: TTabSheet
       Caption = 'MapView'
@@ -38,13 +38,13 @@ object fMain: TfMain
         Top = 0
         Width = 469
         HorzScrollBar.Page = 132
-        VertScrollBar.Increment = 38
-        VertScrollBar.Page = 387
+        VertScrollBar.Increment = 37
+        VertScrollBar.Page = 378
         VertScrollBar.Smooth = True
         VertScrollBar.Tracking = True
         Align = alClient
-        ClientHeight = 699
-        ClientWidth = 467
+        ClientHeight = 697
+        ClientWidth = 465
         ParentBackground = False
         TabOrder = 0
         object groupProviderMap: TGroupBox
@@ -55,13 +55,13 @@ object fMain: TfMain
           Left = 10
           Height = 70
           Top = 10
-          Width = 447
+          Width = 445
           Anchors = [akTop, akLeft, akRight]
           AutoSize = True
           BorderSpacing.Around = 10
           Caption = 'Provider'
           ClientHeight = 50
-          ClientWidth = 445
+          ClientWidth = 443
           ParentBackground = False
           TabOrder = 0
           object ProviderVariationsMap: TComboBox
@@ -74,7 +74,7 @@ object fMain: TfMain
             Left = 5
             Height = 40
             Top = 5
-            Width = 435
+            Width = 433
             Align = alCustom
             Anchors = [akTop, akLeft, akRight]
             AutoSize = False
@@ -100,15 +100,15 @@ object fMain: TfMain
           AnchorSideRight.Control = groupProviderMap
           AnchorSideRight.Side = asrBottom
           Left = 10
-          Height = 66
+          Height = 57
           Top = 321
-          Width = 447
+          Width = 445
           Anchors = [akTop, akLeft, akRight]
           AutoSize = True
           BorderSpacing.Top = 10
           Caption = 'Cache'
-          ClientHeight = 46
-          ClientWidth = 445
+          ClientHeight = 37
+          ClientWidth = 443
           ParentBackground = False
           TabOrder = 1
           object DirectoryCache: TDirectoryEdit
@@ -119,9 +119,9 @@ object fMain: TfMain
             AnchorSideBottom.Control = groupCache
             AnchorSideBottom.Side = asrBottom
             Left = 5
-            Height = 36
+            Height = 27
             Top = 5
-            Width = 435
+            Width = 433
             ShowHidden = False
             ButtonWidth = 40
             NumGlyphs = 1
@@ -141,13 +141,13 @@ object fMain: TfMain
           Left = 10
           Height = 221
           Top = 90
-          Width = 447
+          Width = 445
           Anchors = [akTop, akLeft, akRight]
           AutoSize = True
           BorderSpacing.Bottom = 10
           Caption = 'Other'
           ClientHeight = 201
-          ClientWidth = 445
+          ClientWidth = 443
           ParentBackground = False
           TabOrder = 2
           object chkActive: TCheckBox
@@ -158,7 +158,7 @@ object fMain: TfMain
             Left = 5
             Height = 23
             Top = 5
-            Width = 435
+            Width = 433
             Anchors = [akTop, akLeft, akRight]
             BorderSpacing.Around = 5
             Caption = 'Active'
@@ -174,7 +174,7 @@ object fMain: TfMain
             Left = 5
             Height = 23
             Top = 33
-            Width = 435
+            Width = 433
             Anchors = [akTop, akLeft, akRight]
             BorderSpacing.Bottom = 5
             Caption = 'Cyclic view'
@@ -190,7 +190,7 @@ object fMain: TfMain
             Left = 5
             Height = 23
             Top = 61
-            Width = 435
+            Width = 433
             Anchors = [akTop, akLeft, akRight]
             BorderSpacing.Bottom = 5
             Caption = 'Double buffering'
@@ -208,7 +208,7 @@ object fMain: TfMain
             Left = 5
             Height = 23
             Top = 89
-            Width = 435
+            Width = 433
             Anchors = [akTop, akLeft, akRight]
             BorderSpacing.Bottom = 5
             Caption = 'Debug tiles'
@@ -226,7 +226,7 @@ object fMain: TfMain
             Left = 5
             Height = 23
             Top = 117
-            Width = 435
+            Width = 433
             Anchors = [akTop, akLeft, akRight]
             BorderSpacing.Bottom = 5
             Caption = 'Preview tiles'
@@ -244,7 +244,7 @@ object fMain: TfMain
             Left = 5
             Height = 23
             Top = 145
-            Width = 435
+            Width = 433
             Anchors = [akTop, akLeft, akRight]
             BorderSpacing.Bottom = 5
             Caption = 'Use threads'
@@ -262,7 +262,7 @@ object fMain: TfMain
             Left = 5
             Height = 23
             Top = 173
-            Width = 435
+            Width = 433
             Anchors = [akTop, akLeft, akRight]
             BorderSpacing.Bottom = 5
             Caption = 'Zoom to cursor'
@@ -347,6 +347,7 @@ object fMain: TfMain
           ClientHeight = 120
           ClientWidth = 432
           ParentBackground = False
+          ParentFont = False
           TabOrder = 0
           object ProviderVariationsTiles: TComboBox
             AnchorSideRight.Side = asrBottom
@@ -526,42 +527,44 @@ object fMain: TfMain
           AnchorSideRight.Control = groupProviderTiles
           AnchorSideRight.Side = asrBottom
           Left = 10
-          Height = 105
+          Height = 95
           Top = 320
           Width = 434
           Anchors = [akTop, akLeft, akRight]
           AutoSize = True
           Caption = 'Zoom'
-          ClientHeight = 85
+          ClientHeight = 75
           ClientWidth = 432
           ParentBackground = False
           TabOrder = 3
           object panZoom: TPanel
             Left = 5
-            Height = 50
+            Height = 40
             Top = 30
             Width = 422
             Align = alBottom
+            AutoSize = True
             BorderSpacing.Around = 5
             BevelOuter = bvNone
             Caption = 'panZoom'
-            ClientHeight = 50
+            ClientHeight = 40
             ClientWidth = 422
             ParentBackground = False
             TabOrder = 0
             object ZoomRange: TMultiSlider
               Left = 0
-              Height = 50
+              Height = 40
               Top = 0
               Width = 422
               ColorBetween = clHighlight
+              ColorThumb = clActiveCaption
               Flat = True
-              MaxPosition = 4
+              MaxPosition = 20
               MinPosition = 1
               RangeMax = 19
               ThumbStyle = tsRoundedRect
               OnPositionChange = ZoomRangePositionChange
-              Align = alClient
+              Align = alBottom
             end
           end
           object lblMinZoomValue: TLabel
@@ -632,7 +635,7 @@ object fMain: TfMain
           AnchorSideRight.Side = asrBottom
           Left = 10
           Height = 203
-          Top = 440
+          Top = 430
           Width = 434
           Anchors = [akTop, akLeft, akRight]
           AutoSize = True
@@ -643,7 +646,7 @@ object fMain: TfMain
           ClientWidth = 432
           ParentBackground = False
           TabOrder = 4
-          OnChangeBounds = groupCoordinatesChangeBounds
+          OnResize = groupCoordinatesResize
           object FullyOrPartially: TComboBox
             AnchorSideRight.Side = asrBottom
             Left = 5
@@ -747,7 +750,7 @@ object fMain: TfMain
           AnchorSideTop.Side = asrBottom
           Left = 10
           Height = 23
-          Top = 653
+          Top = 643
           Width = 116
           BorderSpacing.Bottom = 6
           Caption = 'Show file type'
@@ -803,7 +806,7 @@ object fMain: TfMain
     TabOrder = 2
     object MapView: TMapView
       Left = 1
-      Height = 732
+      Height = 702
       Top = 1
       Width = 628
       Align = alClient
@@ -812,6 +815,69 @@ object fMain: TfMain
       DrawingEngine = MapView.BuiltInDE
       Layers = <>
       Font.Color = clBlack
+      OnZoomChange = MapViewZoomChange
+      OnMouseMove = MapViewMouseMove
+    end
+    object panDebug: TPanel
+      Left = 1
+      Height = 30
+      Top = 703
+      Width = 628
+      Align = alBottom
+      Anchors = [akTop, akLeft, akRight]
+      AutoSize = True
+      BevelOuter = bvLowered
+      ClientHeight = 30
+      ClientWidth = 628
+      Color = clNone
+      ParentBackground = False
+      ParentColor = False
+      TabOrder = 1
+      object lblDebugLat: TLabel
+        AnchorSideLeft.Control = lblDebugLon
+        AnchorSideLeft.Side = asrBottom
+        AnchorSideTop.Control = panDebug
+        AnchorSideTop.Side = asrCenter
+        AnchorSideRight.Control = lblDebugLon
+        Left = 521
+        Height = 17
+        Top = 7
+        Width = 48
+        Anchors = [akTop, akRight]
+        BorderSpacing.Around = 5
+        Caption = 'Lat: ?'
+        Font.Height = -13
+        Font.Name = 'DejaVu Sans Mono'
+        ParentFont = False
+      end
+      object lblDebugLon: TLabel
+        AnchorSideLeft.Control = panDebug
+        AnchorSideTop.Control = panDebug
+        AnchorSideTop.Side = asrCenter
+        AnchorSideRight.Control = panDebug
+        AnchorSideRight.Side = asrBottom
+        Left = 574
+        Height = 17
+        Top = 7
+        Width = 48
+        Anchors = [akTop, akRight]
+        BorderSpacing.Around = 5
+        Caption = 'Lon: ?'
+        Font.Height = -13
+        Font.Name = 'DejaVu Sans Mono'
+        ParentFont = False
+      end
+      object lblDebugZoom: TLabel
+        AnchorSideLeft.Control = panDebug
+        AnchorSideTop.Control = panDebug
+        AnchorSideTop.Side = asrCenter
+        Left = 6
+        Height = 19
+        Top = 6
+        Width = 51
+        BorderSpacing.Around = 5
+        Caption = 'Zoom: 1'
+      end
     end
   end
   object MVDECache: TMVDECache
