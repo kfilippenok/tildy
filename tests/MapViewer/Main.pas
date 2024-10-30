@@ -118,7 +118,7 @@ end;
 procedure TfMain.DirectoryCacheChange(Sender: TObject);
 begin
   MapView.CacheLocation := clCustom;
-  MapView.CachePath := DirectoryCache.Text;
+  MapView.CachePath := DirectoryCache.Text + PathDelim;
 end;
 
 procedure TfMain.FormActivate(Sender: TObject);
