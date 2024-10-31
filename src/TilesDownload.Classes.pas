@@ -252,16 +252,18 @@ procedure CTilesDownloader.Download;
 var
   LTile1, LTile2, LTileTmp: RTile;
   iz, ix, iy: Integer;
+  LSaveDir: String;
 begin
-  if not DirectoryExists(OutPath) then
-  if not ForceDirectories(Format('%s%s%s%s%s', [GetCurrentDir, PathDelim, OutPath, PathDelim, ProviderName])) then
+  LSaveDir := Format('%s%s%s%s%s', [GetCurrentDir, PathDelim, OutPath, PathDelim, ProviderName]);
+  if not DirectoryExists(LSaveDir) then
+  if not ForceDirectories(LSaveDir) then
     Halt(1);
 
   for iz := MinZoom to MaxZoom do
   begin
     if SaveMethod = smFolders then
-    if not DirectoryExists(Format('%s/%s/%d', [OutPath, ProviderName, iz])) then
-      CreateDir(Format('%s/%s/%d', [OutPath, ProviderName, iz]));
+    if not DirectoryExists(Format('%s/%s/%d', [LSaveDir, ProviderName, iz])) then
+      CreateDir(Format('%s/%s/%d', [LSaveDir, ProviderName, iz]));
 
     calcTileNumber(Coordinates[0], iz, LTile1);
     calcTileNumber(Coordinates[1], iz, LTile2);
@@ -273,8 +275,8 @@ begin
     for ix := LTile1.X to LTile2.x do
     begin
       if SaveMethod = smFolders then
-      if not DirectoryExists(Format('%s/%s/%d/%d', [OutPath, ProviderName, iz, ix])) then
-           CreateDir(Format('%s/%s/%d/%d', [OutPath, ProviderName, iz, ix]));
+      if not DirectoryExists(Format('%s/%s/%d/%d', [LSaveDir, ProviderName, iz, ix])) then
+        CreateDir(Format('%s/%s/%d/%d', [LSaveDir, ProviderName, iz, ix]));
       for iy := LTile2.y to LTile1.y do
       begin
         LTileTmp.x := ix;
@@ -291,16 +293,18 @@ var
   LTile: RTile;
   max: Integer;
   iz, ix, iy: Integer;
+  LSaveDir: String;
 begin
-  if not DirectoryExists(OutPath) then
-  if not ForceDirectories(Format('%s%s%s%s%s', [GetCurrentDir, PathDelim, OutPath, PathDelim, ProviderName])) then
+  LSaveDir := Format('%s%s%s%s%s', [GetCurrentDir, PathDelim, OutPath, PathDelim, ProviderName]);
+  if not DirectoryExists(LSaveDir) then
+  if not ForceDirectories(LSaveDir) then
     Halt(1);
 
   for iz := MinZoom to MaxZoom do
   begin
     if SaveMethod = smFolders then
-    if not DirectoryExists(Format('%s%s%s%s%s%s%d', [GetCurrentDir, PathDelim, OutPath, PathDelim, ProviderName, PathDelim, iz])) then
-      ForceDirectories(Format('%s%s%s%s%s%s%d', [GetCurrentDir, PathDelim, OutPath, PathDelim, ProviderName, PathDelim, iz]));
+    if not DirectoryExists(Format('%s%s%d', [LSaveDir, PathDelim, iz])) then
+      ForceDirectories(Format('%s%s%d', [LSaveDir, PathDelim, iz]));
 
     max := Trunc(Power(2, iz))-1;
     {$IFDEF DEBUG}
@@ -308,12 +312,9 @@ begin
     {$ENDIF}
     for ix := 0 to max do
     begin
-      {$IFDEF DEBUG}
-      WriteLn(Format('%s%s%s%s%s%s%d%s%d', [GetCurrentDir, PathDelim, OutPath, PathDelim, ProviderName, PathDelim, iz, PathDelim, ix]));
-      {$ENDIF}
       if SaveMethod = smFolders then
-      if not DirectoryExists(Format('%s%s%s%s%s%s%d%s%d', [GetCurrentDir, PathDelim, OutPath, PathDelim, ProviderName, PathDelim, iz, PathDelim, ix])) then
-           ForceDirectories(Format('%s%s%s%s%s%s%d%s%d', [GetCurrentDir, PathDelim, OutPath, PathDelim, ProviderName, PathDelim, iz, PathDelim, ix]));
+      if not DirectoryExists(Format('%s%s%d%s%d', [LSaveDir, PathDelim, iz, PathDelim, ix])) then
+           ForceDirectories(Format('%s%s%d%s%d', [LSaveDir, PathDelim, iz, PathDelim, ix]));
       for iy := 0 to max do
       begin
         LTile.SetValues(ix, iy);
