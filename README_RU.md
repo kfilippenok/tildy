@@ -178,3 +178,14 @@ Example:
 ```
 ./tilesdownloader -provider osm -full-map
 ```
+
+****
+
+### tile-res
+
+Разрешение сохраняемых изображений. Используйте, если оригинальное разрешение вас не устраивает.
+
+Пример:
+```
+./tilesdownloader -provider railway -full-map -tile-res 256
+```

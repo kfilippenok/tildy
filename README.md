@@ -180,3 +180,14 @@ Example:
 ```
 ./tilesdownloader -provider osm -full-map
 ```
+
+****
+
+### tile-res
+
+The resolution of the saved images. Use it if you are not satisfied with the original permission.
+
+Example:
+```
+./tilesdownloader -provider railway -full-map -tile-res 256
+```

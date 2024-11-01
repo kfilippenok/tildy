@@ -87,6 +87,11 @@
     <RunParams>
       <FormatVersion Value="2"/>
     </RunParams>
+    <RequiredPackages>
+      <Item>
+        <PackageName Value="BGRABitmapPack"/>
+      </Item>
+    </RequiredPackages>
     <Units>
       <Unit>
         <Filename Value="src/tilesdownloader.lpr"/>

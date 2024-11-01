@@ -21,7 +21,8 @@ interface
 
 uses
   SysUtils, Classes, StrUtils, Math,
-  fphttpclient, openssl, opensslsockets;
+  fphttpclient, openssl, opensslsockets, BGRABitmap,
+  TilesDownload.Exceptions;
 
 type
 
@@ -59,37 +60,46 @@ const
   defMinZoom = 6;
   defMaxZoom = 7;
   defShowFileTypes = False;
+  defTileRes = 256;
+  defOtherTileRes = False;
 
 type
 
   { CTilesDownloader }
 
   CTilesDownloader = class(TFPCustomHTTPClient)
-  private
+  strict protected
     FUserAgent: String;
     FMapProvider: RMapProvider;
     FOutPath: String;
+    FTileRes: Integer;
+    FOtherTileRes: Boolean;
     FSaveMethod: TSaveMethod;
     FDivider: String;
     FMinZoom: Integer;
     FMaxZoom: Integer;
     FCoordinates: array[0..1] of RCoordinate;
     FShowFileTypes: Boolean;
-  private
+  strict private
     function getProviderLink: String;
     procedure setProviderLink(AValue: String);
     function getProviderName: String;
     procedure setProviderName(AValue: String);
     function getCoordinate(Index: Integer): RCoordinate;
     procedure setCoordinate(Index: Integer; AValue: RCoordinate);
-  private
+    procedure SetTileRes(AValue: Integer);
     procedure calcTileNumber(const ACoordinate: RCoordinate; const AZoom: Integer; out Tile: RTile);
+  strict private
+    procedure ReceiveTile(var ATileImg: TBGRABitmap; AZoom: Integer; const ATile: RTile);
+    procedure ResampleTile(var ATileImg: TBGRABitmap);
+    procedure SaveTile(const ATileImg: TBGRABitmap; AFilePath: String);
     procedure DownloadTile(const AZoom: Integer; const ATile: RTile);
   public
     Constructor Create(AOwner: TComponent); override;
     property ProviderName : String      read getProviderName write setProviderName;
     property ProviderLink : String      read getProviderLink write setProviderLink;
     property OutPath      : String      read FOutPath        write FOutPath       ;
+    property TileRes      : Integer     read FTileRes        write SetTileRes     ;
     property SaveMethod   : TSaveMethod read FSaveMethod     write FSaveMethod     default defSaveMethod;
     property Divider      : String      read FDivider        write FDivider       ;
     property MinZoom      : Integer     read FMinZoom        write FMinZoom        default defMinZoom;
@@ -181,15 +191,17 @@ constructor CTilesDownloader.Create(AOwner: TComponent);
 begin
   inherited Create(AOwner);
 
+  FOtherTileRes := defOtherTileRes;
+  FTileRes := defTileRes;
   FUserAgent := defUserAgent;
   ProviderName := defProviderName;
   ProviderLink := defProviderLink;
-  OutPath := defOutPath;
-  SaveMethod := smFolders;
-  Divider := defDivider;
-  MinZoom := defMinZoom;
-  MaxZoom := defMinZoom;
-  ShowFileTypes := defShowFileTypes;
+  FOutPath := defOutPath;
+  FSaveMethod := smFolders;
+  FDivider := defDivider;
+  FMinZoom := defMinZoom;
+  FMaxZoom := defMinZoom;
+  FShowFileTypes := defShowFileTypes;
 end;
 
 procedure CTilesDownloader.calcTileNumber(const ACoordinate: RCoordinate;
@@ -201,6 +213,70 @@ begin
   n := Power(2, AZoom);
   Tile.x := Trunc(((ACoordinate.lon + 180) / 360) * n);
   Tile.y := Trunc((1 - ArcSinH(Tan(lat_rad)) / Pi) / 2.0 * n);
+end;
+
+procedure CTilesDownloader.ReceiveTile(var ATileImg: TBGRABitmap; AZoom: Integer; const ATile: RTile);
+var
+  LMemoryStream: TMemoryStream;
+begin
+  WriteLn(Format('TileLink: %s/%d/%d/%d.png', [ProviderLink, AZoom,  ATile.x, ATile.y]));
+  try
+    LMemoryStream := TMemoryStream.Create;
+    while True do
+      try
+        Self.Get(Format('%s/%d/%d/%d.png', [ProviderLink, AZoom,  ATile.x, ATile.y]), LMemoryStream);
+        break;
+      except
+        on E: ESocketError do
+          continue;
+      end;
+    LMemoryStream.Position := 0;
+    ATileImg.LoadFromStream(LMemoryStream);
+    LMemoryStream.Free;
+  except
+    on E: Exception do
+    begin
+      WriteLn(E.Message);
+      LMemoryStream.Free;
+      raise ETDReceive.Create('Failed receive file.');
+    end;
+  end;
+end;
+
+procedure CTilesDownloader.ResampleTile(var ATileImg: TBGRABitmap);
+var
+  LOldTile: TBGRABitmap;
+begin
+  try
+    LOldTile := ATileImg;
+    ATileImg := ATileImg.Resample(TileRes, TileRes);
+    LOldTile.Free;
+  except
+    on E: Exception do
+    begin
+      WriteLn(E.Message);
+      raise ETDResample.Create('Failed resample file.');
+    end;
+  end;
+end;
+
+procedure CTilesDownloader.SaveTile(const ATileImg: TBGRABitmap; AFilePath: String);
+var
+  LFileStream: TFileStream;
+begin
+  WriteLn(Format('FilePath: %s', [AFilePath]));
+  try
+    LFileStream := TFileStream.Create(AFilePath, fmCreate or fmOpenWrite);
+    ATileImg.SaveToStreamAsPng(LFileStream);
+    LFileStream.Free;
+  except
+    on E: Exception do
+    begin
+      WriteLn(E.Message);
+      LFileStream.Free;
+      raise ETDSave.Create('Failed save file.');
+    end;
+  end;
 end;
 
 procedure CTilesDownloader.DownloadTile(const AZoom: Integer; const ATile: RTile);
@@ -220,32 +296,33 @@ procedure CTilesDownloader.DownloadTile(const AZoom: Integer; const ATile: RTile
   end;
 
 var
-  LStream: TStream;
   LFileName, LFilePath: String;
+  LTileImg: TBGRABitmap;
 begin
-  LFileName := _getFileName;
-  LFilePath := Format('%s%s%s%s%s%s%s', [GetCurrentDir, PathDelim, OutPath, PathDelim, ProviderName, PathDelim, LFileName]);
-  WriteLn(Format('FilePath: %s', [LFilePath]));
-  LStream := TFileStream.Create(LFilePath, fmCreate or fmOpenWrite);
-
-  InitSSLInterface;
-  Self.AllowRedirect := true;
-  Self.ConnectTimeOut := 10000;
-  Self.AddHeader('User-Agent', FUserAgent);
-  //Self.AddHeader('User-Agent', 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 YaBrowser/24.6.0.0 Safari/537.36\');
-  WriteLn(Format('TileLink: %s/%d/%d/%d.png', [ProviderLink, AZoom,  ATile.x, ATile.y]));
   try
-    while True do
-      try
-        Self.Get(Format('%s/%d/%d/%d.png', [ProviderLink, AZoom,  ATile.x, ATile.y]), LStream);
-        break;
-      except
-        on E: ESocketError do
-          continue;
-      end;
-  finally
-    LStream.Free;
+    LTileImg := TBGRABitmap.Create;
+    ReceiveTile(LTileImg, AZoom, ATile);
+    if FOtherTileRes then
+      ResampleTile(LTileImg);
+    LFileName := _getFileName;
+    LFilePath := Format('%s%s%s%s%s%s%s', [GetCurrentDir, PathDelim, OutPath, PathDelim, ProviderName, PathDelim, LFileName]);
+    SaveTile(LTileImg, LFilePath);
+    LTileImg.Free;
+  except
+    on ETileDownload do
+    begin
+      if Assigned(LTileImg) then
+        LTileImg.Free;
+      raise;
+    end;
   end;
+end;
+
+procedure CTilesDownloader.SetTileRes(AValue: Integer);
+begin
+  FOtherTileRes := True;
+  if FTileRes=AValue then Exit;
+  FTileRes:=AValue;
 end;
 
 procedure CTilesDownloader.Download;
@@ -254,6 +331,11 @@ var
   iz, ix, iy: Integer;
   LSaveDir: String;
 begin
+  InitSSLInterface;
+  Self.AllowRedirect := true;
+  Self.ConnectTimeOut := 10000;
+  Self.AddHeader('User-Agent', FUserAgent);
+
   LSaveDir := Format('%s%s%s%s%s', [GetCurrentDir, PathDelim, OutPath, PathDelim, ProviderName]);
   if not DirectoryExists(LSaveDir) then
   if not ForceDirectories(LSaveDir) then
@@ -281,7 +363,16 @@ begin
       begin
         LTileTmp.x := ix;
         LTileTmp.y := iy;
-        DownloadTile(iz, LTileTmp);
+        try
+          DownloadTile(iz, LTileTmp);
+        except
+          on E: ETileDownload do
+          begin
+            WriteLn;
+            WriteLn('Error: ', E.Message);
+            Exit;
+          end;
+        end;
       end;
     end;
 
@@ -295,6 +386,11 @@ var
   iz, ix, iy: Integer;
   LSaveDir: String;
 begin
+  InitSSLInterface;
+  Self.AllowRedirect := true;
+  Self.ConnectTimeOut := 10000;
+  Self.AddHeader('User-Agent', FUserAgent);
+
   LSaveDir := Format('%s%s%s%s%s', [GetCurrentDir, PathDelim, OutPath, PathDelim, ProviderName]);
   if not DirectoryExists(LSaveDir) then
   if not ForceDirectories(LSaveDir) then
@@ -302,13 +398,15 @@ begin
 
   for iz := MinZoom to MaxZoom do
   begin
+    WriteLn('Zoom Level: ', iz);
+
     if SaveMethod = smFolders then
     if not DirectoryExists(Format('%s%s%d', [LSaveDir, PathDelim, iz])) then
       ForceDirectories(Format('%s%s%d', [LSaveDir, PathDelim, iz]));
 
     max := Trunc(Power(2, iz))-1;
     {$IFDEF DEBUG}
-    WriteLn(max);
+    WriteLn('Min: 0, Max: ', max);
     {$ENDIF}
     for ix := 0 to max do
     begin
@@ -318,7 +416,16 @@ begin
       for iy := 0 to max do
       begin
         LTile.SetValues(ix, iy);
-        DownloadTile(iz, LTile);
+        try
+          DownloadTile(iz, LTile);
+        except
+          on E: ETileDownload do
+          begin
+            WriteLn;
+            WriteLn('Error: ', E.Message);
+            Exit;
+          end;
+        end;
       end;
     end;
 

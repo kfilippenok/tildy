@@ -106,6 +106,12 @@ type
         Coordinate.lon := OptionParameter[okSecondCoordLon].ToDouble;
         Coordinates[1] := Coordinate;
       end;
+
+      if not OptionParameter[okTileRes].IsEmpty then
+        TileRes := OptionParameter[okTileRes].ToInteger;
+
+       if not OptionParameter[okTileRes].IsEmpty then
+        TileRes := OptionParameter[okTileRes].ToInteger;
     end;
     try
       if (okFullMap in glOptions) then

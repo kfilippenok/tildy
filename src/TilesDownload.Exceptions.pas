@@ -28,6 +28,11 @@ type
     constructor Create(AOptions: TOptions); overload;
   end;
 
+  ETileDownload = class(Exception);
+  ETDReceive  = class(ETileDownload);
+  ETDResample = class(ETileDownload);
+  ETDSave     = class(ETileDownload);
+
 implementation
 
   constructor EMissingOptions.Create(AOptions: TOptions);
