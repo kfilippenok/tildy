@@ -6,7 +6,7 @@ interface
 
 uses
   Classes, SysUtils, process, Forms, Controls, Graphics, Dialogs, ExtCtrls,
-  StdCtrls, ComCtrls, ActnList, EditBtn, mvMapViewer,
+  StdCtrls, ComCtrls, ActnList, EditBtn, CheckLst, mvMapViewer,
   mvDLECache, indSliders, LazFileUtils;
 
 type
@@ -17,6 +17,7 @@ type
     actStartStop: TAction;
     ActionList: TActionList;
     btnStartDownload: TButton;
+    LayersList: TCheckListBox;
     chShowFileType: TCheckBox;
     chkOutput: TCheckBox;
     chkProviderName: TCheckBox;
@@ -28,6 +29,7 @@ type
     chkUseThreads: TCheckBox;
     chkZoomToCursor: TCheckBox;
     CoordSecondLatitude: TLabeledEdit;
+    groupLayers: TGroupBox;
     PathExecutable: TFileNameEdit;
     groupCoordinates: TGroupBox;
     groupExecutable: TGroupBox;
@@ -45,6 +47,7 @@ type
     FullyOrPartially: TComboBox;
     panDebug: TPanel;
     ProcessTilesdownloader: TProcess;
+    LayersUpDown: TUpDown;
     ZoomRange: TMultiSlider;
     panZoom: TPanel;
     SaveMethodVariations: TComboBox;
@@ -86,11 +89,16 @@ type
     procedure FormActivate(Sender: TObject);
     procedure FullyOrPartiallySelect(Sender: TObject);
     procedure groupCoordinatesResize(Sender: TObject);
+    procedure LayersListClickCheck(Sender: TObject);
+    procedure LayersListDragDrop(Sender, Source: TObject; X, Y: Integer);
+    procedure LayersListDragOver(Sender, Source: TObject; X, Y: Integer;
+      State: TDragState; var Accept: Boolean);
     procedure MapViewMouseMove(Sender: TObject; Shift: TShiftState; X,
       Y: Integer);
     procedure MapViewZoomChange(Sender: TObject);
     procedure PathExecutableChange(Sender: TObject);
     procedure ProviderVariationsMapChange(Sender: TObject);
+    procedure LayersUpDownClick(Sender: TObject; Button: TUDBtnType);
     procedure ZoomRangePositionChange(Sender: TObject; AKind: TThumbKind;
       AValue: Integer);
   private
@@ -107,7 +115,7 @@ implementation
 {$R *.lfm}
 
 uses
-  mvEngine, mvTypes;
+  mvEngine, mvTypes, mvDrawingEngine, mvMapProvider;
 
 { TfMain }
 
@@ -230,6 +238,7 @@ begin
   chkUseThreadsChange(Self);
   chkZoomToCursorChange(Self);
   ProviderVariationsMapChange(Self);
+
   ZoomRange.MinPosition := 1;
   ZoomRange.MaxPosition := 4;
 end;
@@ -258,6 +267,79 @@ procedure TfMain.groupCoordinatesResize(Sender: TObject);
 begin
   CoordFirstLatitude.Width := Trunc(FullyOrPartially.Width / 2);
   CoordSecondLatitude.Width := Trunc(FullyOrPartially.Width / 2);
+end;
+
+procedure TfMain.LayersListClickCheck(Sender: TObject);
+var
+  LMapLayer: TMapLayer;
+  LMapProvider: TMapProvider;
+  LMapProviders: TStringList;
+begin
+  case LayersList.Items[LayersList.ItemIndex] of
+    'OpenStreetMap Mapnik'      :
+      begin
+        LMapProvider := MapView.Engine.MapProviderByName('OpenStreetMap Mapnik');
+        ShowMessage(LMapProvider.Name);
+        LMapLayer := MapView.Layers.Add as TMapLayer;
+        LMapLayer := TMapLayer.Create(MapView.Layers);
+        LMapProviders := TStringList.Create;
+        MapView.GetMapProviders(LMapProviders);
+        ShowMessage(LMapProviders.Text);
+        LMapProviders.Free;
+        LMapLayer.MapProvider := 'OpenStreetMap Mapnik';
+        LMapLayer.DrawMode := idmUseSourceAlpha;
+        LMapLayer.UseThreads := MapView.UseThreads;
+        LMapLayer.Visible := True;
+      end;
+    'Open Topo Map'             :;
+    'OpenStreetMap.fr Cycle Map':;
+    'OpenRailwayMap'            :
+      begin
+        LMapProvider := MapView.Engine.MapProviderByName('OpenRailwayMap');
+        ShowMessage(LMapProvider.Name);
+        LMapLayer := MapView.Layers.Add as TMapLayer;
+        LMapLayer := TMapLayer.Create(MapView.Layers);
+        LMapProviders := TStringList.Create;
+        MapView.GetMapProviders(LMapProviders);
+        ShowMessage(LMapProviders.Text);
+        LMapProviders.Free;
+        LMapLayer.MapProvider := 'OpenRailwayMap';
+        LMapLayer.DrawMode := idmUseSourceAlpha;
+        LMapLayer.UseThreads := MapView.UseThreads;
+        LMapLayer.Visible := True;
+      end;
+  end;
+end;
+
+procedure TfMain.LayersListDragDrop(Sender, Source: TObject; X, Y: Integer);
+var
+  clbox : TCheckListBox;
+  OldIndex, NewIndex: Integer;
+begin
+  if (Sender <> Source) then Exit; // accept dragging only within LayersList
+
+  clbox := Sender as TCheckListBox;
+  if clbox.Count < 2 then
+    Exit;
+
+  newIndex := clbox.GetIndexAtXY(X, Y);
+  oldIndex := clbox.ItemIndex;
+
+  if newIndex = -1 then             // if dragging to empty area
+    newIndex := clbox.Count-1;
+
+  if newIndex = oldIndex then Exit; // Проверка на смену позиции
+
+  clbox.Items.Move(oldIndex, newIndex); // Передвигаем элемент
+
+  clbox.ItemIndex := newIndex;
+end;
+
+procedure TfMain.LayersListDragOver(Sender, Source: TObject; X, Y: Integer;
+  State: TDragState; var Accept: Boolean);
+begin
+  if LayersList.Count > 0 then
+    Accept := True;
 end;
 
 procedure TfMain.MapViewMouseMove(Sender: TObject; Shift: TShiftState; X,
@@ -291,6 +373,30 @@ procedure TfMain.ProviderVariationsMapChange(Sender: TObject);
 begin
   with ProviderVariationsMap do
     MapView.MapProvider := Items[ItemIndex];
+end;
+
+procedure TfMain.LayersUpDownClick(Sender: TObject; Button: TUDBtnType);
+var
+  NewIndex: Integer;
+begin
+  if LayersList.ItemIndex = -1 then Exit;
+
+  case Button of
+    btNext:
+      begin
+        if LayersList.ItemIndex = 0 then Exit;
+        NewIndex := LayersList.ItemIndex - 1;
+        LayersList.Items.Move(LayersList.ItemIndex, NewIndex);
+        LayersList.Selected[NewIndex] := True;
+      end;
+    btPrev:
+      begin
+        if LayersList.ItemIndex = LayersList.Count-1 then Exit;
+        NewIndex := LayersList.ItemIndex + 1;
+        LayersList.Items.Move(LayersList.ItemIndex, NewIndex);
+        LayersList.Selected[NewIndex] := True;
+      end;
+  end;
 end;
 
 procedure TfMain.ZoomRangePositionChange(Sender: TObject; AKind: TThumbKind;
