@@ -29,8 +29,7 @@ TOptionKind = (okHelp,
                okProviderName,
                okProviderLink,
                okOutput,
-               okSaveMethod,
-               okDivider,
+               okPattern,
                okMinZoom,
                okMaxZoom,
                okFirstCoordLat,
@@ -54,8 +53,7 @@ begin
     okProviderName  : Exit('provider-name');
     okProviderLink  : Exit('provider-link');
     okOutput        : Exit('output');
-    okSaveMethod    : Exit('save-method');
-    okDivider       : Exit('divider');
+    okPattern       : Exit('pattern');
     okMinZoom       : Exit('min-zoom');
     okMaxZoom       : Exit('max-zoom');
     okFirstCoordLat : Exit('fсoord-lat');

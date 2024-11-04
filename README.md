@@ -50,7 +50,7 @@ Example:
 
 ****
 
-### output [String]
+### (wip) output [String]
 
 You can specify the absolute or relative path where the images will be downloaded. 
 
@@ -69,27 +69,27 @@ tiles
 
 ****
 
-### save-method [String]
+### pattern [String]
 
-You can choose which way the images will be sorted when downloading.  
+Saving files with a pattern-generated name. Keywords:
+- %provider-name%
+- %x%
+- %y%
+- %z%
 
-* *folders* - By folders: ```provider/zoom/x/y```
-* *pattern* - By divider in one folder: ```provider_x_y_zoom``` (Here used "_" as divider)
+All you need is to insert the above keywords in the required place. You can also choose not to add keywords that you don't need. But I do not advise you to remove the cocks, because if you do, the downloaded tiles will be overwritten by others at a higher level, so they will have the same names.
 
-Default: *folders*
-
-
-### divider [String]
-
-Used in conjunction with ```pattern``` [save-method](#save-method). It is a symbol that will separate the keywords in the file name.
-
-Example: 
+Example:
 ```
-... save-method pattern -divider _
+./tilesdownloader -provider osm -pattern %x%_%y%_%z%-%provider-name% -min-zoom 1 -max-zoom 2 -full-map
 ```
-Result file will be *ProviderName_zoom_x_y*
 
-Default: _
+Result:
+```
+0_0_1-OpenStreetMap
+```
+
+By default, files will be sorted into folders without using a template.
 
 ****
 

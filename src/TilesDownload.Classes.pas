@@ -20,7 +20,7 @@ unit TilesDownload.Classes;
 interface
 
 uses
-  SysUtils, Classes, StrUtils, Math,
+  SysUtils, Classes, StrUtils, Math, FGL,
   fphttpclient, openssl, opensslsockets, BGRABitmap,
   TilesDownload.Exceptions;
 
@@ -32,13 +32,13 @@ type
   end;
 
   RCoordinate = record
-    lat: Float;
-    lon: Float;
+    Lat: Float;
+    Lon: Float;
   end;
 
   RTile = record
-    x: Integer;
-    y: Integer;
+    X: Integer;
+    Y: Integer;
   end;
 
   { HTileHelper }
@@ -49,12 +49,19 @@ type
 
   TSaveMethod = (smFolders, smPattern);
 
+  TPatternItem = (piProviderName, piZoom, piX, piY);
+
+var
+  PatternItemsStr: array[TPatternItem] of String = ('%provider-name%',
+                                                    '%z%',
+                                                    '%x%',
+                                                    '%y%');
+
 const
   defUserAgent = 'Mozilla/5.0 (compatible; fpweb)';
   defProvider = 'osm';
   defOutPath = 'tiles';
   defSaveMethod = smFolders;
-  defDivider = '_';
   defProviderName = 'OpenStreetMap';
   defProviderLink = 'http://a.tile.openstreetmap.org';
   defMinZoom = 6;
@@ -65,6 +72,13 @@ const
 
 type
 
+  TGetFileName = function (const AZoom, AX, AY: Integer): String of object;
+
+  GPatternItems = specialize TFPGMap<TPatternItem, integer>;
+  HPatternItemsHelper = class helper for GPatternItems
+    procedure SortOnData;
+  end;
+
   { CTilesDownloader }
 
   CTilesDownloader = class(TFPCustomHTTPClient)
@@ -73,6 +87,9 @@ type
     FMapProvider: RMapProvider;
     FOutPath: String;
     FTileRes: Integer;
+    FPattern, FInsertPattern: String;
+    FGetFileName: TGetFileName;
+    FPatternItems: GPatternItems;
     FOtherTileRes: Boolean;
     FSaveMethod: TSaveMethod;
     FDivider: String;
@@ -80,28 +97,33 @@ type
     FMaxZoom: Integer;
     FCoordinates: array[0..1] of RCoordinate;
     FShowFileTypes: Boolean;
-  strict private
+  strict private // Getters, setters & other
     function getProviderLink: String;
     procedure setProviderLink(AValue: String);
     function getProviderName: String;
     procedure setProviderName(AValue: String);
+    procedure SetPattern(APattern: String);
     function getCoordinate(Index: Integer): RCoordinate;
     procedure setCoordinate(Index: Integer; AValue: RCoordinate);
     procedure SetTileRes(AValue: Integer);
-    procedure calcTileNumber(const ACoordinate: RCoordinate; const AZoom: Integer; out Tile: RTile);
   strict private
+    procedure calcTileNumber(const ACoordinate: RCoordinate; const AZoom: Integer; out Tile: RTile);
+    function GetFileNameDir(const AZoom, AX, AY: Integer): String;
+    function GetFileNamePattern(const AZoom, AX, AY: Integer): String;
+    function GetFileName(const AZoom, AX, AY: Integer): String;
     procedure ReceiveTile(var ATileImg: TBGRABitmap; AZoom: Integer; const ATile: RTile);
     procedure ResampleTile(var ATileImg: TBGRABitmap);
     procedure SaveTile(const ATileImg: TBGRABitmap; AFilePath: String);
     procedure DownloadTile(const AZoom: Integer; const ATile: RTile);
   public
-    Constructor Create(AOwner: TComponent); override;
+    constructor Create(AOwner: TComponent); override;
+    destructor Destroy; override;
     property ProviderName : String      read getProviderName write setProviderName;
     property ProviderLink : String      read getProviderLink write setProviderLink;
     property OutPath      : String      read FOutPath        write FOutPath       ;
     property TileRes      : Integer     read FTileRes        write SetTileRes     ;
+    property Pattern      : String      read FPattern        write SetPattern     ;
     property SaveMethod   : TSaveMethod read FSaveMethod     write FSaveMethod     default defSaveMethod;
-    property Divider      : String      read FDivider        write FDivider       ;
     property MinZoom      : Integer     read FMinZoom        write FMinZoom        default defMinZoom;
     property MaxZoom      : Integer     read FMaxZoom        write FMaxZoom        default defMaxZoom;
     property ShowFileTypes: Boolean     read FShowFileTypes  write FShowFileTypes  default defShowFileTypes;
@@ -142,6 +164,29 @@ implementation
 
 uses ssockets;
 
+{ HPatternItemsHelper }
+
+procedure HPatternItemsHelper.SortOnData;
+var
+  AllSorted: Boolean;
+  ipatit: Integer;
+begin
+  while True do
+  begin
+    AllSorted := True;
+    for ipatit := 0 to Count-2 do
+    begin
+      if Data[ipatit] > Data[ipatit+1] then
+      begin
+        Move(ipatit, ipatit+1);
+        AllSorted := False;
+      end;
+    end;
+
+    if AllSorted then Exit;
+  end;
+end;
+
 operator = (const First, Second: RCoordinate) R : boolean;
 begin
   R := SameValue(First.lat, Second.lat) and SameValue(First.lon, Second.lon);
@@ -176,6 +221,45 @@ begin
   FMapProvider.name := AValue;
 end;
 
+procedure CTilesDownloader.SetPattern(APattern: String);
+var
+  LInsertPattern, LSearchSource: String;
+  tpos, ipatit: Integer;
+  LPatternItem: TPatternItem;
+begin
+  if FPattern = APattern then Exit;
+
+  FPattern := APattern;
+  FGetFileName := @GetFileNamePattern;
+  SaveMethod := smPattern;
+
+  LInsertPattern := APattern;
+  LSearchSource := LowerCase(APattern);
+
+  // Filling in for further sorting
+  for LPatternItem := Low(TPatternItem) to High(TPatternItem) do
+  begin
+    tpos := Pos(PatternItemsStr[LPatternItem], LSearchSource);
+    if tpos > 0 then
+    begin
+      FPatternItems.Add(LPatternItem, tpos);
+    end;
+  end;
+
+  // Sort on data
+  FPatternItems.SortOnData;
+
+  for ipatit := 0 to FPatternItems.Count-1 do
+  begin
+    tpos := Pos(PatternItemsStr[FPatternItems.Keys[ipatit]], LSearchSource);
+    System.Delete(LInsertPattern, tpos, Length(PatternItemsStr[FPatternItems.Keys[ipatit]]));
+    System.Delete(LSearchSource, tpos, Length(PatternItemsStr[FPatternItems.Keys[ipatit]]));
+    FPatternItems.Data[ipatit] := tpos;
+  end;
+
+  FInsertPattern := LInsertPattern;
+end;
+
 function CTilesDownloader.getCoordinate(Index: Integer): RCoordinate;
 begin
   Result := FCoordinates[Index];
@@ -193,15 +277,23 @@ begin
 
   FOtherTileRes := defOtherTileRes;
   FTileRes := defTileRes;
+  FGetFileName := @GetFileNameDir;
+  FPatternItems := GPatternItems.Create;
   FUserAgent := defUserAgent;
   ProviderName := defProviderName;
   ProviderLink := defProviderLink;
   FOutPath := defOutPath;
   FSaveMethod := smFolders;
-  FDivider := defDivider;
   FMinZoom := defMinZoom;
   FMaxZoom := defMinZoom;
   FShowFileTypes := defShowFileTypes;
+end;
+
+destructor CTilesDownloader.Destroy;
+begin
+  inherited Destroy;
+
+  FPatternItems.Free;
 end;
 
 procedure CTilesDownloader.calcTileNumber(const ACoordinate: RCoordinate;
@@ -213,6 +305,33 @@ begin
   n := Power(2, AZoom);
   Tile.x := Trunc(((ACoordinate.lon + 180) / 360) * n);
   Tile.y := Trunc((1 - ArcSinH(Tan(lat_rad)) / Pi) / 2.0 * n);
+end;
+
+function CTilesDownloader.GetFileNameDir(const AZoom, AX, AY: Integer): String;
+begin
+  Result := Format('%d%s%d%s%d%s', [AZoom, PathDelim, AX, PathDelim, AY, IfThen(ShowFileTypes, '.png')]);
+end;
+
+function CTilesDownloader.GetFileNamePattern(const AZoom, AX, AY: Integer
+  ): String;
+var
+  ipi: Integer;
+begin
+  Result := FInsertPattern;
+  for ipi := FPatternItems.Count-1 downto 0 do
+  begin
+    case FPatternItems.Keys[ipi] of
+      piProviderName: Insert(ProviderName,   Result, FPatternItems.Data[ipi]);
+      piZoom        : Insert(AZoom.ToString, Result, FPatternItems.Data[ipi]);
+      piX           : Insert(AX.ToString,    Result, FPatternItems.Data[ipi]);
+      piY           : Insert(AY.ToString,    Result, FPatternItems.Data[ipi]);
+    end;
+  end;
+end;
+
+function CTilesDownloader.GetFileName(const AZoom, AX, AY: Integer): String;
+begin
+  Result := FGetFileName(AZoom, AX, AY);
 end;
 
 procedure CTilesDownloader.ReceiveTile(var ATileImg: TBGRABitmap; AZoom: Integer; const ATile: RTile);
@@ -280,21 +399,6 @@ begin
 end;
 
 procedure CTilesDownloader.DownloadTile(const AZoom: Integer; const ATile: RTile);
-
-  function _getFileName: String;
-  begin
-    case SaveMethod of
-      smFolders:
-        begin
-          Result := Format('%d%s%d%s%d%s', [AZoom, PathDelim, ATile.x, PathDelim, ATile.y, IfThen(ShowFileTypes, '.png')]);
-        end;
-      smPattern:
-        begin
-          Result := Format('%s%s%d%s%d%s%d%s', [ProviderName, Divider, ATile.x, Divider, ATile.y, Divider, AZoom, IfThen(ShowFileTypes, '.png', '')]);
-        end;
-    end;
-  end;
-
 var
   LFileName, LFilePath: String;
   LTileImg: TBGRABitmap;
@@ -304,7 +408,7 @@ begin
     ReceiveTile(LTileImg, AZoom, ATile);
     if FOtherTileRes then
       ResampleTile(LTileImg);
-    LFileName := _getFileName;
+    LFileName := GetFileName(AZoom, ATile.X, ATile.Y);
     LFilePath := Format('%s%s%s%s%s%s%s', [GetCurrentDir, PathDelim, OutPath, PathDelim, ProviderName, PathDelim, LFileName]);
     SaveTile(LTileImg, LFilePath);
     LTileImg.Free;

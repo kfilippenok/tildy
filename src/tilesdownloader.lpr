@@ -68,21 +68,13 @@ type
     end;
 
     objTilesDownloader := ConcreteCTilesDownloader.Create(nil);
+
     with objTilesDownloader do
     begin
       if not OptionParameter[okMinZoom].IsEmpty then
         MinZoom := OptionParameter[okMinZoom].ToInteger;
       if not OptionParameter[okMaxZoom].IsEmpty then
         MaxZoom := OptionParameter[okMaxZoom].ToInteger;
-      if not OptionParameter[okSaveMethod].IsEmpty then
-        case OptionParameter[okSaveMethod] of
-          'pattern':
-            begin
-              SaveMethod := smPattern;
-              if not OptionParameter[okDivider].IsEmpty then
-                Divider := OptionParameter[okDivider];
-            end;
-        end;
       if not OptionParameter[okProviderName].IsEmpty then
         ProviderName := OptionParameter[okProviderName];
       if not OptionParameter[okOutput].IsEmpty then
@@ -109,6 +101,9 @@ type
 
       if not OptionParameter[okTileRes].IsEmpty then
         TileRes := OptionParameter[okTileRes].ToInteger;
+
+      if not OptionParameter[okPattern].IsEmpty then
+        Pattern := OptionParameter[okPattern];
 
        if not OptionParameter[okTileRes].IsEmpty then
         TileRes := OptionParameter[okTileRes].ToInteger;

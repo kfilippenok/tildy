@@ -29,9 +29,10 @@ type
   end;
 
   ETileDownload = class(Exception);
-  ETDReceive  = class(ETileDownload);
-  ETDResample = class(ETileDownload);
-  ETDSave     = class(ETileDownload);
+  ETDReceive     = class(ETileDownload);
+  ETDResample    = class(ETileDownload);
+  ETDGetFileName = class(ETileDownload);
+  ETDSave        = class(ETileDownload);
 
 implementation
 
