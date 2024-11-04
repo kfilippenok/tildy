@@ -1,4 +1,4 @@
-# tiledownloader
+# tilesdownloader
 
 [English](./README.md) | Русский
 
