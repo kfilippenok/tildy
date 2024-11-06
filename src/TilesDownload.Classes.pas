@@ -72,6 +72,8 @@ const
 
 type
 
+  RefCTilesDownloader = class of CTilesDownloader;
+
   TGetFileName = function (const AZoom, AX, AY: Integer): String of object;
 
   GPatternItems = specialize TFPGMap<TPatternItem, integer>;
@@ -106,15 +108,16 @@ type
     function getCoordinate(Index: Integer): RCoordinate;
     procedure setCoordinate(Index: Integer; AValue: RCoordinate);
     procedure SetTileRes(AValue: Integer);
-  strict private
+  public
+    procedure Init;
     procedure calcTileNumber(const ACoordinate: RCoordinate; const AZoom: Integer; out Tile: RTile);
     function GetFileNameDir(const AZoom, AX, AY: Integer): String;
     function GetFileNamePattern(const AZoom, AX, AY: Integer): String;
     function GetFileName(const AZoom, AX, AY: Integer): String;
-    procedure ReceiveTile(var ATileImg: TBGRABitmap; AZoom: Integer; const ATile: RTile);
-    procedure ResampleTile(var ATileImg: TBGRABitmap);
+    procedure ReceiveTile(var ATileImg: TBGRABitmap; const AProviderLink: String; const AZoom: Integer; const ATile: RTile);
+    procedure ResampleTile(var ATileImg: TBGRABitmap; const ATileRes: Integer);
     procedure SaveTile(const ATileImg: TBGRABitmap; AFilePath: String);
-    procedure DownloadTile(const AZoom: Integer; const ATile: RTile);
+    procedure DownloadTile(const AZoom: Integer; const ATile: RTile); virtual;
   public
     constructor Create(AOwner: TComponent); override;
     destructor Destroy; override;
@@ -128,8 +131,8 @@ type
     property MaxZoom      : Integer     read FMaxZoom        write FMaxZoom        default defMaxZoom;
     property ShowFileTypes: Boolean     read FShowFileTypes  write FShowFileTypes  default defShowFileTypes;
     property Coordinates[Index: Integer]: RCoordinate read getCoordinate write setCoordinate;
-    procedure Download;
-    procedure DownloadFullMap;
+    procedure Download; virtual;
+    procedure DownloadFullMap; virtual;
   end;
 
   { CTDOpenStreetMap }
@@ -160,9 +163,52 @@ type
     Constructor Create(AOwner: TComponent); override;
   end;
 
+  { CMergedTD }
+
+  RefCMergedTD = class of CMergedTD;
+
+  CMergedTD = class(CTilesDownloader)
+  strict private
+    FMergedDownloader: CTilesDownloader;
+  public
+    constructor Create(AOwner: TComponent; AMergedTD: CTilesDownloader); virtual; overload;
+    procedure DownloadTile(const AZoom: Integer; const ATile: RTile); override;
+    property MergedDownloader: CTilesDownloader read FMergedDownloader write FMergedDownloader;
+    procedure Download; override;
+    procedure DownloadFullMap; override;
+  end;
+
+  { CMrgTDOpenStreetMap }
+
+  CMrgTDOpenStreetMap = class(CMergedTD)
+  public
+    Constructor Create(AOwner: TComponent; AMergedTD: CTilesDownloader); override;
+  end;
+
+  { CMrgTDOpenTopotMap }
+
+  CMrgTDOpenTopotMap = class(CMergedTD)
+  public
+    Constructor Create(AOwner: TComponent; AMergedTD: CTilesDownloader); override;
+  end;
+
+  { CMrgTDCycleOSM }
+
+  CMrgTDCycleOSM = class(CMergedTD)
+  public
+    Constructor Create(AOwner: TComponent; AMergedTD: CTilesDownloader); override;
+  end;
+
+  { CMrgTDOpenRailwayMap }
+
+  CMrgTDOpenRailwayMap = class(CMergedTD)
+  public
+    Constructor Create(AOwner: TComponent; AMergedTD: CTilesDownloader); override;
+  end;
+
 implementation
 
-uses ssockets;
+uses ssockets, BGRABitmapTypes;
 
 { HPatternItemsHelper }
 
@@ -334,16 +380,16 @@ begin
   Result := FGetFileName(AZoom, AX, AY);
 end;
 
-procedure CTilesDownloader.ReceiveTile(var ATileImg: TBGRABitmap; AZoom: Integer; const ATile: RTile);
+procedure CTilesDownloader.ReceiveTile(var ATileImg: TBGRABitmap; const AProviderLink: String; const AZoom: Integer; const ATile: RTile);
 var
   LMemoryStream: TMemoryStream;
 begin
-  WriteLn(Format('TileLink: %s/%d/%d/%d.png', [ProviderLink, AZoom,  ATile.x, ATile.y]));
+  WriteLn(Format('TileLink: %s/%d/%d/%d.png', [AProviderLink, AZoom,  ATile.x, ATile.y]));
   try
     LMemoryStream := TMemoryStream.Create;
     while True do
       try
-        Self.Get(Format('%s/%d/%d/%d.png', [ProviderLink, AZoom,  ATile.x, ATile.y]), LMemoryStream);
+        Self.Get(Format('%s/%d/%d/%d.png', [AProviderLink, AZoom,  ATile.x, ATile.y]), LMemoryStream);
         break;
       except
         on E: ESocketError do
@@ -362,13 +408,13 @@ begin
   end;
 end;
 
-procedure CTilesDownloader.ResampleTile(var ATileImg: TBGRABitmap);
+procedure CTilesDownloader.ResampleTile(var ATileImg: TBGRABitmap; const ATileRes: Integer);
 var
   LOldTile: TBGRABitmap;
 begin
   try
     LOldTile := ATileImg;
-    ATileImg := ATileImg.Resample(TileRes, TileRes);
+    ATileImg := ATileImg.Resample(ATileRes, ATileRes);
     LOldTile.Free;
   except
     on E: Exception do
@@ -405,9 +451,9 @@ var
 begin
   try
     LTileImg := TBGRABitmap.Create;
-    ReceiveTile(LTileImg, AZoom, ATile);
+    ReceiveTile(LTileImg, ProviderLink, AZoom, ATile);
     if FOtherTileRes then
-      ResampleTile(LTileImg);
+      ResampleTile(LTileImg, TileRes);
     LFileName := GetFileName(AZoom, ATile.X, ATile.Y);
     LFilePath := Format('%s%s%s%s%s%s%s', [GetCurrentDir, PathDelim, OutPath, PathDelim, ProviderName, PathDelim, LFileName]);
     SaveTile(LTileImg, LFilePath);
@@ -429,16 +475,21 @@ begin
   FTileRes:=AValue;
 end;
 
+procedure CTilesDownloader.Init;
+begin
+  InitSSLInterface;
+  Self.AllowRedirect := true;
+  Self.ConnectTimeOut := 10000;
+  Self.AddHeader('User-Agent', FUserAgent);
+end;
+
 procedure CTilesDownloader.Download;
 var
   LTile1, LTile2, LTileTmp: RTile;
   iz, ix, iy: Integer;
   LSaveDir: String;
 begin
-  InitSSLInterface;
-  Self.AllowRedirect := true;
-  Self.ConnectTimeOut := 10000;
-  Self.AddHeader('User-Agent', FUserAgent);
+  Init;
 
   LSaveDir := Format('%s%s%s%s%s', [GetCurrentDir, PathDelim, OutPath, PathDelim, ProviderName]);
   if not DirectoryExists(LSaveDir) then
@@ -490,10 +541,7 @@ var
   iz, ix, iy: Integer;
   LSaveDir: String;
 begin
-  InitSSLInterface;
-  Self.AllowRedirect := true;
-  Self.ConnectTimeOut := 10000;
-  Self.AddHeader('User-Agent', FUserAgent);
+  Init;
 
   LSaveDir := Format('%s%s%s%s%s', [GetCurrentDir, PathDelim, OutPath, PathDelim, ProviderName]);
   if not DirectoryExists(LSaveDir) then
@@ -568,6 +616,101 @@ end;
 constructor CTDOpenRailwayMap.Create(AOwner: TComponent);
 begin
   inherited Create(AOwner);
+
+  FUserAgent := 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 YaBrowser/24.6.0.0 Safari/537.36\';
+  ProviderName := 'OpenRailwayMap';
+  ProviderLink := 'http://b.tiles.openrailwaymap.org/standard';
+end;
+
+{ CMergedTD }
+
+procedure CMergedTD.DownloadTile(const AZoom: Integer; const ATile: RTile);
+var
+  LFileName, LFilePath: String;
+  LTileImg, LMergedTileImg: TBGRABitmap;
+begin
+  try
+    LTileImg := TBGRABitmap.Create;
+    LMergedTileImg := TBGRABitmap.Create;
+
+    ReceiveTile(LTileImg, ProviderLink, AZoom, ATile);
+    MergedDownloader.ReceiveTile(LMergedTileImg, MergedDownloader.ProviderLink, AZoom, ATile);
+
+    if FOtherTileRes then
+    begin
+      ResampleTile(LTileImg, TileRes);
+    end;
+    ResampleTile(LMergedTileImg, LTileImg.Width);
+    LTileImg.PutImage(0, 0, LMergedTileImg, dmDrawWithTransparency);
+
+    LFileName := GetFileName(AZoom, ATile.X, ATile.Y);
+    LFilePath := Format('%s%s%s%s%s%s%s', [GetCurrentDir, PathDelim, OutPath, PathDelim, ProviderName, PathDelim, LFileName]);
+    SaveTile(LTileImg, LFilePath);
+    LMergedTileImg.Free;
+    LTileImg.Free;
+  except
+    on E: Exception do
+    begin
+      if Assigned(LTileImg) then
+        LTileImg.Free;
+      if Assigned(LMergedTileImg) then
+        LMergedTileImg.Free;
+      raise;
+    end;
+  end;
+end;
+
+constructor CMergedTD.Create(AOwner: TComponent; AMergedTD: CTilesDownloader);
+begin
+  Create(AOwner);
+
+  FMergedDownloader := AMergedTD;
+end;
+
+procedure CMergedTD.Download;
+begin
+  MergedDownloader.Init;
+  inherited Download;
+end;
+
+procedure CMergedTD.DownloadFullMap;
+begin
+  MergedDownloader.Init;
+  inherited DownloadFullMap;
+end;
+
+{ CMrgTDOpenStreetMap }
+
+constructor CMrgTDOpenStreetMap.Create(AOwner: TComponent; AMergedTD: CTilesDownloader);
+begin
+  inherited Create(AOwner, AMergedTD);
+end;
+
+{ CMrgTDOpenTopotMap }
+
+constructor CMrgTDOpenTopotMap.Create(AOwner: TComponent; AMergedTD: CTilesDownloader);
+begin
+  inherited Create(AOwner, AMergedTD);
+
+  ProviderName := 'Open Topo Map';
+  ProviderLink := 'http://a.tile.opentopomap.org';
+end;
+
+{ CMrgTDCycleOSM }
+
+constructor CMrgTDCycleOSM.Create(AOwner: TComponent; AMergedTD: CTilesDownloader);
+begin
+  inherited Create(AOwner, AMergedTD);
+
+  ProviderName := 'CycleOSM';
+  ProviderLink := 'https://c.tile-cyclosm.openstreetmap.fr/cyclosm/';
+end;
+
+{ CMrgTDOpenRailwayMap }
+
+constructor CMrgTDOpenRailwayMap.Create(AOwner: TComponent; AMergedTD: CTilesDownloader);
+begin
+  inherited Create(AOwner, AMergedTD);
 
   FUserAgent := 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 YaBrowser/24.6.0.0 Safari/537.36\';
   ProviderName := 'OpenRailwayMap';

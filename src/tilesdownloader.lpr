@@ -22,7 +22,7 @@ uses
   cthreads,
   {$ENDIF}
   SysUtils, Classes, CustApp,
-  TilesDownload.Classes, TilesDownload.Types, TilesDownload.Exceptions;
+  TilesDownload.Classes, TilesDownload.Types, TilesDownload.Exceptions, TilesDownload.Utilities;
 
 var
   OptionParameter: array[TOptionKind] of String;
@@ -46,7 +46,6 @@ type
   procedure ATilesDownloader.DoRun;
   var
     objTilesDownloader: CTilesDownloader;
-    ConcreteCTilesDownloader: class of CTilesDownloader;
     Coordinate: RCoordinate;
   begin
     if hasOption(getOptionName(okHelp)) then
@@ -58,16 +57,39 @@ type
 
     parseParameters;
 
-    case OptionParameter[okProvider] of
-      'osm': ConcreteCTilesDownloader := CTDOpenStreetMap;
-      'otm': ConcreteCTilesDownloader := CTDOpenTopotMap;
-      'osm-cycle': ConcreteCTilesDownloader := CTDCycleOSM;
-      'railway': ConcreteCTilesDownloader := CTDOpenRailwayMap;
+    if (okMerge in glOptions) then
+    begin
+      try
+        objTilesDownloader := GetMergedTDClassOnIdent(OptionParameter[okProvider])
+                                .Create(Self, GetTDClassOnIdent(OptionParameter[okMerge]).Create(Self));
+      except
+        on E: Exception do
+        begin
+          WriteLn(E.Message);
+          if Assigned(objTilesDownloader) then
+            objTilesDownloader.Free;
+          Halt(1);
+        end;
+      end;
+    end
     else
-      ConcreteCTilesDownloader := CTilesDownloader;
-    end;
+    begin
+      if (okProvider in glOptions) then
+      try
+        objTilesDownloader := GetTDClassOnIdent(OptionParameter[okProvider]).Create(Self);
+      except
+        on E: Exception do
+        begin
+          WriteLn('Error: ' + E.Message);
+          if Assigned(objTilesDownloader) then
+            objTilesDownloader.Free;
+          Halt(1);
+        end;
+      end
+    else
+      objTilesDownloader := CTilesDownloader.Create(Self);
 
-    objTilesDownloader := ConcreteCTilesDownloader.Create(nil);
+    end;
 
     with objTilesDownloader do
     begin

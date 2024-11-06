@@ -28,6 +28,8 @@ type
     constructor Create(AOptions: TOptions); overload;
   end;
 
+  EUnknownIdentProvider = class(Exception);
+
   ETileDownload = class(Exception);
   ETDReceive     = class(ETileDownload);
   ETDResample    = class(ETileDownload);

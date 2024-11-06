@@ -77,7 +77,7 @@ Saving files with a pattern-generated name. Keywords:
 - %y%
 - %z%
 
-All you need is to insert the above keywords in the required place. You can also choose not to add keywords that you don't need. But I do not advise you to remove the cocks, because if you do, the downloaded tiles will be overwritten by others at a higher level, so they will have the same names.
+All you need is to insert the above keywords in the required place. You can also choose not to add keywords that you don't need. But I do not advise removing the `x`, `y` and `z`, because if you do, the downloaded tiles will be overwritten by others higher up, since they will have the same names.
 
 Example:
 ```
@@ -183,11 +183,23 @@ Example:
 
 ****
 
-### tile-res
+### tile-res [Unsigned Integer]
 
 The resolution of the saved images. Use it if you are not satisfied with the original permission.
 
 Example:
 ```
 ./tilesdownloader -provider railway -full-map -tile-res 256
+```
+
+
+***
+
+### merge [String]
+
+Combining tiles from two different providers. The main one is the one specified via the [provider] option(#provider-[string]). The second provider must be in the list of embedded ones. The resolution of the final tiles will be adjusted to the main provider or from [tile-res](#tile-res).
+
+Example:
+```
+./tilesdownloader -provider osm -merge railway -min-zoom 0 -max-zoom 5 -provider-name OpenRailwayMap-Standard -pattern %provider-name%_%x%_%y%_%z% -full-map
 ```

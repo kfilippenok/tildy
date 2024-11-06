@@ -37,7 +37,8 @@ TOptionKind = (okHelp,
                okSecondCoordLat,
                okSecondCoordLon,
                okFullMap,
-               okTileRes);
+               okTileRes,
+               okMerge);
 
 TOptions = Set of TOptionKind;
 
@@ -62,6 +63,7 @@ begin
     okSecondCoordLon: Exit('scoord-lon');
     okFullMap       : Exit('full-map');
     okTileRes       : Exit('tile-res');
+    okMerge         : Exit('merge');
   else
     Exit('unknown');
   end;
