@@ -6,8 +6,9 @@ interface
 
 uses
   Classes, SysUtils, process, Forms, Controls, Graphics, Dialogs, ExtCtrls,
-  StdCtrls, ComCtrls, ActnList, EditBtn, CheckLst, mvMapViewer,
-  mvDLECache, indSliders, LazFileUtils;
+  StdCtrls, ComCtrls, ActnList, EditBtn, CheckLst, Buttons, mvMapViewer,
+  mvDLECache, indSliders, LazFileUtils, mvEngine, mvTypes, mvDE_BGRA,
+  mvDE_RGBGraphics, DlgAddLayers;
 
 type
 
@@ -16,7 +17,16 @@ type
   TfMain = class(TForm)
     actStartStop: TAction;
     ActionList: TActionList;
+    btnDeleteLayer: TSpeedButton;
     btnStartDownload: TButton;
+    btnChooseArea: TButton;
+    chkConcreteZone: TCheckBox;
+    CoordFirstLatitude1: TLabeledEdit;
+    CoordFirstLongtitude1: TLabeledEdit;
+    CoordSecondLatitude1: TLabeledEdit;
+    CoordSecondLongtitude1: TLabeledEdit;
+    groupConcreteArea: TGroupBox;
+    groupCAreaZoom: TGroupBox;
     LayersList: TCheckListBox;
     chShowFileType: TCheckBox;
     chkOutput: TCheckBox;
@@ -30,6 +40,12 @@ type
     chkZoomToCursor: TCheckBox;
     CoordSecondLatitude: TLabeledEdit;
     groupLayers: TGroupBox;
+    lblCAreaMaxZoom: TLabel;
+    lblCAreaMaxZoomValue: TLabel;
+    lblCAreaMinZoom: TLabel;
+    lblCAreaMinZoomValue: TLabel;
+    MvBGRADrawingEngine: TMvBGRADrawingEngine;
+    panCAreaZoom: TPanel;
     PathExecutable: TFileNameEdit;
     groupCoordinates: TGroupBox;
     groupExecutable: TGroupBox;
@@ -48,6 +64,7 @@ type
     panDebug: TPanel;
     ProcessTilesdownloader: TProcess;
     LayersUpDown: TUpDown;
+    btnAddLayer: TSpeedButton;
     ZoomRange: TMultiSlider;
     panZoom: TPanel;
     SaveMethodVariations: TComboBox;
@@ -74,9 +91,13 @@ type
     pageTilesDownloader: TTabSheet;
     mvSsettings: TSplitter;
     optionsSoutlog: TSplitter;
+    ZoomCAreaRange: TMultiSlider;
     procedure actStartStopExecute(Sender: TObject);
+    procedure btnAddLayerClick(Sender: TObject);
+    procedure btnDeleteLayerClick(Sender: TObject);
     procedure btnStartDownloadClick(Sender: TObject);
     procedure chkActiveChange(Sender: TObject);
+    procedure chkConcreteZoneChange(Sender: TObject);
     procedure chkCyclicChange(Sender: TObject);
     procedure chkDebugTilesChange(Sender: TObject);
     procedure chkDoubleBuffChange(Sender: TObject);
@@ -89,20 +110,26 @@ type
     procedure FormActivate(Sender: TObject);
     procedure FullyOrPartiallySelect(Sender: TObject);
     procedure groupCoordinatesResize(Sender: TObject);
+    procedure LayersListClick(Sender: TObject);
     procedure LayersListClickCheck(Sender: TObject);
     procedure LayersListDragDrop(Sender, Source: TObject; X, Y: Integer);
     procedure LayersListDragOver(Sender, Source: TObject; X, Y: Integer;
       State: TDragState; var Accept: Boolean);
+    procedure MapViewCenterMoving(Sender: TObject; var NewCenter: TRealPoint;
+      var Allow: Boolean);
     procedure MapViewMouseMove(Sender: TObject; Shift: TShiftState; X,
       Y: Integer);
     procedure MapViewZoomChange(Sender: TObject);
+    procedure MapViewZoomChanging(Sender: TObject; NewZoom: Integer;
+      var Allow: Boolean);
     procedure PathExecutableChange(Sender: TObject);
     procedure ProviderVariationsMapChange(Sender: TObject);
     procedure LayersUpDownClick(Sender: TObject; Button: TUDBtnType);
     procedure ZoomRangePositionChange(Sender: TObject; AKind: TThumbKind;
       AValue: Integer);
   private
-
+    FConcreteArea: TRealArea;
+    procedure ReloadLayersList;
   public
 
   end;
@@ -115,7 +142,7 @@ implementation
 {$R *.lfm}
 
 uses
-  mvEngine, mvTypes, mvDrawingEngine, mvMapProvider;
+  mvDrawingEngine, mvMapProvider;
 
 { TfMain }
 
@@ -127,6 +154,24 @@ begin
     actStartStop.Caption := 'Stop'
   else
     actStartStop.Caption := 'Start';
+end;
+
+procedure TfMain.btnAddLayerClick(Sender: TObject);
+begin
+  fAddLayers := TfAddLayers.CreateEx(MapView);
+  if fAddLayers.ShowModal = mrAll then
+  begin
+    ReloadLayersList;
+  end;
+  FreeAndNil(fAddLayers);
+end;
+
+procedure TfMain.btnDeleteLayerClick(Sender: TObject);
+begin
+  MapView.Layers.Delete(LayersList.ItemIndex);
+  LayersList.Items.Delete(LayersList.ItemIndex);
+  btnDeleteLayer.Enabled := (LayersList.ItemIndex <> -1) and (LayersList.Count > 0);
+  LayersUpDown.Enabled := btnDeleteLayer.Enabled;
 end;
 
 procedure TfMain.btnStartDownloadClick(Sender: TObject);
@@ -182,6 +227,13 @@ begin
   MapView.Active := chkActive.Checked;
 end;
 
+procedure TfMain.chkConcreteZoneChange(Sender: TObject);
+begin
+  FConcreteArea := MapView.GetVisibleArea;
+  MapView.OnZoomChanging := @MapViewZoomChanging;
+  MapView.OnCenterMoving := @MapViewCenterMoving;
+end;
+
 procedure TfMain.chkCyclicChange(Sender: TObject);
 begin
   MapView.Cyclic := chkCyclic.Checked;
@@ -230,14 +282,21 @@ end;
 
 procedure TfMain.FormActivate(Sender: TObject);
 begin
-  chkActiveChange(Self);
-  chkCyclicChange(Self);
-  chkDebugTilesChange(Self);
-  chkDoubleBuffChange(Self);
-  chkPreviewTilesChange(Self);
-  chkUseThreadsChange(Self);
-  chkZoomToCursorChange(Self);
-  ProviderVariationsMapChange(Self);
+  chkActiveChange(nil);
+  chkCyclicChange(nil);
+  chkDebugTilesChange(nil);
+  chkDoubleBuffChange(nil);
+  chkPreviewTilesChange(nil);
+  chkUseThreadsChange(nil);
+  chkZoomToCursorChange(nil);
+  ProviderVariationsMapChange(nil);
+
+  MapView.GetMapProviders(ProviderVariationsMap.Items);
+  MapView.GetMapProviders(ProviderVariationsTiles.Items);
+  ReloadLayersList;
+
+  ZoomCAreaRange.MinPosition := 6;
+  ZoomCAreaRange.MaxPosition := 13;
 
   ZoomRange.MinPosition := 1;
   ZoomRange.MaxPosition := 4;
@@ -269,46 +328,18 @@ begin
   CoordSecondLatitude.Width := Trunc(FullyOrPartially.Width / 2);
 end;
 
+procedure TfMain.LayersListClick(Sender: TObject);
+begin
+  btnDeleteLayer.Enabled := (LayersList.ItemIndex <> -1) and (LayersList.Count > 0);
+  LayersUpDown.Enabled := btnDeleteLayer.Enabled;
+end;
+
 procedure TfMain.LayersListClickCheck(Sender: TObject);
 var
-  LMapLayer: TMapLayer;
-  LMapProvider: TMapProvider;
-  LMapProviders: TStringList;
+  i: Integer;
 begin
-  case LayersList.Items[LayersList.ItemIndex] of
-    'OpenStreetMap Mapnik'      :
-      begin
-        LMapProvider := MapView.Engine.MapProviderByName('OpenStreetMap Mapnik');
-        ShowMessage(LMapProvider.Name);
-        LMapLayer := MapView.Layers.Add as TMapLayer;
-        LMapLayer := TMapLayer.Create(MapView.Layers);
-        LMapProviders := TStringList.Create;
-        MapView.GetMapProviders(LMapProviders);
-        ShowMessage(LMapProviders.Text);
-        LMapProviders.Free;
-        LMapLayer.MapProvider := 'OpenStreetMap Mapnik';
-        LMapLayer.DrawMode := idmUseSourceAlpha;
-        LMapLayer.UseThreads := MapView.UseThreads;
-        LMapLayer.Visible := True;
-      end;
-    'Open Topo Map'             :;
-    'OpenStreetMap.fr Cycle Map':;
-    'OpenRailwayMap'            :
-      begin
-        LMapProvider := MapView.Engine.MapProviderByName('OpenRailwayMap');
-        ShowMessage(LMapProvider.Name);
-        LMapLayer := MapView.Layers.Add as TMapLayer;
-        LMapLayer := TMapLayer.Create(MapView.Layers);
-        LMapProviders := TStringList.Create;
-        MapView.GetMapProviders(LMapProviders);
-        ShowMessage(LMapProviders.Text);
-        LMapProviders.Free;
-        LMapLayer.MapProvider := 'OpenRailwayMap';
-        LMapLayer.DrawMode := idmUseSourceAlpha;
-        LMapLayer.UseThreads := MapView.UseThreads;
-        LMapLayer.Visible := True;
-      end;
-  end;
+  for i := 0 to MapView.Layers.Count-1 do
+    (MapView.Layers.Items[i] as TMapLayer).Visible := LayersList.Checked[i];
 end;
 
 procedure TfMain.LayersListDragDrop(Sender, Source: TObject; X, Y: Integer);
@@ -342,6 +373,12 @@ begin
     Accept := True;
 end;
 
+procedure TfMain.MapViewCenterMoving(Sender: TObject;
+  var NewCenter: TRealPoint; var Allow: Boolean);
+begin
+
+end;
+
 procedure TfMain.MapViewMouseMove(Sender: TObject; Shift: TShiftState; X,
   Y: Integer);
 var
@@ -357,6 +394,12 @@ end;
 procedure TfMain.MapViewZoomChange(Sender: TObject);
 begin
   lblDebugZoom.Caption := 'Zoom: ' + MapView.Zoom.ToString;
+end;
+
+procedure TfMain.MapViewZoomChanging(Sender: TObject; NewZoom: Integer;
+  var Allow: Boolean);
+begin
+  Allow := (NewZoom >= ZoomCAreaRange.MinPosition) and (NewZoom <= ZoomCAreaRange.MaxPosition);
 end;
 
 procedure TfMain.PathExecutableChange(Sender: TObject);
@@ -386,6 +429,7 @@ begin
       begin
         if LayersList.ItemIndex = 0 then Exit;
         NewIndex := LayersList.ItemIndex - 1;
+        MapView.Layers.Move(LayersList.ItemIndex, NewIndex);
         LayersList.Items.Move(LayersList.ItemIndex, NewIndex);
         LayersList.Selected[NewIndex] := True;
       end;
@@ -393,6 +437,7 @@ begin
       begin
         if LayersList.ItemIndex = LayersList.Count-1 then Exit;
         NewIndex := LayersList.ItemIndex + 1;
+        MapView.Layers.Move(LayersList.ItemIndex, NewIndex);
         LayersList.Items.Move(LayersList.ItemIndex, NewIndex);
         LayersList.Selected[NewIndex] := True;
       end;
@@ -403,9 +448,24 @@ procedure TfMain.ZoomRangePositionChange(Sender: TObject; AKind: TThumbKind;
   AValue: Integer);
 begin
   case AKind of
-    tkMin: lblMinZoomValue.Caption := AValue.ToString;
-    tkMax: lblMaxZoomValue.Caption := AValue.ToString;
+    tkMin: lblCAreaMinZoomValue.Caption := AValue.ToString;
+    tkMax: lblCAreaMaxZoomValue.Caption := AValue.ToString;
   else
+  end;
+end;
+
+procedure TfMain.ReloadLayersList;
+var
+  il: Integer;
+  MapLayer: TMapLayer;
+begin
+  LayersList.Clear;
+  for il := 0 to MapView.Layers.Count-1 do
+  begin
+    MapLayer := MapView.Layers[il] as TMapLayer;
+    LayersList.Items.Add(MapLayer.MapProvider);
+    if MapLayer.Visible then
+      LayersList.Checked[il] := True;
   end;
 end;
 

@@ -22,7 +22,7 @@
           </Target>
           <SearchPaths>
             <IncludeFiles Value="$(ProjOutDir)"/>
-            <OtherUnitFiles Value="../../../ascps_mapviewer/src"/>
+            <OtherUnitFiles Value="../../../ascps_mapviewer/src;src/gui"/>
             <UnitOutputDirectory Value="lib/$(TargetCPU)-$(TargetOS)"/>
           </SearchPaths>
           <Parsing>
@@ -61,7 +61,7 @@
           </Target>
           <SearchPaths>
             <IncludeFiles Value="$(ProjOutDir)"/>
-            <OtherUnitFiles Value="../../../ascps_mapviewer/src"/>
+            <OtherUnitFiles Value="../../../ascps_mapviewer/src;src/gui"/>
             <UnitOutputDirectory Value="lib/$(TargetCPU)-$(TargetOS)"/>
           </SearchPaths>
           <CodeGeneration>
@@ -95,6 +95,12 @@
     </RunParams>
     <RequiredPackages>
       <Item>
+        <PackageName Value="lazmapviewer_rgbgraphics"/>
+      </Item>
+      <Item>
+        <PackageName Value="lazmapviewer_bgra"/>
+      </Item>
+      <Item>
         <PackageName Value="industrial"/>
       </Item>
       <Item>
@@ -119,6 +125,13 @@
         <HasResources Value="True"/>
         <ResourceBaseClass Value="Form"/>
       </Unit>
+      <Unit>
+        <Filename Value="src/gui/DlgAddLayers.pas"/>
+        <IsPartOfProject Value="True"/>
+        <ComponentName Value="fAddLayers"/>
+        <HasResources Value="True"/>
+        <ResourceBaseClass Value="Form"/>
+      </Unit>
     </Units>
   </ProjectOptions>
   <CompilerOptions>
@@ -128,7 +141,7 @@
     </Target>
     <SearchPaths>
       <IncludeFiles Value="$(ProjOutDir)"/>
-      <OtherUnitFiles Value="../../../ascps_mapviewer/src"/>
+      <OtherUnitFiles Value="../../../ascps_mapviewer/src;src/gui"/>
       <UnitOutputDirectory Value="lib/$(TargetCPU)-$(TargetOS)"/>
     </SearchPaths>
     <Linking>

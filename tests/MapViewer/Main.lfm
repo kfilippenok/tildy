@@ -8,6 +8,7 @@ object fMain: TfMain
   ClientWidth = 1119
   Color = clForm
   Position = poDesktopCenter
+  LCLVersion = '4.99.0.0'
   OnActivate = FormActivate
   object Settings: TPageControl
     AnchorSideLeft.Control = mvSsettings
@@ -30,7 +31,7 @@ object fMain: TfMain
       Caption = 'MapView'
       ChildSizing.VerticalSpacing = 10
       ChildSizing.ControlsPerLine = 1
-      ClientHeight = 701
+      ClientHeight = 698
       ClientWidth = 469
       object mvScrollBox: TScrollBox
         Left = 0
@@ -38,13 +39,13 @@ object fMain: TfMain
         Top = 0
         Width = 469
         HorzScrollBar.Page = 132
-        VertScrollBar.Increment = 61
-        VertScrollBar.Page = 611
+        VertScrollBar.Increment = 69
+        VertScrollBar.Page = 699
         VertScrollBar.Smooth = True
         VertScrollBar.Tracking = True
         Align = alClient
         ClientHeight = 699
-        ClientWidth = 467
+        ClientWidth = 454
         ParentBackground = False
         TabOrder = 0
         object groupProviderMap: TGroupBox
@@ -55,13 +56,13 @@ object fMain: TfMain
           Left = 10
           Height = 70
           Top = 10
-          Width = 447
+          Width = 434
           Anchors = [akTop, akLeft, akRight]
           AutoSize = True
           BorderSpacing.Around = 10
           Caption = 'Provider'
           ClientHeight = 50
-          ClientWidth = 445
+          ClientWidth = 432
           ParentBackground = False
           TabOrder = 0
           object ProviderVariationsMap: TComboBox
@@ -74,7 +75,7 @@ object fMain: TfMain
             Left = 5
             Height = 40
             Top = 5
-            Width = 435
+            Width = 422
             Align = alCustom
             Anchors = [akTop, akLeft, akRight]
             AutoSize = False
@@ -95,20 +96,20 @@ object fMain: TfMain
         end
         object groupCache: TGroupBox
           AnchorSideLeft.Control = groupProviderMap
-          AnchorSideTop.Control = groupOther
+          AnchorSideTop.Control = groupLayers
           AnchorSideTop.Side = asrBottom
           AnchorSideRight.Control = groupProviderMap
           AnchorSideRight.Side = asrBottom
           Left = 10
           Height = 66
-          Top = 321
-          Width = 447
+          Top = 539
+          Width = 434
           Anchors = [akTop, akLeft, akRight]
           AutoSize = True
           BorderSpacing.Top = 10
           Caption = 'Cache'
           ClientHeight = 46
-          ClientWidth = 445
+          ClientWidth = 432
           ParentBackground = False
           TabOrder = 1
           object DirectoryCache: TDirectoryEdit
@@ -121,7 +122,7 @@ object fMain: TfMain
             Left = 5
             Height = 36
             Top = 5
-            Width = 435
+            Width = 422
             ShowHidden = False
             ButtonWidth = 40
             NumGlyphs = 1
@@ -141,13 +142,13 @@ object fMain: TfMain
           Left = 10
           Height = 221
           Top = 90
-          Width = 447
+          Width = 434
           Anchors = [akTop, akLeft, akRight]
           AutoSize = True
           BorderSpacing.Bottom = 10
           Caption = 'Other'
           ClientHeight = 201
-          ClientWidth = 445
+          ClientWidth = 432
           ParentBackground = False
           TabOrder = 2
           object chkActive: TCheckBox
@@ -158,7 +159,7 @@ object fMain: TfMain
             Left = 5
             Height = 23
             Top = 5
-            Width = 435
+            Width = 422
             Anchors = [akTop, akLeft, akRight]
             BorderSpacing.Around = 5
             Caption = 'Active'
@@ -174,7 +175,7 @@ object fMain: TfMain
             Left = 5
             Height = 23
             Top = 33
-            Width = 435
+            Width = 422
             Anchors = [akTop, akLeft, akRight]
             BorderSpacing.Bottom = 5
             Caption = 'Cyclic view'
@@ -190,7 +191,7 @@ object fMain: TfMain
             Left = 5
             Height = 23
             Top = 61
-            Width = 435
+            Width = 422
             Anchors = [akTop, akLeft, akRight]
             BorderSpacing.Bottom = 5
             Caption = 'Double buffering'
@@ -208,7 +209,7 @@ object fMain: TfMain
             Left = 5
             Height = 23
             Top = 89
-            Width = 435
+            Width = 422
             Anchors = [akTop, akLeft, akRight]
             BorderSpacing.Bottom = 5
             Caption = 'Debug tiles'
@@ -226,7 +227,7 @@ object fMain: TfMain
             Left = 5
             Height = 23
             Top = 117
-            Width = 435
+            Width = 422
             Anchors = [akTop, akLeft, akRight]
             BorderSpacing.Bottom = 5
             Caption = 'Preview tiles'
@@ -244,7 +245,7 @@ object fMain: TfMain
             Left = 5
             Height = 23
             Top = 145
-            Width = 435
+            Width = 422
             Anchors = [akTop, akLeft, akRight]
             BorderSpacing.Bottom = 5
             Caption = 'Use threads'
@@ -262,7 +263,7 @@ object fMain: TfMain
             Left = 5
             Height = 23
             Top = 173
-            Width = 435
+            Width = 422
             Anchors = [akTop, akLeft, akRight]
             BorderSpacing.Bottom = 5
             Caption = 'Zoom to cursor'
@@ -274,69 +275,401 @@ object fMain: TfMain
         end
         object groupLayers: TGroupBox
           AnchorSideLeft.Control = groupProviderMap
-          AnchorSideTop.Control = groupCache
+          AnchorSideTop.Control = groupOther
           AnchorSideTop.Side = asrBottom
           AnchorSideRight.Control = groupProviderMap
           AnchorSideRight.Side = asrBottom
           Left = 10
           Height = 208
-          Top = 397
-          Width = 447
+          Top = 321
+          Width = 434
           Anchors = [akTop, akLeft, akRight]
           BorderSpacing.Top = 10
           BorderSpacing.Bottom = 6
           Caption = 'Layers'
           ClientHeight = 188
-          ClientWidth = 445
+          ClientWidth = 432
           ParentBackground = False
           TabOrder = 3
           object LayersList: TCheckListBox
+            AnchorSideLeft.Control = groupLayers
+            AnchorSideTop.Control = groupLayers
+            AnchorSideRight.Control = LayersUpDown
+            AnchorSideBottom.Control = groupLayers
+            AnchorSideBottom.Side = asrBottom
             Left = 6
             Height = 176
             Top = 6
-            Width = 433
-            Align = alClient
+            Width = 381
+            Align = alCustom
+            Anchors = [akTop, akLeft, akRight, akBottom]
             BorderSpacing.Around = 6
             BorderStyle = bsNone
             DragMode = dmAutomatic
-            Items.Strings = (
-              'OpenStreetMap Mapnik'
-              'Open Topo Map'
-              'OpenStreetMap.fr Cycle Map'
-              'OpenRailwayMap'
-            )
-            ItemHeight = 25
+            ItemHeight = 0
             ParentFont = False
             TabOrder = 0
+            TopIndex = -1
+            OnClick = LayersListClick
             OnClickCheck = LayersListClickCheck
             OnDragDrop = LayersListDragDrop
             OnDragOver = LayersListDragOver
-            Data = {
-              0400000000000000
-            }
           end
           object LayersUpDown: TUpDown
-            AnchorSideRight.Control = LayersList
+            AnchorSideRight.Control = groupLayers
             AnchorSideRight.Side = asrBottom
-            AnchorSideBottom.Control = LayersList
+            AnchorSideBottom.Control = groupLayers
             AnchorSideBottom.Side = asrBottom
-            Left = 400
+            Left = 393
             Height = 65
-            Top = 112
+            Top = 118
             Width = 34
             Anchors = [akRight, akBottom]
             BorderSpacing.Around = 5
+            Enabled = False
             Min = 0
             Position = 0
             TabOrder = 1
             OnClick = LayersUpDownClick
+          end
+          object btnAddLayer: TSpeedButton
+            AnchorSideLeft.Control = LayersUpDown
+            AnchorSideTop.Control = LayersList
+            AnchorSideRight.Control = LayersUpDown
+            AnchorSideRight.Side = asrBottom
+            Left = 393
+            Height = 34
+            Top = 6
+            Width = 34
+            Anchors = [akTop, akLeft, akRight]
+            Glyph.Data = {
+              36040000424D3604000000000000360000002800000010000000100000000100
+              2000000000000004000000000000000000000000000000000000FFFFFF00FFFF
+              FF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFF
+              FF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFF
+              FF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFF
+              FF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFF
+              FF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FF77220FFE7E2AD4FE7E2AD4FF77
+              220FFFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFF
+              FF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FF80293EFE7E2AFFFE7E2AFFFF80
+              293EFFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFF
+              FF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FF802C40FE7E2AFFFE7E2AFFFF80
+              2C40FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFF
+              FF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FF802C40FE7E2AFFFE7E2AFFFF80
+              2C40FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFF
+              FF00FF77220FFF7E2B41FF802944FF802944FF7E2A73FE7E2AFFFE7E2AFFFF7E
+              2A73FF802944FF802944FF7E2B41FF77220FFFFFFF00FFFFFF00FFFFFF00FFFF
+              FF00FE7E2AD4FE7E2AFFFE7E2AFFFE7E2AFFFE7E2AFFFE7E2AFFFE7E2AFFFE7E
+              2AFFFE7E2AFFFE7E2AFFFE7E2AFFFE7E2AD4FFFFFF00FFFFFF00FFFFFF00FFFF
+              FF00FE7E2AD4FE7E2AFFFE7E2AFFFE7E2AFFFE7E2AFFFE7E2AFFFE7E2AFFFE7E
+              2AFFFE7E2AFFFE7E2AFFFE7E2AFFFE7E2AD4FFFFFF00FFFFFF00FFFFFF00FFFF
+              FF00FF77220FFF7E2B41FF802944FF802944FF7E2A73FE7E2AFFFE7E2AFFFF7E
+              2A73FF802944FF802944FF7E2B41FF77220FFFFFFF00FFFFFF00FFFFFF00FFFF
+              FF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FF802C40FE7E2AFFFE7E2AFFFF80
+              2C40FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFF
+              FF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FF802C40FE7E2AFFFE7E2AFFFF80
+              2C40FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFF
+              FF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FF80293EFE7E2AFFFE7E2AFFFF80
+              293EFFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFF
+              FF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FF77220FFE7E2AD4FE7E2AD4FF77
+              220FFFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFF
+              FF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFF
+              FF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFF
+              FF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFF
+              FF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00
+            }
+            OnClick = btnAddLayerClick
+          end
+          object btnDeleteLayer: TSpeedButton
+            AnchorSideLeft.Control = LayersUpDown
+            AnchorSideTop.Control = btnAddLayer
+            AnchorSideTop.Side = asrBottom
+            AnchorSideRight.Control = LayersUpDown
+            AnchorSideRight.Side = asrBottom
+            Left = 393
+            Height = 34
+            Top = 41
+            Width = 34
+            Anchors = [akTop, akLeft, akRight]
+            BorderSpacing.Top = 1
+            Enabled = False
+            Glyph.Data = {
+              36040000424D3604000000000000360000002800000010000000100000000100
+              2000000000000004000000000000000000000000000000000000FFFFFF00FFFF
+              FF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFF
+              FF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFF
+              FF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFF
+              FF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFF
+              FF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFF
+              FF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFF
+              FF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFF
+              FF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFF
+              FF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFF
+              FF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFF
+              FF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFF
+              FF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFF
+              FF000000FF0F0404FB410404FB440404FB440404FB440404FB440404FB440404
+              FB440404FB440404FB440404FB410000FF0FFFFFFF00FFFFFF00FFFFFF00FFFF
+              FF000202FAD40203FAFF0203FAFF0203FAFF0203FAFF0203FAFF0203FAFF0203
+              FAFF0203FAFF0203FAFF0203FAFF0202FAD4FFFFFF00FFFFFF00FFFFFF00FFFF
+              FF000202FAD40203FAFF0203FAFF0203FAFF0203FAFF0203FAFF0203FAFF0203
+              FAFF0203FAFF0203FAFF0203FAFF0202FAD4FFFFFF00FFFFFF00FFFFFF00FFFF
+              FF000000FF0F0404FB410404FB440404FB440404FB440404FB440404FB440404
+              FB440404FB440404FB440404FB410000FF0FFFFFFF00FFFFFF00FFFFFF00FFFF
+              FF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFF
+              FF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFF
+              FF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFF
+              FF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFF
+              FF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFF
+              FF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFF
+              FF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFF
+              FF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFF
+              FF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFF
+              FF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFF
+              FF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFF
+              FF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00
+            }
+            OnClick = btnDeleteLayerClick
+          end
+        end
+        object groupConcreteArea: TGroupBox
+          AnchorSideLeft.Control = groupProviderMap
+          AnchorSideTop.Control = groupCache
+          AnchorSideTop.Side = asrBottom
+          AnchorSideRight.Control = groupProviderMap
+          AnchorSideRight.Side = asrBottom
+          Left = 10
+          Height = 345
+          Top = 615
+          Width = 434
+          Anchors = [akTop, akLeft, akRight]
+          BorderSpacing.Top = 10
+          BorderSpacing.Bottom = 10
+          Caption = 'Concrete zone'
+          ClientHeight = 325
+          ClientWidth = 432
+          Enabled = False
+          ParentBackground = False
+          TabOrder = 4
+          object chkConcreteZone: TCheckBox
+            AnchorSideLeft.Control = groupConcreteArea
+            AnchorSideTop.Control = groupConcreteArea
+            AnchorSideRight.Control = groupConcreteArea
+            AnchorSideRight.Side = asrBottom
+            Left = 6
+            Height = 23
+            Top = 6
+            Width = 420
+            Anchors = [akTop, akLeft, akRight]
+            BorderSpacing.Around = 6
+            Caption = 'Use'
+            TabOrder = 0
+            OnChange = chkConcreteZoneChange
+          end
+          object btnChooseArea: TButton
+            AnchorSideLeft.Control = chkConcreteZone
+            AnchorSideTop.Control = chkConcreteZone
+            AnchorSideTop.Side = asrBottom
+            AnchorSideRight.Control = chkConcreteZone
+            AnchorSideRight.Side = asrBottom
+            Left = 6
+            Height = 35
+            Top = 35
+            Width = 420
+            Anchors = [akTop, akLeft, akRight]
+            AutoSize = True
+            BorderSpacing.Bottom = 30
+            Caption = 'Choose area'
+            TabOrder = 1
+          end
+          object CoordFirstLatitude1: TLabeledEdit
+            AnchorSideTop.Control = btnChooseArea
+            AnchorSideTop.Side = asrBottom
+            AnchorSideRight.Control = CoordFirstLongtitude1
+            Left = 5
+            Height = 36
+            Top = 100
+            Width = 211
+            BorderSpacing.Bottom = 30
+            EditLabel.Height = 19
+            EditLabel.Width = 211
+            EditLabel.Caption = 'First:  Latitude'
+            Enabled = False
+            TabOrder = 2
+            Text = '42.7'
+          end
+          object CoordFirstLongtitude1: TLabeledEdit
+            AnchorSideLeft.Control = CoordFirstLatitude1
+            AnchorSideLeft.Side = asrBottom
+            AnchorSideTop.Control = btnChooseArea
+            AnchorSideTop.Side = asrBottom
+            AnchorSideRight.Control = btnChooseArea
+            AnchorSideRight.Side = asrBottom
+            Left = 221
+            Height = 36
+            Top = 100
+            Width = 205
+            Anchors = [akTop, akLeft, akRight]
+            BorderSpacing.Left = 5
+            EditLabel.Height = 19
+            EditLabel.Width = 205
+            EditLabel.Caption = 'First: Longtitude'
+            Enabled = False
+            TabOrder = 3
+            Text = '120'
+          end
+          object CoordSecondLatitude1: TLabeledEdit
+            AnchorSideLeft.Control = CoordFirstLatitude1
+            AnchorSideTop.Control = CoordFirstLatitude1
+            AnchorSideTop.Side = asrBottom
+            AnchorSideRight.Control = CoordSecondLongtitude1
+            Left = 5
+            Height = 36
+            Top = 166
+            Width = 211
+            BorderSpacing.Bottom = 6
+            EditLabel.Height = 19
+            EditLabel.Width = 211
+            EditLabel.Caption = 'Second:  Latitude'
+            Enabled = False
+            TabOrder = 4
+            Text = '57.02137767'
+          end
+          object CoordSecondLongtitude1: TLabeledEdit
+            AnchorSideLeft.Control = CoordSecondLatitude1
+            AnchorSideLeft.Side = asrBottom
+            AnchorSideTop.Control = CoordSecondLatitude1
+            AnchorSideTop.Side = asrCenter
+            AnchorSideRight.Control = btnChooseArea
+            AnchorSideRight.Side = asrBottom
+            Left = 221
+            Height = 36
+            Top = 166
+            Width = 205
+            Anchors = [akTop, akLeft, akRight]
+            BorderSpacing.Left = 5
+            EditLabel.Height = 19
+            EditLabel.Width = 205
+            EditLabel.Caption = 'Second: Longtitude'
+            Enabled = False
+            TabOrder = 5
+            Text = '143.1'
+          end
+          object groupCAreaZoom: TGroupBox
+            AnchorSideLeft.Control = chkConcreteZone
+            AnchorSideTop.Control = CoordSecondLatitude1
+            AnchorSideTop.Side = asrBottom
+            AnchorSideRight.Control = chkConcreteZone
+            AnchorSideRight.Side = asrBottom
+            Left = 6
+            Height = 95
+            Top = 212
+            Width = 420
+            Anchors = [akTop, akLeft, akRight]
+            AutoSize = True
+            BorderSpacing.Top = 10
+            BorderSpacing.Bottom = 10
+            Caption = 'Zoom'
+            ClientHeight = 75
+            ClientWidth = 418
+            ParentBackground = False
+            TabOrder = 6
+            object panCAreaZoom: TPanel
+              Left = 5
+              Height = 40
+              Top = 30
+              Width = 408
+              Align = alBottom
+              AutoSize = True
+              BorderSpacing.Around = 5
+              BevelOuter = bvNone
+              Caption = 'panZoom'
+              ClientHeight = 40
+              ClientWidth = 408
+              ParentBackground = False
+              TabOrder = 0
+              object ZoomCAreaRange: TMultiSlider
+                Left = 0
+                Height = 40
+                Top = 0
+                Width = 408
+                ColorBetween = clHighlight
+                ColorThumb = clActiveCaption
+                Flat = True
+                MaxPosition = 20
+                MinPosition = 6
+                RangeMax = 19
+                ThumbStyle = tsRoundedRect
+                OnPositionChange = ZoomRangePositionChange
+                Align = alBottom
+              end
+            end
+            object lblCAreaMinZoomValue: TLabel
+              AnchorSideLeft.Control = lblCAreaMinZoom
+              AnchorSideLeft.Side = asrBottom
+              AnchorSideBottom.Control = panCAreaZoom
+              Left = 57
+              Height = 20
+              Top = 5
+              Width = 9
+              Anchors = [akLeft, akBottom]
+              BorderSpacing.Left = 6
+              Caption = '6'
+              Font.Height = -16
+              ParentFont = False
+            end
+            object lblCAreaMaxZoomValue: TLabel
+              AnchorSideLeft.Control = panCAreaZoom
+              AnchorSideRight.Control = panCAreaZoom
+              AnchorSideRight.Side = asrBottom
+              AnchorSideBottom.Control = panCAreaZoom
+              Left = 377
+              Height = 20
+              Top = 5
+              Width = 16
+              Anchors = [akRight, akBottom]
+              BorderSpacing.Left = 6
+              BorderSpacing.Right = 20
+              Caption = '13'
+              Font.Height = -16
+              ParentFont = False
+            end
+            object lblCAreaMinZoom: TLabel
+              AnchorSideLeft.Control = panCAreaZoom
+              AnchorSideBottom.Control = panCAreaZoom
+              Left = 20
+              Height = 20
+              Top = 5
+              Width = 31
+              Anchors = [akLeft, akBottom]
+              BorderSpacing.Left = 15
+              BorderSpacing.Top = 5
+              Caption = 'Min:'
+              Font.Height = -16
+              ParentFont = False
+            end
+            object lblCAreaMaxZoom: TLabel
+              AnchorSideLeft.Control = panCAreaZoom
+              AnchorSideRight.Control = lblCAreaMaxZoomValue
+              AnchorSideBottom.Control = panCAreaZoom
+              Left = 337
+              Height = 20
+              Top = 5
+              Width = 34
+              Anchors = [akRight, akBottom]
+              BorderSpacing.Left = 15
+              BorderSpacing.Right = 5
+              Caption = 'Max:'
+              Font.Height = -16
+              ParentFont = False
+            end
           end
         end
       end
     end
     object pageTilesDownloader: TTabSheet
       Caption = 'TilesDownloader'
-      ClientHeight = 701
+      ClientHeight = 698
       ClientWidth = 469
       object ConsoleOutput: TMemo
         AnchorSideLeft.Control = pageTilesDownloader
@@ -443,12 +776,12 @@ object fMain: TfMain
             Left = 5
             Height = 27
             Top = 78
-            Width = 402
+            Width = 404
             Anchors = [akTop, akLeft, akRight]
             BorderSpacing.Right = 5
             BorderSpacing.Bottom = 5
             EditLabel.Height = 19
-            EditLabel.Width = 402
+            EditLabel.Width = 404
             EditLabel.Caption = 'ProviderName'
             Enabled = False
             TabOrder = 1
@@ -459,10 +792,10 @@ object fMain: TfMain
             AnchorSideRight.Side = asrBottom
             AnchorSideBottom.Control = ProviderName
             AnchorSideBottom.Side = asrBottom
-            Left = 412
+            Left = 414
             Height = 27
             Top = 78
-            Width = 23
+            Width = 21
             Anchors = [akTop, akRight, akBottom]
             TabOrder = 2
             OnChange = chkProviderNameChange
@@ -495,7 +828,7 @@ object fMain: TfMain
             Left = 5
             Height = 27
             Top = 5
-            Width = 402
+            Width = 404
             ShowHidden = False
             ButtonWidth = 40
             NumGlyphs = 1
@@ -511,10 +844,10 @@ object fMain: TfMain
             AnchorSideTop.Side = asrCenter
             AnchorSideRight.Control = groupOutput
             AnchorSideRight.Side = asrBottom
-            Left = 412
-            Height = 23
-            Top = 7
-            Width = 23
+            Left = 414
+            Height = 21
+            Top = 8
+            Width = 21
             Anchors = [akTop, akRight]
             BorderSpacing.Around = 5
             TabOrder = 1
@@ -811,7 +1144,7 @@ object fMain: TfMain
           Left = 10
           Height = 23
           Top = 669
-          Width = 116
+          Width = 113
           BorderSpacing.Bottom = 6
           Caption = 'Show file type'
           TabOrder = 5
@@ -909,8 +1242,8 @@ object fMain: TfMain
       Width = 628
       Align = alClient
       CacheLocation = clCustom
-      DownloadEngine = MVDECache
-      DrawingEngine = MapView.BuiltInDE
+      DownloadEngine = MapView.BuiltInDLE
+      DrawingEngine = MvBGRADrawingEngine
       Layers = <>
       Font.Color = clBlack
       OnZoomChange = MapViewZoomChange
@@ -1011,5 +1344,9 @@ object fMain: TfMain
     ErrorDescriptor.FileWriteMode = fwmTruncate
     Left = 928
     Top = 40
+  end
+  object MvBGRADrawingEngine: TMvBGRADrawingEngine
+    Left = 338
+    Top = 100
   end
 end
