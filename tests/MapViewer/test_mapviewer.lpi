@@ -95,6 +95,9 @@
     </RunParams>
     <RequiredPackages>
       <Item>
+        <PackageName Value="bgracontrols"/>
+      </Item>
+      <Item>
         <PackageName Value="lazmapviewer_rgbgraphics"/>
       </Item>
       <Item>
@@ -129,6 +132,13 @@
         <Filename Value="src/gui/DlgAddLayers.pas"/>
         <IsPartOfProject Value="True"/>
         <ComponentName Value="fAddLayers"/>
+        <HasResources Value="True"/>
+        <ResourceBaseClass Value="Form"/>
+      </Unit>
+      <Unit>
+        <Filename Value="src/gui/DlgCoordinatesHelp.pas"/>
+        <IsPartOfProject Value="True"/>
+        <ComponentName Value="fCoordinatesHelp"/>
         <HasResources Value="True"/>
         <ResourceBaseClass Value="Form"/>
       </Unit>

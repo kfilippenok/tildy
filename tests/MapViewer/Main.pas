@@ -6,9 +6,9 @@ interface
 
 uses
   Classes, SysUtils, process, Forms, Controls, Graphics, Dialogs, ExtCtrls,
-  StdCtrls, ComCtrls, ActnList, EditBtn, CheckLst, Buttons, mvMapViewer,
-  mvDLECache, indSliders, LazFileUtils, mvEngine, mvTypes, mvDE_BGRA,
-  mvDE_RGBGraphics, DlgAddLayers;
+  StdCtrls, ComCtrls, ActnList, EditBtn, CheckLst, Buttons, BGRAShape, BCPanel,
+  BCListBox, mvMapViewer, mvDLECache, indSliders, LazFileUtils, mvEngine,
+  mvTypes, mvDE_BGRA, DlgAddLayers, DlgCoordinatesHelp, mvGpsObj;
 
 type
 
@@ -19,12 +19,12 @@ type
     ActionList: TActionList;
     btnDeleteLayer: TSpeedButton;
     btnStartDownload: TButton;
-    btnChooseArea: TButton;
+    chkShowCoordinates: TCheckBox;
     chkConcreteZone: TCheckBox;
-    CoordFirstLatitude1: TLabeledEdit;
-    CoordFirstLongtitude1: TLabeledEdit;
-    CoordSecondLatitude1: TLabeledEdit;
-    CoordSecondLongtitude1: TLabeledEdit;
+    AreaCoordFirstLatitude: TLabeledEdit;
+    AreaCoordFirstLongitude: TLabeledEdit;
+    AreaCoordSecondLatitude: TLabeledEdit;
+    AreaCoordSecondLongitude: TLabeledEdit;
     groupConcreteArea: TGroupBox;
     groupCAreaZoom: TGroupBox;
     LayersList: TCheckListBox;
@@ -65,6 +65,8 @@ type
     ProcessTilesdownloader: TProcess;
     LayersUpDown: TUpDown;
     btnAddLayer: TSpeedButton;
+    Shape1: TShape;
+    btnCoordinateHelp: TSpeedButton;
     ZoomRange: TMultiSlider;
     panZoom: TPanel;
     SaveMethodVariations: TComboBox;
@@ -104,10 +106,13 @@ type
     procedure chkOutputChange(Sender: TObject);
     procedure chkPreviewTilesChange(Sender: TObject);
     procedure chkProviderNameChange(Sender: TObject);
+    procedure chkShowCoordinatesChange(Sender: TObject);
     procedure chkUseThreadsChange(Sender: TObject);
     procedure chkZoomToCursorChange(Sender: TObject);
+    procedure CoordChange(Sender: TObject);
     procedure DirectoryCacheChange(Sender: TObject);
     procedure FormActivate(Sender: TObject);
+    procedure FormDestroy(Sender: TObject);
     procedure FullyOrPartiallySelect(Sender: TObject);
     procedure groupCoordinatesResize(Sender: TObject);
     procedure LayersListClick(Sender: TObject);
@@ -125,9 +130,12 @@ type
     procedure PathExecutableChange(Sender: TObject);
     procedure ProviderVariationsMapChange(Sender: TObject);
     procedure LayersUpDownClick(Sender: TObject; Button: TUDBtnType);
+    procedure btnCoordinateHelpClick(Sender: TObject);
     procedure ZoomRangePositionChange(Sender: TObject; AKind: TThumbKind;
       AValue: Integer);
   private
+    FirstCoordinate, SecondCoordinate: TGpsPoint;
+    ShowCoordinates: Boolean;
     FConcreteArea: TRealArea;
     procedure ReloadLayersList;
   public
@@ -228,10 +236,27 @@ begin
 end;
 
 procedure TfMain.chkConcreteZoneChange(Sender: TObject);
+var
+  FirstLat, FirstLon, SecondLat, SecondLon: Extended;
 begin
-  FConcreteArea := MapView.GetVisibleArea;
-  MapView.OnZoomChanging := @MapViewZoomChanging;
-  MapView.OnCenterMoving := @MapViewCenterMoving;
+  if chkConcreteZone.Checked then
+  begin
+    FirstLat  := StrToFloat(AreaCoordFirstLatitude.Text);
+    FirstLon  := StrToFloat(AreaCoordFirstLongitude.Text);
+    SecondLat := StrToFloat(AreaCoordSecondLatitude.Text);
+    SecondLon := StrToFloat(AreaCoordSecondLongitude.Text);
+    FConcreteArea.Init(FirstLon, FirstLat, SecondLon, SecondLat);
+    MapView.Zoom := ZoomCAreaRange.MinPosition;
+    MapView.MapCenter.Latitude := (FirstLat + SecondLat) / 2;
+    MapView.MapCenter.Longitude := (FirstLon + SecondLon) / 2;
+    MapView.OnZoomChanging := @MapViewZoomChanging;
+    MapView.OnCenterMoving := @MapViewCenterMoving;
+  end
+  else
+  begin
+    MapView.OnZoomChanging := nil;
+    MapView.OnCenterMoving := nil;
+  end;
 end;
 
 procedure TfMain.chkCyclicChange(Sender: TObject);
@@ -264,6 +289,13 @@ begin
   ProviderName.Enabled := chkProviderName.Checked;
 end;
 
+procedure TfMain.chkShowCoordinatesChange(Sender: TObject);
+begin
+  ShowCoordinates := chkShowCoordinates.Checked;
+  FirstCoordinate.Visible := ShowCoordinates;
+  SecondCoordinate.Visible := ShowCoordinates;
+end;
+
 procedure TfMain.chkUseThreadsChange(Sender: TObject);
 begin
   MapView.UseThreads := chkUseThreads.Checked;
@@ -272,6 +304,63 @@ end;
 procedure TfMain.chkZoomToCursorChange(Sender: TObject);
 begin
   MapView.ZoomToCursor := chkZoomToCursor.Checked;
+end;
+
+procedure TfMain.CoordChange(Sender: TObject);
+
+  function _TryTextToDouble(var DoubleVar: Extended; Text: String): Boolean;
+  begin
+    try
+      DoubleVar := StrToFloat(Text);
+      Result := True;
+    except
+      on E: EConvertError do
+      begin
+        Result := False;
+      end;
+    end;
+  end;
+
+var
+  FirstLat, FirstLon, SecondLat, SecondLon: Extended;
+
+  function _FieldsConverts: Boolean;
+  begin
+    Result := True;
+    try
+      FirstLat  := StrToFloat(AreaCoordFirstLatitude.Text);
+      FirstLon  := StrToFloat(AreaCoordFirstLongitude.Text);
+      SecondLat := StrToFloat(AreaCoordSecondLatitude.Text);
+      SecondLon := StrToFloat(AreaCoordSecondLongitude.Text);
+    except
+      on E: EConvertError do
+      begin
+        Exit(False);
+      end;
+    end;
+  end;
+
+  function _ValuesCorrect: Boolean;
+  begin
+    Result := (FirstLat > SecondLat) and (FirstLon < SecondLon)
+  end;
+
+begin
+  if not _FieldsConverts then
+  begin
+    chkShowCoordinates.Enabled := False;
+    chkConcreteZone.Enabled := False;
+    Exit;
+  end;
+  chkConcreteZone.Enabled := _ValuesCorrect;
+  chkShowCoordinates.Enabled := chkConcreteZone.Enabled;
+  if chkConcreteZone.Enabled then
+  begin
+    FirstCoordinate.Lon := FirstLon;
+    FirstCoordinate.Lat := FirstLat;
+    SecondCoordinate.Lon := SecondLon;
+    SecondCoordinate.Lat := SecondLat;
+  end;
 end;
 
 procedure TfMain.DirectoryCacheChange(Sender: TObject);
@@ -289,17 +378,28 @@ begin
   chkPreviewTilesChange(nil);
   chkUseThreadsChange(nil);
   chkZoomToCursorChange(nil);
-  ProviderVariationsMapChange(nil);
+
+  FirstCoordinate  := TGpsPoint.Create(StrToFloat(AreaCoordFirstLongitude.Text), StrToFloat(AreaCoordFirstLatitude.Text));
+  SecondCoordinate := TGpsPoint.Create(StrToFloat(AreaCoordSecondLongitude.Text), StrToFloat(AreaCoordSecondLatitude.Text));
+  CoordChange(nil);
+  ShowCoordinates := chkShowCoordinates.Checked;
+  FirstCoordinate.Visible := ShowCoordinates;
+  SecondCoordinate.Visible := ShowCoordinates;
 
   MapView.GetMapProviders(ProviderVariationsMap.Items);
   MapView.GetMapProviders(ProviderVariationsTiles.Items);
   ReloadLayersList;
 
+  // This is necessary so that the slider does not run away to the side.
+  // The problem is in the component, but at the moment it's like a temporary solution.
   ZoomCAreaRange.MinPosition := 6;
   ZoomCAreaRange.MaxPosition := 13;
+end;
 
-  ZoomRange.MinPosition := 1;
-  ZoomRange.MaxPosition := 4;
+procedure TfMain.FormDestroy(Sender: TObject);
+begin
+  FirstCoordinate.Free;
+  SecondCoordinate.Free;
 end;
 
 procedure TfMain.FullyOrPartiallySelect(Sender: TObject);
@@ -376,7 +476,7 @@ end;
 procedure TfMain.MapViewCenterMoving(Sender: TObject;
   var NewCenter: TRealPoint; var Allow: Boolean);
 begin
-
+  Allow := True;
 end;
 
 procedure TfMain.MapViewMouseMove(Sender: TObject; Shift: TShiftState; X,
@@ -416,6 +516,7 @@ procedure TfMain.ProviderVariationsMapChange(Sender: TObject);
 begin
   with ProviderVariationsMap do
     MapView.MapProvider := Items[ItemIndex];
+  chkActive.Enabled := True;
 end;
 
 procedure TfMain.LayersUpDownClick(Sender: TObject; Button: TUDBtnType);
@@ -442,6 +543,11 @@ begin
         LayersList.Selected[NewIndex] := True;
       end;
   end;
+end;
+
+procedure TfMain.btnCoordinateHelpClick(Sender: TObject);
+begin
+  fCoordinatesHelp.ShowModal;
 end;
 
 procedure TfMain.ZoomRangePositionChange(Sender: TObject; AKind: TThumbKind;
