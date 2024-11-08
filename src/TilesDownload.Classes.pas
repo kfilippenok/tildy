@@ -37,8 +37,8 @@ type
   end;
 
   RTile = record
-    X: Integer;
-    Y: Integer;
+    X: QWord;
+    Y: QWord;
   end;
 
   { HTileHelper }
@@ -101,6 +101,7 @@ type
     FShowFileTypes: Boolean;
   strict private // Getters, setters & other
     function getProviderLink: String;
+    function GetTotalTilesCount: Longword;
     procedure setProviderLink(AValue: String);
     function getProviderName: String;
     procedure setProviderName(AValue: String);
@@ -110,7 +111,9 @@ type
     procedure SetTileRes(AValue: Integer);
   public
     procedure Init;
-    procedure calcTileNumber(const ACoordinate: RCoordinate; const AZoom: Integer; out Tile: RTile);
+    procedure CalcTileNumber(const ACoordinate: RCoordinate; const AZoom: Integer; out Tile: RTile);
+    function CalcRowTilesCount(AZoom: Byte): Longword;
+    function CalcZoomTilesCount(AZoom: Byte): Longword;
     function GetFileNameDir(const AZoom, AX, AY: Integer): String;
     function GetFileNamePattern(const AZoom, AX, AY: Integer): String;
     function GetFileName(const AZoom, AX, AY: Integer): String;
@@ -121,16 +124,17 @@ type
   public
     constructor Create(AOwner: TComponent); override;
     destructor Destroy; override;
-    property ProviderName : String      read getProviderName write setProviderName;
-    property ProviderLink : String      read getProviderLink write setProviderLink;
-    property OutPath      : String      read FOutPath        write FOutPath       ;
-    property TileRes      : Integer     read FTileRes        write SetTileRes     ;
-    property Pattern      : String      read FPattern        write SetPattern     ;
-    property SaveMethod   : TSaveMethod read FSaveMethod     write FSaveMethod     default defSaveMethod;
-    property MinZoom      : Integer     read FMinZoom        write FMinZoom        default defMinZoom;
-    property MaxZoom      : Integer     read FMaxZoom        write FMaxZoom        default defMaxZoom;
-    property ShowFileTypes: Boolean     read FShowFileTypes  write FShowFileTypes  default defShowFileTypes;
+    property ProviderName   : String      read getProviderName write setProviderName;
+    property ProviderLink   : String      read getProviderLink write setProviderLink;
+    property OutPath        : String      read FOutPath        write FOutPath       ;
+    property TileRes        : Integer     read FTileRes        write SetTileRes     ;
+    property Pattern        : String      read FPattern        write SetPattern     ;
+    property SaveMethod     : TSaveMethod read FSaveMethod     write FSaveMethod     default defSaveMethod;
+    property MinZoom        : Integer     read FMinZoom        write FMinZoom        default defMinZoom;
+    property MaxZoom        : Integer     read FMaxZoom        write FMaxZoom        default defMaxZoom;
+    property ShowFileTypes  : Boolean     read FShowFileTypes  write FShowFileTypes  default defShowFileTypes;
     property Coordinates[Index: Integer]: RCoordinate read getCoordinate write setCoordinate;
+    property TotalTilesCount: Longword    read GetTotalTilesCount;
     procedure Download; virtual;
     procedure DownloadFullMap; virtual;
   end;
@@ -250,6 +254,14 @@ begin
   Result := FMapProvider.link;
 end;
 
+function CTilesDownloader.GetTotalTilesCount: Longword;
+var iz: Byte;
+begin
+  Result := 0;
+  for iz := MinZoom to MaxZoom do
+    Result := Result + CalcZoomTilesCount(iz);
+end;
+
 procedure CTilesDownloader.setProviderLink(AValue: String);
 begin
   if FMapProvider.link = AValue then Exit;
@@ -342,8 +354,8 @@ begin
   FPatternItems.Free;
 end;
 
-procedure CTilesDownloader.calcTileNumber(const ACoordinate: RCoordinate;
-const AZoom: Integer; out Tile: RTile);
+procedure CTilesDownloader.CalcTileNumber(const ACoordinate: RCoordinate;
+  const AZoom: Integer; out Tile: RTile);
 var
   lat_rad, n: Float;
 begin
@@ -351,6 +363,19 @@ begin
   n := Power(2, AZoom);
   Tile.x := Trunc(((ACoordinate.lon + 180) / 360) * n);
   Tile.y := Trunc((1 - ArcSinH(Tan(lat_rad)) / Pi) / 2.0 * n);
+end;
+
+function CTilesDownloader.CalcRowTilesCount(AZoom: Byte): Longword;
+begin
+  Result := Trunc(Power(2, AZoom));
+end;
+
+function CTilesDownloader.CalcZoomTilesCount(AZoom: Byte): Longword;
+var
+  LRowTilesCount: Longword;
+begin
+  LRowTilesCount := CalcRowTilesCount(AZoom);
+  Result := LRowTilesCount*2;
 end;
 
 function CTilesDownloader.GetFileNameDir(const AZoom, AX, AY: Integer): String;
@@ -486,8 +511,10 @@ end;
 procedure CTilesDownloader.Download;
 var
   LTile1, LTile2, LTileTmp: RTile;
-  iz, ix, iy: Integer;
+  iz: Byte;
+  ix, iy: Longword;
   LSaveDir: String;
+  LZoomCurrentCount, LZoomTotalCount, LCurrentCount, LTotalCount: Longword;
 begin
   Init;
 
@@ -496,8 +523,13 @@ begin
   if not ForceDirectories(LSaveDir) then
     Halt(1);
 
+  LCurrentCount := 0;
+  LTotalCount := TotalTilesCount;
+
   for iz := MinZoom to MaxZoom do
   begin
+    LZoomCurrentCount := 0;
+    LZoomTotalCount := CalcZoomTilesCount(iz);
     if SaveMethod = smFolders then
     if not DirectoryExists(Format('%s/%s/%d', [LSaveDir, ProviderName, iz])) then
       CreateDir(Format('%s/%s/%d', [LSaveDir, ProviderName, iz]));
@@ -506,7 +538,7 @@ begin
     calcTileNumber(Coordinates[1], iz, LTile2);
     {$IFDEF DEBUG}
     WriteLn(Format('Coordinates[0]: %f, %f, Zoom: %d -> Tile: %d, %d', [Coordinates[0].lat, Coordinates[0].lon, iz,  LTile1.x, LTile1.y]));
-    WriteLn(Format('Coordinates[1]: %f, %fm Zoom: %d -> Tile: %d, %d', [Coordinates[1].lat, Coordinates[1].lon, iz,  LTile2.x, LTile2.y]));
+    WriteLn(Format('Coordinates[1]: %f, %f, Zoom: %d -> Tile: %d, %d', [Coordinates[1].lat, Coordinates[1].lon, iz,  LTile2.x, LTile2.y]));
     {$ENDIF}
 
     for ix := LTile1.X to LTile2.x do
@@ -520,6 +552,9 @@ begin
         LTileTmp.y := iy;
         try
           DownloadTile(iz, LTileTmp);
+          Inc(LZoomCurrentCount);
+          Inc(LCurrentCount);
+          WriteLn(Format('Total: %d/%d <- (Zoom %d: %d/%d)', [LCurrentCount, LTotalCount, iz, LZoomCurrentCount, LZoomTotalCount]));
         except
           on E: ETileDownload do
           begin
@@ -537,9 +572,10 @@ end;
 procedure CTilesDownloader.DownloadFullMap;
 var
   LTile: RTile;
-  max: Integer;
-  iz, ix, iy: Integer;
+  iz: Byte;
+  ix, iy: Longword;
   LSaveDir: String;
+  LZoomCurrentCount, LZoomTotalCount, LCurrentCount, LTotalCount, LRowCount: Longword;
 begin
   Init;
 
@@ -548,28 +584,32 @@ begin
   if not ForceDirectories(LSaveDir) then
     Halt(1);
 
+  LCurrentCount := 0;
+  LTotalCount := TotalTilesCount;
+
   for iz := MinZoom to MaxZoom do
   begin
-    WriteLn('Zoom Level: ', iz);
+    LRowCount := CalcRowTilesCount(iz);
+    LZoomCurrentCount := 0;
+    LZoomTotalCount := CalcZoomTilesCount(iz);
 
     if SaveMethod = smFolders then
     if not DirectoryExists(Format('%s%s%d', [LSaveDir, PathDelim, iz])) then
       ForceDirectories(Format('%s%s%d', [LSaveDir, PathDelim, iz]));
 
-    max := Trunc(Power(2, iz))-1;
-    {$IFDEF DEBUG}
-    WriteLn('Min: 0, Max: ', max);
-    {$ENDIF}
-    for ix := 0 to max do
+    for ix := 0 to LRowCount-1 do
     begin
       if SaveMethod = smFolders then
       if not DirectoryExists(Format('%s%s%d%s%d', [LSaveDir, PathDelim, iz, PathDelim, ix])) then
            ForceDirectories(Format('%s%s%d%s%d', [LSaveDir, PathDelim, iz, PathDelim, ix]));
-      for iy := 0 to max do
+      for iy := 0 to LRowCount-1 do
       begin
         LTile.SetValues(ix, iy);
         try
           DownloadTile(iz, LTile);
+          Inc(LZoomCurrentCount);
+          Inc(LCurrentCount);
+          WriteLn(Format('Total: %d/%d <- (Zoom %d: %d/%d)', [LCurrentCount, LTotalCount, iz, LZoomCurrentCount, LZoomTotalCount]));
         except
           on E: ETileDownload do
           begin

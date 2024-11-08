@@ -157,18 +157,22 @@ type
 
     for OptionKind := Low(TOptionKind) to High(TOptionKind) do
     begin
-      writeLn(getOptionName(OptionKind));
+      {$IFDEF DEBUG}
+      write(getOptionName(OptionKind));
+      {$ENDIF}
       if hasOption(getOptionName(OptionKind)) then
       begin
          Include(glOptions, OptionKind);
          {$IFDEF DEBUG}
-         write(getOptionName(OptionKind) + ' finded, value = ');
+         write(' finded, value = ');
          {$ENDIF}
          OptionParameter[OptionKind] := getOptionValue(getOptionName(OptionKind));
          {$IFDEF DEBUG}
          writeLn(OptionParameter[OptionKind]);
          {$ENDIF}
-      end;
+      end
+      else
+        WriteLn;
     end;
   end;
 
