@@ -8,7 +8,7 @@ uses
   Classes, SysUtils, process, Forms, Controls, Graphics, Dialogs, ExtCtrls,
   StdCtrls, ComCtrls, ActnList, EditBtn, CheckLst, Buttons, BGRAShape, BCPanel,
   BCListBox, mvMapViewer, mvDLECache, indSliders, LazFileUtils, mvEngine,
-  mvTypes, mvDE_BGRA, DlgAddLayers, DlgCoordinatesHelp, mvGpsObj;
+  mvTypes, mvDE_BGRA, DlgAddLayers, DlgCoordinatesHelp, mvGpsObj, mvDrawingEngine;
 
 type
 
@@ -122,6 +122,8 @@ type
       State: TDragState; var Accept: Boolean);
     procedure MapViewCenterMoving(Sender: TObject; var NewCenter: TRealPoint;
       var Allow: Boolean);
+    procedure MapViewDrawGpsPoint(Sender: TObject;
+      ADrawer: TMvCustomDrawingEngine; APoint: TGpsPoint);
     procedure MapViewMouseMove(Sender: TObject; Shift: TShiftState; X,
       Y: Integer);
     procedure MapViewZoomChange(Sender: TObject);
@@ -134,6 +136,7 @@ type
     procedure ZoomRangePositionChange(Sender: TObject; AKind: TThumbKind;
       AValue: Integer);
   private
+    BMP_FC, BMP_SC: TPicture;
     FirstCoordinate, SecondCoordinate: TGpsPoint;
     ShowCoordinates: Boolean;
     FConcreteArea: TRealArea;
@@ -142,15 +145,15 @@ type
 
   end;
 
+const
+  _CLICKED_POINTS_ = 10;
+
 var
   fMain: TfMain;
 
 implementation
 
 {$R *.lfm}
-
-uses
-  mvDrawingEngine, mvMapProvider;
 
 { TfMain }
 
@@ -294,6 +297,7 @@ begin
   ShowCoordinates := chkShowCoordinates.Checked;
   FirstCoordinate.Visible := ShowCoordinates;
   SecondCoordinate.Visible := ShowCoordinates;
+  MapView.Refresh;
 end;
 
 procedure TfMain.chkUseThreadsChange(Sender: TObject);
@@ -385,6 +389,11 @@ begin
   ShowCoordinates := chkShowCoordinates.Checked;
   FirstCoordinate.Visible := ShowCoordinates;
   SecondCoordinate.Visible := ShowCoordinates;
+  BMP_FC := TPicture.Create; BMP_FC.LoadFromFile('img' + PathDelim + 'first_coordinate.png');
+  BMP_SC := TPicture.Create; BMP_SC.LoadFromFile('img' + PathDelim + 'second_coordinate.png');
+  MapView.GPSItems.Add(FirstCoordinate, _CLICKED_POINTS_);
+  MapView.GPSItems.Add(SecondCoordinate, _CLICKED_POINTS_);
+
 
   MapView.GetMapProviders(ProviderVariationsMap.Items);
   MapView.GetMapProviders(ProviderVariationsTiles.Items);
@@ -398,8 +407,8 @@ end;
 
 procedure TfMain.FormDestroy(Sender: TObject);
 begin
-  FirstCoordinate.Free;
-  SecondCoordinate.Free;
+  if Assigned(BMP_FC) then BMP_FC.Free;
+  if Assigned(BMP_SC) then BMP_SC.Free;
 end;
 
 procedure TfMain.FullyOrPartiallySelect(Sender: TObject);
@@ -477,6 +486,30 @@ procedure TfMain.MapViewCenterMoving(Sender: TObject;
   var NewCenter: TRealPoint; var Allow: Boolean);
 begin
   Allow := True;
+end;
+
+procedure TfMain.MapViewDrawGpsPoint(Sender: TObject;
+  ADrawer: TMvCustomDrawingEngine; APoint: TGpsPoint);
+var
+  P: TPoint;
+  LeftShift, TopShift: Integer;
+begin
+  P := TMapView(Sender).LatLonToScreen(APoint.RealPoint);
+
+  if APoint = FirstCoordinate then
+  begin
+    if not Assigned(BMP_FC) then Exit;
+    LeftShift := Trunc(BMP_FC.Bitmap.Width / 2);
+    TopShift := Trunc(BMP_FC.Bitmap.Height / 2);
+    ADrawer.DrawBitmap(P.X - LeftShift, P.Y - TopShift, BMP_FC.Bitmap, True);
+  end
+  else if APoint = SecondCoordinate then
+  begin
+    if not Assigned(BMP_SC) then Exit;
+    LeftShift := Trunc(BMP_SC.Bitmap.Width / 2);
+    TopShift := Trunc(BMP_SC.Bitmap.Height / 2);
+    ADrawer.DrawBitmap(P.X - LeftShift, P.Y - TopShift, BMP_SC.Bitmap, True);
+  end;
 end;
 
 procedure TfMain.MapViewMouseMove(Sender: TObject; Shift: TShiftState; X,
