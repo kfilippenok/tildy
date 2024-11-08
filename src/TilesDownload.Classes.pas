@@ -514,7 +514,7 @@ begin
       if SaveMethod = smFolders then
       if not DirectoryExists(Format('%s/%s/%d/%d', [LSaveDir, ProviderName, iz, ix])) then
         CreateDir(Format('%s/%s/%d/%d', [LSaveDir, ProviderName, iz, ix]));
-      for iy := LTile2.y to LTile1.y do
+      for iy := LTile1.y to LTile2.y do
       begin
         LTileTmp.x := ix;
         LTileTmp.y := iy;

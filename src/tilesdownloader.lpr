@@ -213,7 +213,7 @@ type
     WriteLn('');
     WriteLn('Examples:');
     WriteLn('    ./tilesdownloader -provider osm -min-zoom 1 -max-zoom 7 -full-map');
-    WriteLn('    ./tilesdownloader -provider osm -min-zoom 1 -max-zoom 7 -provider-name MyProviderName --fсoord-lat=56.674619 --fсoord-lon=60.287416 --sсoord-lat=57.029763 --sсoord-lat=60.921877');
+    WriteLn('    ./tilesdownloader -provider osm -min-zoom 1 -max-zoom 7 -provider-name MyProviderName --fсoord-lat=57.02137767 --fсoord-lon=120 --sсoord-lat=42.7 --sсoord-lat=143.1');
     WriteLn('    ./tilesdownloader -provider osm -merge railway -min-zoom 0 -max-zoom 7 -pattern %provider-name%_%x%_%y%_%z% -full-map');
   end;
 
