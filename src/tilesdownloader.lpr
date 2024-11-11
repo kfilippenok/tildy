@@ -172,7 +172,9 @@ type
          {$ENDIF}
       end
       else
+        {$IFDEF DEBUG}
         WriteLn;
+        {$ENDIF}
     end;
   end;
 

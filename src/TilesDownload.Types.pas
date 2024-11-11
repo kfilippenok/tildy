@@ -57,8 +57,8 @@ begin
     okPattern       : Exit('pattern');
     okMinZoom       : Exit('min-zoom');
     okMaxZoom       : Exit('max-zoom');
-    okFirstCoordLat : Exit('fсoord-lat');
-    okFirstCoordLon : Exit('fсoord-lon');
+    okFirstCoordLat : Exit('fcoord-lat');
+    okFirstCoordLon : Exit('fcoord-lon');
     okSecondCoordLat: Exit('scoord-lat');
     okSecondCoordLon: Exit('scoord-lon');
     okFullMap       : Exit('full-map');

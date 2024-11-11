@@ -102,6 +102,7 @@ type
   strict private // Getters, setters & other
     function getProviderLink: String;
     function GetTotalTilesCount: Longword;
+    function GetTotalTilesCountOnCoordinates: Longword;
     procedure setProviderLink(AValue: String);
     function getProviderName: String;
     procedure setProviderName(AValue: String);
@@ -112,8 +113,11 @@ type
   public
     procedure Init;
     procedure CalcTileNumber(const ACoordinate: RCoordinate; const AZoom: Integer; out Tile: RTile);
-    function CalcRowTilesCount(AZoom: Byte): Longword;
-    function CalcZoomTilesCount(AZoom: Byte): Longword;
+    function CalcRowTilesCount(AZoom: Byte): Longword; overload;
+    function CalcRowTilesCount(ATile1, ATile2: RTile): Longword; overload;
+    function CalcColumnTilesCount(ATile1, ATile2: RTile): Longword;
+    function CalcZoomTilesCount(AZoom: Byte): Longword; overload;
+    function CalcZoomTilesCount(ATile1, ATile2: RTile): Longword; overload;
     function GetFileNameDir(const AZoom, AX, AY: Integer): String;
     function GetFileNamePattern(const AZoom, AX, AY: Integer): String;
     function GetFileName(const AZoom, AX, AY: Integer): String;
@@ -134,7 +138,8 @@ type
     property MaxZoom        : Integer     read FMaxZoom        write FMaxZoom        default defMaxZoom;
     property ShowFileTypes  : Boolean     read FShowFileTypes  write FShowFileTypes  default defShowFileTypes;
     property Coordinates[Index: Integer]: RCoordinate read getCoordinate write setCoordinate;
-    property TotalTilesCount: Longword    read GetTotalTilesCount;
+    property TotalTilesCount             : Longword    read GetTotalTilesCount;
+    property TotalTilesCountOnCoordinates: Longword    read GetTotalTilesCountOnCoordinates;
     procedure Download; virtual;
     procedure DownloadFullMap; virtual;
   end;
@@ -262,6 +267,20 @@ begin
     Result := Result + CalcZoomTilesCount(iz);
 end;
 
+function CTilesDownloader.GetTotalTilesCountOnCoordinates: Longword;
+var
+  LTile1, LTile2: RTile;
+  iz: Integer;
+begin
+  Result := 0;
+  for iz := MinZoom to MaxZoom do
+  begin
+    calcTileNumber(Coordinates[0], iz, LTile1);
+    calcTileNumber(Coordinates[1], iz, LTile2);
+    Result := Result + (CalcRowTilesCount(LTile1, LTile2) * CalcColumnTilesCount(LTile1, LTile2));
+  end;
+end;
+
 procedure CTilesDownloader.setProviderLink(AValue: String);
 begin
   if FMapProvider.link = AValue then Exit;
@@ -370,12 +389,27 @@ begin
   Result := Trunc(Power(2, AZoom));
 end;
 
+function CTilesDownloader.CalcRowTilesCount(ATile1, ATile2: RTile): Longword;
+begin
+  Result := Max(ATile1.X, ATile2.X) - Min(ATile1.X, ATile2.X) + 1;
+end;
+
+function CTilesDownloader.CalcColumnTilesCount(ATile1, ATile2: RTile): Longword;
+begin
+  Result := Max(ATile1.Y, ATile2.Y) - Min(ATile1.Y, ATile2.Y) + 1;
+end;
+
 function CTilesDownloader.CalcZoomTilesCount(AZoom: Byte): Longword;
 var
   LRowTilesCount: Longword;
 begin
   LRowTilesCount := CalcRowTilesCount(AZoom);
-  Result := LRowTilesCount*2;
+  Result := LRowTilesCount * LRowTilesCount;
+end;
+
+function CTilesDownloader.CalcZoomTilesCount(ATile1, ATile2: RTile): Longword;
+begin
+  Result := CalcRowTilesCount(ATile1, ATile2) * CalcColumnTilesCount(ATile1, ATile2)
 end;
 
 function CTilesDownloader.GetFileNameDir(const AZoom, AX, AY: Integer): String;
@@ -524,22 +558,23 @@ begin
     Halt(1);
 
   LCurrentCount := 0;
-  LTotalCount := TotalTilesCount;
+  LTotalCount := TotalTilesCountOnCoordinates;
 
   for iz := MinZoom to MaxZoom do
   begin
-    LZoomCurrentCount := 0;
-    LZoomTotalCount := CalcZoomTilesCount(iz);
     if SaveMethod = smFolders then
     if not DirectoryExists(Format('%s/%s/%d', [LSaveDir, ProviderName, iz])) then
       CreateDir(Format('%s/%s/%d', [LSaveDir, ProviderName, iz]));
 
-    calcTileNumber(Coordinates[0], iz, LTile1);
-    calcTileNumber(Coordinates[1], iz, LTile2);
+    CalcTileNumber(Coordinates[0], iz, LTile1);
+    CalcTileNumber(Coordinates[1], iz, LTile2);
     {$IFDEF DEBUG}
     WriteLn(Format('Coordinates[0]: %f, %f, Zoom: %d -> Tile: %d, %d', [Coordinates[0].lat, Coordinates[0].lon, iz,  LTile1.x, LTile1.y]));
     WriteLn(Format('Coordinates[1]: %f, %f, Zoom: %d -> Tile: %d, %d', [Coordinates[1].lat, Coordinates[1].lon, iz,  LTile2.x, LTile2.y]));
     {$ENDIF}
+
+    LZoomCurrentCount := 0;
+    LZoomTotalCount := CalcZoomTilesCount(LTile1, Ltile2);
 
     for ix := LTile1.X to LTile2.x do
     begin
