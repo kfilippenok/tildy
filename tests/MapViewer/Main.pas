@@ -6,9 +6,10 @@ interface
 
 uses
   Classes, SysUtils, process, Forms, Controls, Graphics, Dialogs, ExtCtrls,
-  StdCtrls, ComCtrls, ActnList, EditBtn, CheckLst, Buttons, BGRAShape, BCPanel,
-  BCListBox, mvMapViewer, mvDLECache, indSliders, LazFileUtils, mvEngine,
-  mvTypes, mvDE_BGRA, DlgAddLayers, DlgCoordinatesHelp, mvGpsObj, mvDrawingEngine;
+  StdCtrls, ComCtrls, ActnList, EditBtn, CheckLst, Buttons, Menus, BCListBox,
+  indSliders, LazFileUtils,
+  mvMapViewer, mvDLECache, mvEngine, mvTypes, mvDE_BGRA, mvDrawingEngine,
+  DlgAddLayers, DlgCoordinatesHelp, mvGpsObj;
 
 type
 
@@ -27,6 +28,7 @@ type
     AreaCoordSecondLongitude: TLabeledEdit;
     groupConcreteArea: TGroupBox;
     groupCAreaZoom: TGroupBox;
+    lblDebugObjects: TLabel;
     LayersList: TCheckListBox;
     chShowFileType: TCheckBox;
     chkOutput: TCheckBox;
@@ -44,6 +46,7 @@ type
     lblCAreaMaxZoomValue: TLabel;
     lblCAreaMinZoom: TLabel;
     lblCAreaMinZoomValue: TLabel;
+    miCoordinatesHelp: TMenuItem;
     MvBGRADrawingEngine: TMvBGRADrawingEngine;
     panCAreaZoom: TPanel;
     PathExecutable: TFileNameEdit;
@@ -62,10 +65,10 @@ type
     lblMinZoom: TLabel;
     FullyOrPartially: TComboBox;
     panDebug: TPanel;
+    PopupMapView: TPopupMenu;
     ProcessTilesdownloader: TProcess;
     LayersUpDown: TUpDown;
     btnAddLayer: TSpeedButton;
-    Shape1: TShape;
     btnCoordinateHelp: TSpeedButton;
     ZoomRange: TMultiSlider;
     panZoom: TPanel;
@@ -112,8 +115,10 @@ type
     procedure CoordChange(Sender: TObject);
     procedure DirectoryCacheChange(Sender: TObject);
     procedure FormActivate(Sender: TObject);
+    procedure FormCreate(Sender: TObject);
     procedure FormDestroy(Sender: TObject);
     procedure FullyOrPartiallySelect(Sender: TObject);
+    procedure groupConcreteAreaResize(Sender: TObject);
     procedure groupCoordinatesResize(Sender: TObject);
     procedure LayersListClick(Sender: TObject);
     procedure LayersListClickCheck(Sender: TObject);
@@ -126,10 +131,14 @@ type
       ADrawer: TMvCustomDrawingEngine; APoint: TGpsPoint);
     procedure MapViewMouseMove(Sender: TObject; Shift: TShiftState; X,
       Y: Integer);
+    procedure MapViewMouseUp(Sender: TObject; Button: TMouseButton;
+      Shift: TShiftState; X, Y: Integer);
     procedure MapViewZoomChange(Sender: TObject);
     procedure MapViewZoomChanging(Sender: TObject; NewZoom: Integer;
       var Allow: Boolean);
+    procedure miCoordinatesHelpClick(Sender: TObject);
     procedure PathExecutableChange(Sender: TObject);
+    procedure PopupMapViewPopup(Sender: TObject);
     procedure ProviderVariationsMapChange(Sender: TObject);
     procedure LayersUpDownClick(Sender: TObject; Button: TUDBtnType);
     procedure btnCoordinateHelpClick(Sender: TObject);
@@ -139,6 +148,7 @@ type
     BMP_FC, BMP_SC: TPicture;
     FirstCoordinate, SecondCoordinate: TGpsPoint;
     ShowCoordinates: Boolean;
+    SelectedCoordinates: TGPSObjarray;
     FConcreteArea: TRealArea;
     procedure ReloadLayersList;
   public
@@ -252,8 +262,6 @@ begin
     MapView.Zoom := ZoomCAreaRange.MinPosition;
     MapView.MapCenter.Latitude := (FirstLat + SecondLat) / 2;
     MapView.MapCenter.Longitude := (FirstLon + SecondLon) / 2;
-    MapView.OnZoomChanging := @MapViewZoomChanging;
-    MapView.OnCenterMoving := @MapViewCenterMoving;
   end
   else
   begin
@@ -383,16 +391,18 @@ begin
   chkUseThreadsChange(nil);
   chkZoomToCursorChange(nil);
 
-  FirstCoordinate  := TGpsPoint.Create(StrToFloat(AreaCoordFirstLongitude.Text), StrToFloat(AreaCoordFirstLatitude.Text));
-  SecondCoordinate := TGpsPoint.Create(StrToFloat(AreaCoordSecondLongitude.Text), StrToFloat(AreaCoordSecondLatitude.Text));
-  CoordChange(nil);
-  ShowCoordinates := chkShowCoordinates.Checked;
-  FirstCoordinate.Visible := ShowCoordinates;
-  SecondCoordinate.Visible := ShowCoordinates;
-  BMP_FC := TPicture.Create; BMP_FC.LoadFromFile('img' + PathDelim + 'first_coordinate.png');
-  BMP_SC := TPicture.Create; BMP_SC.LoadFromFile('img' + PathDelim + 'second_coordinate.png');
-  MapView.GPSItems.Add(FirstCoordinate, _CLICKED_POINTS_);
-  MapView.GPSItems.Add(SecondCoordinate, _CLICKED_POINTS_);
+  if (MapView.GPSItems.IndexOf(FirstCoordinate) = -1) and (MapView.GPSItems.IndexOf(SecondCoordinate) = -1) then
+  begin
+    SetLength(SelectedCoordinates, 0);
+    FirstCoordinate  := TGpsPoint.Create(StrToFloat(AreaCoordFirstLongitude.Text), StrToFloat(AreaCoordFirstLatitude.Text));
+    SecondCoordinate := TGpsPoint.Create(StrToFloat(AreaCoordSecondLongitude.Text), StrToFloat(AreaCoordSecondLatitude.Text));
+    CoordChange(nil);
+    ShowCoordinates := chkShowCoordinates.Checked;
+    FirstCoordinate.Visible := ShowCoordinates;
+    SecondCoordinate.Visible := ShowCoordinates;
+    MapView.GPSItems.Add(FirstCoordinate, _CLICKED_POINTS_);
+    MapView.GPSItems.Add(SecondCoordinate, _CLICKED_POINTS_);
+  end;
 
 
   MapView.GetMapProviders(ProviderVariationsMap.Items);
@@ -403,6 +413,12 @@ begin
   // The problem is in the component, but at the moment it's like a temporary solution.
   ZoomCAreaRange.MinPosition := 6;
   ZoomCAreaRange.MaxPosition := 13;
+end;
+
+procedure TfMain.FormCreate(Sender: TObject);
+begin
+  BMP_FC := TPicture.Create; BMP_FC.LoadFromFile('img' + PathDelim + 'first_coordinate.png');
+  BMP_SC := TPicture.Create; BMP_SC.LoadFromFile('img' + PathDelim + 'second_coordinate.png');
 end;
 
 procedure TfMain.FormDestroy(Sender: TObject);
@@ -429,6 +445,12 @@ begin
         CoordSecondLongtitude.Enabled := True;
       end;
   end;
+end;
+
+procedure TfMain.groupConcreteAreaResize(Sender: TObject);
+begin
+  AreaCoordFirstLatitude.Width := Trunc(groupConcreteArea.Width / 2);
+  AreaCoordSecondLatitude.Width := Trunc(groupConcreteArea.Width / 2);
 end;
 
 procedure TfMain.groupCoordinatesResize(Sender: TObject);
@@ -517,11 +539,42 @@ procedure TfMain.MapViewMouseMove(Sender: TObject; Shift: TShiftState; X,
 var
   LRealPoint: TRealPoint;
   LPoint: TPoint;
+  i: Integer;
 begin
   LPoint.X := X; LPoint.Y := Y;
   LRealPoint := MapView.Engine.ScreenToLatLon(LPoint);
   lblDebugLat.Caption := 'Lat: ' + Format('%13.10f', [LRealPoint.Lat]);
   lblDebugLon.Caption := 'Lon: ' + Format('%14.10f', [LRealPoint.Lon]);
+
+  lblDebugObjects.Caption := 'GpsObjs: ' + MapView.GPSItems.Count.ToString;
+
+  SelectedCoordinates := MapView.ObjsAtScreenPt(X, Y, 10);
+
+  lblDebugObjects.Caption := lblDebugObjects.Caption + ' CursorObjs: ' + (Length(SelectedCoordinates)).ToString;
+  if Length(SelectedCoordinates) > 0 then
+  begin
+    lblDebugObjects.Caption := lblDebugObjects.Caption + ' = ';
+    for i := 0 to Length(SelectedCoordinates)-1 do
+    begin
+      if SelectedCoordinates[i] = FirstCoordinate then
+        lblDebugObjects.Caption := lblDebugObjects.Caption + 'FirstCoordinate '
+      else
+      if SelectedCoordinates[i] = SecondCoordinate then
+        lblDebugObjects.Caption := lblDebugObjects.Caption + 'SecondCoordinate'
+    end;
+
+    MapView.Cursor := crHandPoint
+  end
+  else
+    MapView.Cursor := crDefault;
+end;
+
+procedure TfMain.MapViewMouseUp(Sender: TObject; Button: TMouseButton;
+  Shift: TShiftState; X, Y: Integer);
+begin
+  if Length(SelectedCoordinates) > 0 then
+  if (SelectedCoordinates[0] = FirstCoordinate) or (SelectedCoordinates[0] = SecondCoordinate) then
+     fCoordinatesHelp.ShowModal;
 end;
 
 procedure TfMain.MapViewZoomChange(Sender: TObject);
@@ -532,7 +585,17 @@ end;
 procedure TfMain.MapViewZoomChanging(Sender: TObject; NewZoom: Integer;
   var Allow: Boolean);
 begin
-  Allow := (NewZoom >= ZoomCAreaRange.MinPosition) and (NewZoom <= ZoomCAreaRange.MaxPosition);
+
+
+  if chkConcreteZone.Checked then
+    Allow := (NewZoom >= ZoomCAreaRange.MinPosition) and (NewZoom <= ZoomCAreaRange.MaxPosition)
+  else
+    Allow := True;
+end;
+
+procedure TfMain.miCoordinatesHelpClick(Sender: TObject);
+begin
+  fCoordinatesHelp.ShowModal;
 end;
 
 procedure TfMain.PathExecutableChange(Sender: TObject);
@@ -543,6 +606,14 @@ begin
   end
   else
     btnStartDownload.Enabled := False;
+end;
+
+procedure TfMain.PopupMapViewPopup(Sender: TObject);
+begin
+  if Length(SelectedCoordinates) > 0 then
+    miCoordinatesHelp.Enabled := True
+  else
+    miCoordinatesHelp.Enabled := False;
 end;
 
 procedure TfMain.ProviderVariationsMapChange(Sender: TObject);

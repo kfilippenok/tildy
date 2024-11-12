@@ -10,8 +10,7 @@ uses
   athreads,
   {$ENDIF}
   Interfaces, // this includes the LCL widgetset
-  Forms, Main, DlgAddLayers, DlgCoordinatesHelp
-  { you can add units after this };
+  Forms, Main, DlgAddLayers, DlgCoordinatesHelp;
 
 {$R *.res}
 
