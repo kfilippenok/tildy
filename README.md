@@ -50,9 +50,9 @@ Example:
 
 ****
 
-### (wip) output [String]
+### output [String]
 
-You can specify the absolute or relative path where the images will be downloaded. 
+The absolute or relative path for program output. The path must be specified without a slash at the end. If there are no folders in the path, they will be created. 
 
 Example:
 ```
@@ -64,7 +64,7 @@ mydir
 
 Default:
 ```
-tiles
+tiles/{ProviderName}
 ```
 
 ****

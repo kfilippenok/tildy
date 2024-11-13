@@ -60,10 +60,10 @@ var
 const
   defUserAgent = 'Mozilla/5.0 (compatible; fpweb)';
   defProvider = 'osm';
-  defOutPath = 'tiles';
   defSaveMethod = smFolders;
   defProviderName = 'OpenStreetMap';
   defProviderLink = 'http://a.tile.openstreetmap.org';
+  defOutPath = 'tiles';
   defMinZoom = 6;
   defMaxZoom = 7;
   defShowFileTypes = False;
@@ -75,6 +75,7 @@ type
   RefCTilesDownloader = class of CTilesDownloader;
 
   TGetFileName = function (const AZoom, AX, AY: Integer): String of object;
+  TGetOutPath  = function : String of object;
 
   GPatternItems = specialize TFPGMap<TPatternItem, integer>;
   HPatternItemsHelper = class helper for GPatternItems
@@ -84,13 +85,14 @@ type
   { CTilesDownloader }
 
   CTilesDownloader = class(TFPCustomHTTPClient)
-  strict protected
+  protected
     FUserAgent: String;
     FMapProvider: RMapProvider;
     FOutPath: String;
     FTileRes: Integer;
     FPattern, FInsertPattern: String;
     FGetFileName: TGetFileName;
+    FGetOutPath : TGetOutPath;
     FPatternItems: GPatternItems;
     FOtherTileRes: Boolean;
     FSaveMethod: TSaveMethod;
@@ -99,17 +101,21 @@ type
     FMaxZoom: Integer;
     FCoordinates: array[0..1] of RCoordinate;
     FShowFileTypes: Boolean;
-  strict private // Getters, setters & other
-    function getProviderLink: String;
+  strict private
+    function GetOutPathAuto: String;
+    function GetOutPathCustom: String;
+    function GetOutPath: String;
+    procedure SetOutPath(AOutPath: String);
+    function GetProviderLink: String;
+    procedure SetProviderLink(AValue: String);
+    function GetProviderName: String;
+    procedure SetProviderName(AValue: String);
+    procedure SetPattern(APattern: String);
+    function GetCoordinate(Index: Integer): RCoordinate;
+    procedure SetCoordinate(Index: Integer; AValue: RCoordinate);
+    procedure SetTileRes(AValue: Integer);
     function GetTotalTilesCount: Longword;
     function GetTotalTilesCountOnCoordinates: Longword;
-    procedure setProviderLink(AValue: String);
-    function getProviderName: String;
-    procedure setProviderName(AValue: String);
-    procedure SetPattern(APattern: String);
-    function getCoordinate(Index: Integer): RCoordinate;
-    procedure setCoordinate(Index: Integer; AValue: RCoordinate);
-    procedure SetTileRes(AValue: Integer);
   public
     procedure Init;
     procedure CalcTileNumber(const ACoordinate: RCoordinate; const AZoom: Integer; out Tile: RTile);
@@ -128,9 +134,9 @@ type
   public
     constructor Create(AOwner: TComponent); override;
     destructor Destroy; override;
-    property ProviderName   : String      read getProviderName write setProviderName;
-    property ProviderLink   : String      read getProviderLink write setProviderLink;
-    property OutPath        : String      read FOutPath        write FOutPath       ;
+    property ProviderName   : String      read GetProviderName write SetProviderName;
+    property ProviderLink   : String      read GetProviderLink write SetProviderLink;
+    property OutPath        : String      read GetOutPath      write SetOutPath     ;
     property TileRes        : Integer     read FTileRes        write SetTileRes     ;
     property Pattern        : String      read FPattern        write SetPattern     ;
     property SaveMethod     : TSaveMethod read FSaveMethod     write FSaveMethod     default defSaveMethod;
@@ -254,7 +260,7 @@ begin
   Self.x := x; Self.y := y;
 end;
 
-function CTilesDownloader.getProviderLink: String;
+function CTilesDownloader.GetProviderLink: String;
 begin
   Result := FMapProvider.link;
 end;
@@ -281,18 +287,41 @@ begin
   end;
 end;
 
-procedure CTilesDownloader.setProviderLink(AValue: String);
+procedure CTilesDownloader.SetOutPath(AOutPath: String);
 begin
-  if FMapProvider.link = AValue then Exit;
-  FMapProvider.link := AValue;
+  if FOutPath = AOutPath then Exit;
+
+  FOutPath := AOutPath;
+  FGetOutPath := @GetOutPathCustom;
 end;
 
-function CTilesDownloader.getProviderName: String;
+function CTilesDownloader.GetOutPathAuto: String;
 begin
-  Result := FMapProvider.name;
+  Result := 'tiles' + PathDelim + ProviderName;
 end;
 
-procedure CTilesDownloader.setProviderName(AValue: String);
+function CTilesDownloader.GetOutPathCustom: String;
+begin
+  Result := FOutPath;
+end;
+
+function CTilesDownloader.GetOutPath: String;
+begin
+  Result := FGetOutPath();
+end;
+
+procedure CTilesDownloader.SetProviderLink(AValue: String);
+begin
+  if FMapProvider.Link = AValue then Exit;
+  FMapProvider.Link := AValue;
+end;
+
+function CTilesDownloader.GetProviderName: String;
+begin
+  Result := FMapProvider.Name;
+end;
+
+procedure CTilesDownloader.SetProviderName(AValue: String);
 begin
   if FMapProvider.name = AValue then Exit;
   FMapProvider.name := AValue;
@@ -337,12 +366,12 @@ begin
   FInsertPattern := LInsertPattern;
 end;
 
-function CTilesDownloader.getCoordinate(Index: Integer): RCoordinate;
+function CTilesDownloader.GetCoordinate(Index: Integer): RCoordinate;
 begin
   Result := FCoordinates[Index];
 end;
 
-procedure CTilesDownloader.setCoordinate(Index: Integer; AValue: RCoordinate);
+procedure CTilesDownloader.SetCoordinate(Index: Integer; AValue: RCoordinate);
 begin
   if FCoordinates[Index] = AValue then Exit;
   FCoordinates[Index] := AValue;
@@ -355,6 +384,7 @@ begin
   FOtherTileRes := defOtherTileRes;
   FTileRes := defTileRes;
   FGetFileName := @GetFileNameDir;
+  FGetOutPath := @GetOutPathAuto;
   FPatternItems := GPatternItems.Create;
   FUserAgent := defUserAgent;
   ProviderName := defProviderName;
@@ -514,7 +544,7 @@ begin
     if FOtherTileRes then
       ResampleTile(LTileImg, TileRes);
     LFileName := GetFileName(AZoom, ATile.X, ATile.Y);
-    LFilePath := Format('%s%s%s%s%s%s%s', [GetCurrentDir, PathDelim, OutPath, PathDelim, ProviderName, PathDelim, LFileName]);
+    LFilePath := Format('%s%s%s', [OutPath, PathDelim, LFileName]);
     SaveTile(LTileImg, LFilePath);
     LTileImg.Free;
   except
@@ -547,14 +577,12 @@ var
   LTile1, LTile2, LTileTmp: RTile;
   iz: Byte;
   ix, iy: Longword;
-  LSaveDir: String;
   LZoomCurrentCount, LZoomTotalCount, LCurrentCount, LTotalCount: Longword;
 begin
   Init;
 
-  LSaveDir := Format('%s%s%s%s%s', [GetCurrentDir, PathDelim, OutPath, PathDelim, ProviderName]);
-  if not DirectoryExists(LSaveDir) then
-  if not ForceDirectories(LSaveDir) then
+  if not DirectoryExists(OutPath) then
+  if not ForceDirectories(OutPath) then
     Halt(1);
 
   LCurrentCount := 0;
@@ -563,8 +591,9 @@ begin
   for iz := MinZoom to MaxZoom do
   begin
     if SaveMethod = smFolders then
-    if not DirectoryExists(Format('%s/%s/%d', [LSaveDir, ProviderName, iz])) then
-      CreateDir(Format('%s/%s/%d', [LSaveDir, ProviderName, iz]));
+    if not DirectoryExists(Format('%s/%d', [OutPath, iz])) then
+    if not ForceDirectories(Format('%s/%d', [OutPath, iz])) then
+      raise Exception.Create('The necessary paths could not be created. Check the specified path');
 
     CalcTileNumber(Coordinates[0], iz, LTile1);
     CalcTileNumber(Coordinates[1], iz, LTile2);
@@ -579,8 +608,9 @@ begin
     for ix := LTile1.X to LTile2.x do
     begin
       if SaveMethod = smFolders then
-      if not DirectoryExists(Format('%s/%s/%d/%d', [LSaveDir, ProviderName, iz, ix])) then
-        CreateDir(Format('%s/%s/%d/%d', [LSaveDir, ProviderName, iz, ix]));
+      if not DirectoryExists(Format('%s/%d/%d', [OutPath, iz, ix])) then
+        ForceDirectories(Format('%s/%d/%d', [OutPath, iz, ix]));
+
       for iy := LTile1.y to LTile2.y do
       begin
         LTileTmp.x := ix;
@@ -609,15 +639,13 @@ var
   LTile: RTile;
   iz: Byte;
   ix, iy: Longword;
-  LSaveDir: String;
   LZoomCurrentCount, LZoomTotalCount, LCurrentCount, LTotalCount, LRowCount: Longword;
 begin
   Init;
 
-  LSaveDir := Format('%s%s%s%s%s', [GetCurrentDir, PathDelim, OutPath, PathDelim, ProviderName]);
-  if not DirectoryExists(LSaveDir) then
-  if not ForceDirectories(LSaveDir) then
-    Halt(1);
+  if not DirectoryExists(OutPath) then
+  if not ForceDirectories(OutPath) then
+    raise Exception.Create('The necessary paths could not be created. Check the specified path');
 
   LCurrentCount := 0;
   LTotalCount := TotalTilesCount;
@@ -629,14 +657,15 @@ begin
     LZoomTotalCount := CalcZoomTilesCount(iz);
 
     if SaveMethod = smFolders then
-    if not DirectoryExists(Format('%s%s%d', [LSaveDir, PathDelim, iz])) then
-      ForceDirectories(Format('%s%s%d', [LSaveDir, PathDelim, iz]));
+    if not DirectoryExists(Format('%s%s%d', [OutPath, PathDelim, iz])) then
+      ForceDirectories(Format('%s%s%d', [OutPath, PathDelim, iz]));
 
     for ix := 0 to LRowCount-1 do
     begin
       if SaveMethod = smFolders then
-      if not DirectoryExists(Format('%s%s%d%s%d', [LSaveDir, PathDelim, iz, PathDelim, ix])) then
-           ForceDirectories(Format('%s%s%d%s%d', [LSaveDir, PathDelim, iz, PathDelim, ix]));
+      if not DirectoryExists(Format('%s%s%d%s%d', [OutPath, PathDelim, iz, PathDelim, ix])) then
+        ForceDirectories(Format('%s%s%d%s%d', [OutPath, PathDelim, iz, PathDelim, ix]));
+
       for iy := 0 to LRowCount-1 do
       begin
         LTile.SetValues(ix, iy);
@@ -719,7 +748,7 @@ begin
     LTileImg.PutImage(0, 0, LMergedTileImg, dmDrawWithTransparency);
 
     LFileName := GetFileName(AZoom, ATile.X, ATile.Y);
-    LFilePath := Format('%s%s%s%s%s%s%s', [GetCurrentDir, PathDelim, OutPath, PathDelim, ProviderName, PathDelim, LFileName]);
+    LFilePath := Format('%s%s%s', [OutPath, PathDelim, LFileName]);
     SaveTile(LTileImg, LFilePath);
     LMergedTileImg.Free;
     LTileImg.Free;

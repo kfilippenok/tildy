@@ -100,7 +100,7 @@ type
       if not OptionParameter[okProviderName].IsEmpty then
         ProviderName := OptionParameter[okProviderName];
       if not OptionParameter[okOutput].IsEmpty then
-        OutPath := OptionParameter[okProviderName];
+        OutPath := OptionParameter[okOutput];
 
       if not (okFullMap in glOptions) then
       if OptionParameter[okFirstCoordLat].IsEmpty
@@ -131,10 +131,15 @@ type
         TileRes := OptionParameter[okTileRes].ToInteger;
     end;
     try
-      if (okFullMap in glOptions) then
-        objTilesDownloader.DownloadFullMap
-      else
-        objTilesDownloader.Download;
+      try
+        if (okFullMap in glOptions) then
+          objTilesDownloader.DownloadFullMap
+        else
+          objTilesDownloader.Download;
+      except
+        on E: Exception do
+          WriteLn('Error: ' + E.Message);
+      end;
     finally
       objTilesDownloader.Free;
     end;
