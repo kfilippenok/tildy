@@ -1,4 +1,4 @@
-🇬🇧 English | 🇷🇺 [Русский](./README_RU.md)
+🇬🇧 English | 🇷🇺 [Русский](./USAGE_RU.md)
 
 ## Synopsis
 ./tilesdownloader **[OPTION]** **[PARAMETER]** ...
