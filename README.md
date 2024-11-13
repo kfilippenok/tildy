@@ -1,205 +1,46 @@
-# tilesdownloader
 
-English | [Русский](./README_RU.md)
+<p align="center">
+  <img src="./docs/img/logo.svg" width="300">
+</p>
+<h1 align="center">Tiles Downloader</h1>
+<p align="center">
+  A CLI utility for download tiles from various map providers.
+</p>
+<br>
 
-## Synopsis
-./tilesdownloader **[OPTION]** **[PARAMETER]** ...
+## Features
 
-## Syntax
+- Downloading tiles:
+	- Completely the entire map
+	- By the specified zoom levels
+	- By the selected area
+- Saving in two versions: by folders or by pattern
+- Combining tiles from two specified providers
 
-```
-./tilesdownloader -provider osm ...
-```
-```
-./tilesdownloader --provider=osm ...
-```
+## Usage
 
-## Options
+🇬🇧 [English](./docs/USAGE.md) | 🇷🇺 [Russian](./docs/USAGE_RU.md)
 
-### provider [String]
+A detailed list of available options and their possible applications with examples of the use of both individual options and their combinations.
 
-You can use prepared providers. 
+## Supported platforms
 
-* *osm* - OpenStreetMap
-* *otm* - Open Topo Map
-* *osm-cycle* - OpenStreetMap Cycle
-* *railway* - OpenRailwayMap
+| OS | bitness                | Aviability                                                                  |
+| ------------ | ----------------------- | ------------------------------------------------------------------------------- |
+| Linux            | `64`               | ✅                                              |
+| Windows 10, 11           | 64             | In the future                                                    |
 
 
-### provider-name [String]
+## Kanban
 
-You can specify provider name. You will need this when saving images. Can be used in conjunction with [provider](#provider-[string]).
+To display the work on the project, a [Kanban board](https://github.com/users/kfilippenok/projects/1) is used, implemented as a Github project.
 
-Example:
-```
-... -provider-name MyProviderName
-```
-```
-... -provider-name My Provider Name
-```
+## Build
 
+- FreePascal Compiler >= 3.2.2 
+- Lazarus >= 3.6 
 
-### provider-link [String]
+## Dependencies
 
-Specifying your own link to the provider for downloading tiles without a slash at the end.
-
-Example:
-```
-... -provider-link http://b.tiles.openrailwaymap.org/standard
-```
-
-****
-
-### output [String]
-
-The absolute or relative path for program output. The path must be specified without a slash at the end. If there are no folders in the path, they will be created. 
-
-Example:
-```
-/home/user1/tiles
-```
-```
-mydir
-```
-
-Default:
-```
-tiles/{ProviderName}
-```
-
-****
-
-### pattern [String]
-
-Saving files with a pattern-generated name. Keywords:
-- %provider-name%
-- %x%
-- %y%
-- %z%
-
-All you need is to insert the above keywords in the required place. You can also choose not to add keywords that you don't need. But I do not advise removing the `x`, `y` and `z`, because if you do, the downloaded tiles will be overwritten by others higher up, since they will have the same names.
-
-Example:
-```
-./tilesdownloader -provider osm -pattern %x%_%y%_%z%-%provider-name% -min-zoom 1 -max-zoom 2 -full-map
-```
-
-Result:
-```
-0_0_1-OpenStreetMap
-```
-
-By default, files will be sorted into folders without using a template.
-
-****
-
-### min-zoom [Unsigned Integer]
-
-Lower zoom limit, in range 0..19.
-
-Example:
-```
-... -min-zoom 6
-```
-
-Default: *6*
-
-### max-zoom [Unsigned Integer]
-
-Highest zoom limit, in range 0..19.
-
-Example:
-```
-... -max-zoom 7
-```
-
-Default: *7*
-
-****
-![coordinates](docs/img/coordinates.png)
-
-
-**Attention!** To work with negative values, you must use the following syntax
-
-```
-... --fcoord-lat=-56.674619
-```
-
-
-### fсoord-lat [Double]
-
-Latitude of first coordinate.
-
-Example:
-```
-... --fсoord-lat=57.02137767
-```
-
-
-### fсoord-lon [Double]
-
-Longtitude of first coordinate.
-
-Example:
-```
-... --fсoord-lon=120
-```
-
-
-### sсoord-lat [Double]
-
-Latitude of second coordinate.
-
-Example:
-```
-... --sсoord-lat=42.7
-```
-
-### sсoord-lon [Double]
-
-Longtitude of second coordinate.
-
-Example:
-```
-... --sсoord-lon=143.1
-```
-
-****
-
-### show-file-type
-
-If you need the file extension in the name, use this option. The parameter with the file extension is not specified, since the image is always downloaded as a *PNG*.
-
-****
-
-### full-map
-
-Download full map. Coordinates are not used.
-
-Example:
-```
-./tilesdownloader -provider osm -full-map
-```
-
-****
-
-### tile-res [Unsigned Integer]
-
-The resolution of the saved images. Use it if you are not satisfied with the original permission.
-
-Example:
-```
-./tilesdownloader -provider railway -full-map -tile-res 256
-```
-
-
-***
-
-### merge [String]
-
-Combining tiles from two different providers. The main one is the one specified via the [provider] option(#provider-[string]). The second provider must be in the list of embedded ones. The resolution of the final tiles will be adjusted to the main provider or from [tile-res](#tile-res).
-
-Example:
-```
-./tilesdownloader -provider osm -merge railway -min-zoom 0 -max-zoom 5 -provider-name OpenRailwayMap-Standard -pattern %provider-name%_%x%_%y%_%z% -full-map
-```
+- **BGRABitmap** [FreePascal Wiki](https://wiki.lazarus.freepascal.org/BGRABitmap) | [Github](https://github.com/bgrabitmap/bgrabitmap)
+ 
