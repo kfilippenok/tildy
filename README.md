@@ -28,7 +28,7 @@ A detailed list of available options and their possible applications with exampl
 | OS | bitness                | Aviability                                                                  |
 | ------------ | ----------------------- | ------------------------------------------------------------------------------- |
 | Linux            | `64`               | ✅                                              |
-| Windows 10, 11           | 64             | In the future                                                    |
+| Windows 10, 11           | `64`             | In the future                                                    |
 
 
 ## Kanban
@@ -37,8 +37,8 @@ To display the work on the project, a [Kanban board](https://github.com/users/kf
 
 ## Build
 
-- FreePascal Compiler >= 3.2.2 
-- Lazarus >= 3.6 
+- [FreePascal Compiler](https://www.freepascal.org/) >= 3.2.2 
+- [Lazarus IDE](https://www.lazarus-ide.org/) >= 3.6 
 
 ## Dependencies
 

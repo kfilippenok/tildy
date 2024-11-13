@@ -1,6 +1,4 @@
-# tilesdownloader
-
-[English](./README.md) | Русский
+🇬🇧 [English](./README.md) | 🇷🇺 Русский 
 
 ## Синопсис
 ./tilesdownloader **[ОПЦИЯ]** **[ПАРАМЕТР]** ...
