@@ -131,8 +131,8 @@ type
       if not OptionParameter[okPattern].IsEmpty then
         Pattern := OptionParameter[okPattern];
 
-       if not OptionParameter[okTileRes].IsEmpty then
-        TileRes := OptionParameter[okTileRes].ToInteger;
+       if okShowFileType in glOptions then
+        ShowFileType := True;
     end;
     try
       try

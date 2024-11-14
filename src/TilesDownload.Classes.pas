@@ -66,7 +66,7 @@ const
   defOutPath = 'tiles';
   defMinZoom = 6;
   defMaxZoom = 7;
-  defShowFileTypes = False;
+  defShowFileType = False;
   defTileRes = 256;
   defOtherTileRes = False;
 
@@ -100,7 +100,7 @@ type
     FMinZoom: Integer;
     FMaxZoom: Integer;
     FCoordinates: array[0..1] of RCoordinate;
-    FShowFileTypes: Boolean;
+    FShowFileType: Boolean;
   strict private
     function GetOutPathAuto: String;
     function GetOutPathCustom: String;
@@ -142,7 +142,7 @@ type
     property SaveMethod     : TSaveMethod read FSaveMethod     write FSaveMethod     default defSaveMethod;
     property MinZoom        : Integer     read FMinZoom        write FMinZoom        default defMinZoom;
     property MaxZoom        : Integer     read FMaxZoom        write FMaxZoom        default defMaxZoom;
-    property ShowFileTypes  : Boolean     read FShowFileTypes  write FShowFileTypes  default defShowFileTypes;
+    property ShowFileType   : Boolean     read FShowFileType   write FShowFileType   default defShowFileType;
     property Coordinates[Index: Integer]: RCoordinate read getCoordinate write setCoordinate;
     property TotalTilesCount             : Longword    read GetTotalTilesCount;
     property TotalTilesCountOnCoordinates: Longword    read GetTotalTilesCountOnCoordinates;
@@ -393,7 +393,7 @@ begin
   FSaveMethod := smFolders;
   FMinZoom := defMinZoom;
   FMaxZoom := defMinZoom;
-  FShowFileTypes := defShowFileTypes;
+  FShowFileType := defShowFileType;
 end;
 
 destructor CTilesDownloader.Destroy;
@@ -444,7 +444,7 @@ end;
 
 function CTilesDownloader.GetFileNameDir(const AZoom, AX, AY: Integer): String;
 begin
-  Result := Format('%d%s%d%s%d%s', [AZoom, PathDelim, AX, PathDelim, AY, IfThen(ShowFileTypes, '.png')]);
+  Result := Format('%d%s%d%s%d%s', [AZoom, PathDelim, AX, PathDelim, AY, IfThen(ShowFileType, '.png')]);
 end;
 
 function CTilesDownloader.GetFileNamePattern(const AZoom, AX, AY: Integer
@@ -462,6 +462,7 @@ begin
       piY           : Insert(AY.ToString,    Result, FPatternItems.Data[ipi]);
     end;
   end;
+  Result := Result + IfThen(ShowFileType, '.png');
 end;
 
 function CTilesDownloader.GetFileName(const AZoom, AX, AY: Integer): String;

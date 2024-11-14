@@ -36,6 +36,7 @@ TOptionKind = (okHelp,
                okFirstCoordLon,
                okSecondCoordLat,
                okSecondCoordLon,
+               okShowFileType,
                okFullMap,
                okTileRes,
                okMerge);
@@ -61,6 +62,7 @@ begin
     okFirstCoordLon : Exit('fcoord-lon');
     okSecondCoordLat: Exit('scoord-lat');
     okSecondCoordLon: Exit('scoord-lon');
+    okShowFileType  : Exit('show-file-type');
     okFullMap       : Exit('full-map');
     okTileRes       : Exit('tile-res');
     okMerge         : Exit('merge');
