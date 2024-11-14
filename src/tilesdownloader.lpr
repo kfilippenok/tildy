@@ -21,12 +21,16 @@ uses
   {$IFDEF UNIX}
   cthreads,
   {$ENDIF}
+  {$IFDEF WINDOWS}
+  Interfaces, // For BGRABitmap
+  {$ENDIF}
   SysUtils, Classes, CustApp,
   TilesDownload.Classes, TilesDownload.Types, TilesDownload.Exceptions, TilesDownload.Utilities;
 
 var
   OptionParameter: array[TOptionKind] of String;
   glOptions: TOptions;
+  FormatSettings: TFormatSettings;
 
 type
 
@@ -113,11 +117,11 @@ type
       end
       else
       begin
-        Coordinate.lat := OptionParameter[okFirstCoordLat].ToDouble;
-        Coordinate.lon := OptionParameter[okFirstCoordLon].ToDouble;
+        Coordinate.lat := StrToFloat(OptionParameter[okFirstCoordLat], FormatSettings);
+        Coordinate.lon := StrToFloat(OptionParameter[okFirstCoordLon], FormatSettings);
         Coordinates[0] := Coordinate;
-        Coordinate.lat := OptionParameter[okSecondCoordLat].ToDouble;
-        Coordinate.lon := OptionParameter[okSecondCoordLon].ToDouble;
+        Coordinate.lat := StrToFloat(OptionParameter[okSecondCoordLat], FormatSettings);
+        Coordinate.lon := StrToFloat(OptionParameter[okSecondCoordLon], FormatSettings);
         Coordinates[1] := Coordinate;
       end;
 
@@ -187,6 +191,7 @@ type
   begin
     inherited Create(TheOwner);
     StopOnException:=True;
+    FormatSettings.DecimalSeparator := '.';
   end;
 
   destructor ATilesDownloader.Destroy;

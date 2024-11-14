@@ -16,6 +16,7 @@
 	- By the selected area
 - Saving in two versions: by folders or by pattern
 - Combining tiles from two specified providers
+- Setting the final resolution of tiles
 
 ## Usage
 
@@ -28,19 +29,24 @@ A detailed list of available options and their possible applications with exampl
 | OS | bitness                | Aviability                                                                  |
 | ------------ | ----------------------- | ------------------------------------------------------------------------------- |
 | Linux            | `64`               | ✅                                              |
-| Windows 10, 11           | `64`             | In the future                                                    |
+| Windows 10, 11           | `64`             | ✅                                                    |
 
 
 ## Kanban
 
 To display the work on the project, a [Kanban board](https://github.com/users/kfilippenok/projects/1) is used, implemented as a Github project.
-
-## Build
-
-- [FreePascal Compiler](https://www.freepascal.org/) >= 3.2.2 
-- [Lazarus IDE](https://www.lazarus-ide.org/) >= 3.6 
+ 
 
 ## Dependencies
 
+### Platform
+- [FreePascal Compiler](https://www.freepascal.org/) >= 3.2.2 
+- [Lazarus IDE](https://www.lazarus-ide.org/) >= 3.6
+
+### Packages
+
 - **BGRABitmap** [FreePascal Wiki](https://wiki.lazarus.freepascal.org/BGRABitmap) | [Github](https://github.com/bgrabitmap/bgrabitmap)
  
+ ### Usage
+ 
+ - OpenSSL library

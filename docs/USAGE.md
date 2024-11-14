@@ -48,7 +48,7 @@ Example:
 
 ****
 
-### (wip) output [String]
+### output [String]
 
 You can specify the absolute or relative path where the images will be downloaded. 
 
@@ -114,7 +114,7 @@ Example:
 Default: *7*
 
 ****
-![coordinates](docs/img/coordinates.png)
+![coordinates](./img/coordinates.png)
 
 
 **Attention!** To work with negative values, you must use the following syntax
