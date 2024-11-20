@@ -103,6 +103,8 @@ type
         MaxZoom := OptionParameter[okMaxZoom].ToInteger;
       if not OptionParameter[okProviderName].IsEmpty then
         ProviderName := OptionParameter[okProviderName];
+      if not OptionParameter[okProviderLink].IsEmpty then
+        ProviderLink := OptionParameter[okProviderLink];
       if not OptionParameter[okOutput].IsEmpty then
         OutPath := OptionParameter[okOutput];
 
