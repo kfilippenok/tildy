@@ -21,9 +21,9 @@
 
 ## Usage
 
-🇬🇧 [English](./docs/USAGE.md) | 🇷🇺 [Russian](./docs/USAGE_RU.md)
-
 A detailed list of available options and their possible applications with examples of the use of both individual options and their combinations.
+
+🇬🇧 [English](./docs/USAGE.md) | 🇷🇺 [Russian](./docs/USAGE_RU.md)
 
 ## Supported platforms
 
@@ -35,13 +35,14 @@ A detailed list of available options and their possible applications with exampl
 
 ## Restrictions
 
-There are some restrictions when downloading tiles from OpenStreetMap and its like. [More details](./docs/RESTRICTIONS.md).
+There are some restrictions when downloading tiles from OpenStreetMap and its like.
+
+🇬🇧 [English](./docs/RESTRICTIONS.md) | 🇷🇺 [Russian](./docs/RESTRICTIONS_RU.md)
 
 ## Kanban
 
 To display the work on the project, a [Kanban board](https://github.com/users/kfilippenok/projects/1) is used, implemented as a Github project.
  
-
 ## Dependencies
 
 ### Platform

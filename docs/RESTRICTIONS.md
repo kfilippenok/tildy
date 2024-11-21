@@ -1,25 +1,27 @@
-# Ограничения
+# RESTRICTIONS
+
+🇬🇧 English | 🇷🇺 [Русский](./RESTRICTIONS_RU.md)
 
 ## OpenStreetMap
 
-При загрузке плиток с серверов, принадлежащих OpenStreetMap, вы должны знать ограничения. Официально массовая загрузка плиток (по мои наблюдениями это более чем 1000) запрещена. Так, сервер ограничивает скорость скачивания и количество отдаваемых плиток. **В случае злоупотребления вас могут забанить, будьте осторожны!** Это связано с тем, что сервера работают за счёт скромных пожертвований, которых не хватает на сервера, мощность которых позволило бы не накладывать ограничения. 
+When downloading tiles from servers owned by OpenStreetMap, you should be aware of the restrictions. Officially, the massive diwnload of tiles (according to my observations, it is more than 1000) is prohibited. So, the server restrict the download speed and the number of tiles to be given. **In case of abuse, you may be banned, be careful!** This is due to the fact that the servers operate at the expense of modest donations, which are not enough for servers whose capacity would allow them not to impose restrictions.
 
-> Подробнее. Tile Usage Policy - https://operations.osmfoundation.org/policies/tiles/
+> Detailed. Tile Usage Policy - https://operations.osmfoundation.org/policies/tiles/
 
-В качестве решения этих проблем, рекомендуется использовать свой локальный сервер, который будет генерировать плитки, аналогичные OSM.
+As a solution to these problems, it is recommended to use your local server, which will generate tiles similar to OSM.
 
-## Решение. Локальный сервер OSM
+## Solution. Local OSM Server
 
-Список используемых источников:
+Used sources:
 - *openstreetmap-tile-server* - https://github.com/Overv/openstreetmap-tile-server
 - *Using OpenStreetMap Offline* - https://www.gibbard.me/openstreetmap/
 - *switch2osm* - https://switch2osm.org/
 
-Эта инструкция описывает то, как это делаю я. 
+This instruction describes how I do it.
 
-### Подготовка Docker
+### Prepare Docker
 
-#### Установка
+#### Install
 
 Alt Linux p11:
 ```bash
@@ -28,21 +30,21 @@ sudo apt-get install docker-engine
 
 [Для других дистрибутивов](https://docs.docker.com/engine/install/)
 
-#### Запуск
+#### Lounch
 
-Dcoker работает как сервис, поэтому для его автоматического старта при каждом запуске нужно включить автозапуск. Так же мы сразу его запустим:
+Docker works as a service, so to start it automatically, you need to enable autorun every time you start it. We will also launch it immediately:
 
 ```bash
 systemctl enable --now docker
 ```
 
-Проверяем запустился ли Docker:
+Checking if Docker has started:
 
 ```bash
 systemctl status docker
 ```
 
-Должно быть так:
+Must be:
 
 ```bash
 ● docker.service - Docker Application Container Engine
@@ -51,21 +53,21 @@ systemctl status docker
 TriggeredBy: ● docker.socket
 ```
 
-#### Создание volume для данных
+#### Create volume for data
 
-*Volume* в Docker имитирует работу разделов. Для работы нашего сервера достаточно создать одного *volume*:
+*Volume* in Docker simulates the operation of partitions. For our server to work, it is enough to create one *volume*:
 
 ```bash
 docker volume create osm-data
 ```
 
-Проверяем создался ли *volume*:
+Check if the *volume* has been created:
 
 ```bash
 docker volume ls
 ```
 
-Должно быть так:
+Must be:
 
 ```bash
 DRIVER    VOLUME NAME
@@ -73,16 +75,16 @@ local     osm-data
 ```
 
 
-### Картографические данные
+### Cartographic data
 
-Дальше необходимо скачать картографические данные в формате PBF, на основе которых будет заполнятся база данных внутри контейнера. Официальные PBF от OpenStreetMap можно скачать с сайта [download.geofabrik.de](https://download.geofabrik.de/). Для примера я возьму [данные Российской Федерации](https://download.geofabrik.de/russia-latest.osm.pbf).
+Next, you need to download the cartographic data in PDF format, on the basis of which the database inside the container will be filled in. The official PBF from OpenStreetMap can be downloaded from the website [download.geofabrik.de](https://download.geofabrik.de/). For example, I'll take [данные Российской Федерации](https://download.geofabrik.de/russia-latest.osm.pbf).
 
 
-### Импорт данных в СУБД контейнера
+### Importing data into a container DBMS
 
-> Будьте готовы, что понадобится не мало места. Всё зависит от того, какого объёма у вас PBF.
+> Be prepared that you will need a lot of space. It all depends on how much PBF you have.
 
-На основе PBF сервер будет заполнять базу данных. Тут нужно определиться, где они должны будут находиться. Можно заполнять внутри *osm_data* (*volume*, который мы создали выше), которая хранится в системном каталоге вместе с docker. Тогда команда будет выглядеть так:
+Based on the PBF, the server will populate the database. Here it is necessary to determine where they will have to be. You can fill in the *osm_data* (*volume*, which we created above), which is stored in the system directory along with docker. Then the command will look like this:
 
 ```bash
 docker run \
@@ -92,7 +94,7 @@ docker run \
     import
 ```
 
-Я же буду сохранять в домашнюю директорию, так как там больше места:
+I will save it to my home directory, since there is more space there:
 
 ```bash
 docker run \
@@ -102,16 +104,17 @@ docker run \
     import
 ```
 
-Убедитесь, что пути указаны верно, в особенности к PBF, так как если docker не найдёт по укзанному пути файл, котейнер загрузит PBF Люксембурга для примера.
+Make sure that the paths are specified correctly, especially to PBF, because if docker does not find a file on the specified path, the container will load PBF Luxembourg for example.
 
-Дальше у вас запустится процесс импорта данных. Если всё пройдёт успешно, в консоле выведется:
+Next, you will start the data import process. If everything goes well, the console will display:
+
 ```bash
 exit 0
 ```
 
-### Запуск сервера
+### Starting the server
 
-Для запуска нужно слегка модифицировать команду для импорта, добавив опцию для проброса портов контейнера на системные, и изменить команду import на run. В первом варианте она будет выглядеть так:
+To run, you need to slightly modify the import command by adding an option to forward the container ports to the system ports, and change the import command to run. In the first version, it will look like this:
 
 ```bash
 docker run \
@@ -121,7 +124,7 @@ docker run \
     run
 ```
 
-В варианте с сохранением в домашнюю директорию будет так:
+In the case of saving to the home directory, it will be like this:
 
 ```bash
 docker run \
@@ -131,49 +134,50 @@ docker run \
     run
 ```
 
-Посмотреть список активных контейнеров:
+View the list of active containers:
 
 ```bash
 docker container ls
 ```
 
-или
+or
 
 ```bash
 docker ps
 ```
 
-Должно быть так:
+Must be:
 
 ```bash
 CONTAINER ID   IMAGE                             COMMAND         CREATED        STATUS        PORTS                                             NAMES
 26cce2b17e6b   overv/openstreetmap-tile-server   "/run.sh run"   22 hours ago   Up 22 hours   5432/tcp, 0.0.0.0:8080->80/tcp, :::8080->80/tcp   thirsty_black
 ```
 
-Ваш ```UPTIME``` должен быть меньше.
+Your ```UPTIME``` must be smaller.
 
-Если вы не видите в списке свой контейнер, попробуйте посмотреть полный список:
+If you don't see your container in the list, try to see the full list:
 
 ```bash
 docker ps -a
 ```
 
-Если в ```STATUS``` вы видите ```Exited (1)```, значит произошла ошибка. Подробнее об ошибке можно посмотреть через:
+If you see ```Exited (1)``` in ```STATUS```, then an error has occurred. More information about the error can be viewed via:
 
 ```bash
-docker logs <название контейнера>
+docker logs <container name>
 ```
 
-Название контейнера указано в столбце ```NAMES```.
+The name of the container is indicated in the column ```NAMES```.
 
-### Получение плиток
+### Download tiles
 
-После запуска контейнера, можно получать плитки по адресу:
+After launching the container, you can receive tiles at::
+
 ```
 http://localhost:8080/tile/{z}/{x}/{y}.png
 ```
 
-Пробуем скачать нужные нам плитки:
+Trying to download the tiles we need:
 
 ```bash
 ./tilesdownloader \
@@ -189,24 +193,24 @@ http://localhost:8080/tile/{z}/{x}/{y}.png
     -output tiles/local \
 ```
 
-И радуемся скорости загрузки :)
+And we are happy about the download speed :)
 
 ![coordinates](./media/localosm_download_demo.gif)
 
-В первый раз это будет медленно, так как плитки будут генерироваться в реальном времени. Можно заранее их сгенерировать:
+It will be slow the first time, as the tiles will be generated in real time. You can generate them in advance:
 
-Подключаемся к терминалу контейнера:
+Connecting to the container terminal:
 
 ```bash
 docker exec -it thirsty_black /usr/bin/sh
 ```
 
-Рендерим по уровню зума от 0 до 6 для всего мира, в 2 потока (-n 2):
+Rendering by zoom level from 0 to 6 for the whole world, in 2 streams (-n 2):
 
 ```bash
 render_list --all -z 0 -Z 6 -n 2
 ```
 
-### Что можно улучшить
+### What can be improved
 
-Полный список всех опций для повышения производительности, таких как: настройка занимаемой памяти, используемых потоков и пр. смотреть в списке источников, что указаны в начале раздела с OSM.
+For a complete list of all options to improve performance, such as: configuring memory usage, threads used, etc., see the list of sources that are indicated at the beginning of the OSM section.

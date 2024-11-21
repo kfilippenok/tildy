@@ -1,3 +1,5 @@
+# Usage
+
 🇬🇧 English | 🇷🇺 [Русский](./USAGE_RU.md)
 
 ## Synopsis
