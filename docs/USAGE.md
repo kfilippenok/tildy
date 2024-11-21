@@ -114,7 +114,7 @@ Example:
 Default: *7*
 
 ****
-![coordinates](./img/coordinates.png)
+![coordinates](./media/coordinates.png)
 
 
 **Attention!** To work with negative values, you must use the following syntax

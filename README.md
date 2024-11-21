@@ -1,6 +1,6 @@
 
 <p align="center">
-  <img src="./docs/img/logo.svg" width="300">
+  <img src="./docs/media/logo.svg" width="300">
 </p>
 <h1 align="center">Tiles Downloader</h1>
 <p align="center">
@@ -10,13 +10,14 @@
 
 ## Features
 
-- Downloading tiles:
+- Download tiles:
 	- Completely the entire map
 	- By the specified zoom levels
 	- By the selected area
-- Saving in two versions: by folders or by pattern
-- Combining tiles from two specified providers
-- Setting the final resolution of tiles
+- Custom providers
+- Save in two versions: by folders or by pattern
+- Combine tiles from two specified providers
+- Set the final resolution of tiles
 
 ## Usage
 
@@ -26,11 +27,15 @@ A detailed list of available options and their possible applications with exampl
 
 ## Supported platforms
 
-| OS | bitness                | Aviability                                                                  |
+| OS | Bitness                | Aviability                                                                  |
 | ------------ | ----------------------- | ------------------------------------------------------------------------------- |
 | Linux            | `64`               | ✅                                              |
 | Windows 10, 11           | `64`             | ✅                                                    |
 
+
+## Restrictions
+
+There are some restrictions when downloading tiles from OpenStreetMap and its like. [More details](./docs/RESTRICTIONS.md).
 
 ## Kanban
 
@@ -45,8 +50,8 @@ To display the work on the project, a [Kanban board](https://github.com/users/kf
 
 ### Packages
 
-- **BGRABitmap** [FreePascal Wiki](https://wiki.lazarus.freepascal.org/BGRABitmap) | [Github](https://github.com/bgrabitmap/bgrabitmap)
+- BGRABitmapPack (avialable in OPM)
  
- ### Usage
+### Libraries
  
  - OpenSSL library
