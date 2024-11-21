@@ -19,11 +19,11 @@
         <CompilerOptions>
           <Version Value="11"/>
           <Target>
-            <Filename Value="tilesdownloader"/>
+            <Filename Value="../tilesdownloader"/>
           </Target>
           <SearchPaths>
             <IncludeFiles Value="$(ProjOutDir)"/>
-            <OtherUnitFiles Value="src"/>
+            <OtherUnitFiles Value="TilesDownload"/>
             <UnitOutputDirectory Value="lib/$(TargetCPU)-$(TargetOS)"/>
           </SearchPaths>
           <Parsing>
@@ -94,23 +94,23 @@
     </RequiredPackages>
     <Units>
       <Unit>
-        <Filename Value="src/tilesdownloader.lpr"/>
+        <Filename Value="tilesdownloader.lpr"/>
         <IsPartOfProject Value="True"/>
       </Unit>
       <Unit>
-        <Filename Value="src/TilesDownload.Classes.pas"/>
+        <Filename Value="TilesDownload/TilesDownload.Classes.pas"/>
         <IsPartOfProject Value="True"/>
       </Unit>
       <Unit>
-        <Filename Value="src/TilesDownload.Types.pas"/>
+        <Filename Value="TilesDownload/TilesDownload.Types.pas"/>
         <IsPartOfProject Value="True"/>
       </Unit>
       <Unit>
-        <Filename Value="src/TilesDownload.Exceptions.pas"/>
+        <Filename Value="TilesDownload/TilesDownload.Exceptions.pas"/>
         <IsPartOfProject Value="True"/>
       </Unit>
       <Unit>
-        <Filename Value="src/TilesDownload.Utilities.pas"/>
+        <Filename Value="TilesDownload/TilesDownload.Utilities.pas"/>
         <IsPartOfProject Value="True"/>
       </Unit>
     </Units>

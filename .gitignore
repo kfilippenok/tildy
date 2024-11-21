@@ -1,8 +1,8 @@
-backup
-lib
+backup/
+lib/
 *.exe
 tilesdownloader
 *.lps
-tiles
-cache
+tiles/
+cache/
 mapviewer

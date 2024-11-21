@@ -2,7 +2,7 @@
 <CONFIG>
   <ProjectGroup FileVersion="2">
     <Targets>
-      <Target FileName="tilesdownloader.lpi">
+      <Target FileName="src/tilesdownloader.lpi">
         <BuildModes>
           <Mode Name="Default"/>
           <Mode Name="Debug" Compile="True"/>
