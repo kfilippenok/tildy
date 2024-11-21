@@ -24,7 +24,7 @@
           <SearchPaths>
             <IncludeFiles Value="$(ProjOutDir)"/>
             <OtherUnitFiles Value="TilesDownload"/>
-            <UnitOutputDirectory Value="lib/$(TargetCPU)-$(TargetOS)"/>
+            <UnitOutputDirectory Value="../out/$(TargetCPU)-$(TargetOS)"/>
           </SearchPaths>
           <Parsing>
             <SyntaxOptions>
@@ -56,12 +56,12 @@
         <CompilerOptions>
           <Version Value="11"/>
           <Target>
-            <Filename Value="tilesdownloader"/>
+            <Filename Value="../tilesdownloader"/>
           </Target>
           <SearchPaths>
             <IncludeFiles Value="$(ProjOutDir)"/>
-            <OtherUnitFiles Value="src"/>
-            <UnitOutputDirectory Value="lib/$(TargetCPU)-$(TargetOS)"/>
+            <OtherUnitFiles Value="TilesDownload"/>
+            <UnitOutputDirectory Value="../out/$(TargetCPU)-$(TargetOS)"/>
           </SearchPaths>
           <CodeGeneration>
             <SmartLinkUnit Value="True"/>
@@ -118,12 +118,12 @@
   <CompilerOptions>
     <Version Value="11"/>
     <Target>
-      <Filename Value="tilesdownloader"/>
+      <Filename Value="../tilesdownloader"/>
     </Target>
     <SearchPaths>
       <IncludeFiles Value="$(ProjOutDir)"/>
-      <OtherUnitFiles Value="src"/>
-      <UnitOutputDirectory Value="lib/$(TargetCPU)-$(TargetOS)"/>
+      <OtherUnitFiles Value="TilesDownload"/>
+      <UnitOutputDirectory Value="../out/$(TargetCPU)-$(TargetOS)"/>
     </SearchPaths>
     <Linking>
       <Debugging>

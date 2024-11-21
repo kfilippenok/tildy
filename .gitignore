@@ -6,3 +6,4 @@ tilesdownloader
 tiles/
 cache/
 mapviewer
+out/
