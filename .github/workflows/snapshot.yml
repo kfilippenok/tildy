@@ -17,7 +17,7 @@ jobs:
         uses: gcarreno/setup-lazarus@v3
         with:
           lazarus-version: "dist"
-          include-packages: "bgrabitmappack"
+          include-packages: "BGRABitmap, BGLControls"
           with-cache: true
       - name: Build
-        run: lazbuild-trunk -B --bm="Release" src/tilesdownloader.lpi
+        run: lazbuild -B --bm="Release" src/tilesdownloader.lpi
