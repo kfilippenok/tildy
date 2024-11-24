@@ -1,3 +1,9 @@
+# FPC / Lazarus generated stuff
+*.o
+*.ppu
+*.compiled
+*.or
+*.lrs
 backup/
 lib/
 *.exe
@@ -7,3 +13,6 @@ tiles/
 cache/
 mapviewer
 out/
+
+# lazbuild
+*.swp
