@@ -33,6 +33,10 @@ A detailed list of available options and their possible applications with exampl
 | Windows 10, 11           | `64`             | ✅                                                    |
 
 
+## Releases
+
+You can download the utility on the [releases tab](https://github.com/kfilippenok/tilesdownloader/releases).
+
 ## Restrictions
 
 There are some restrictions when downloading tiles from OpenStreetMap and its like.
