@@ -1,0 +1,23 @@
+name: Build Snapshot
+on: [push]
+
+env:
+  release_tag: snapshot
+
+jobs:
+  build:
+    strategy:
+      matrix:
+        operating-system: [windows-latest, ubuntu-latest]
+    runs-on: ${{ matrix.operating-system }}
+    steps:
+      - name: Checkout Tiles Downloader
+        uses: actions/checkout@v4
+      - name: Setup Lazarus  
+        uses: gcarreno/setup-lazarus@v3
+        with:
+          lazarus-version: "dist"
+          include-packages: "BGRABitmap"
+          with-cache: true
+      - name: Build
+        run: lazbuild src/tilesdownloader.lpi
