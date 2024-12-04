@@ -13,11 +13,16 @@ jobs:
     steps:
       - name: Checkout Tiles Downloader
         uses: actions/checkout@v4
-      - name: Setup Lazarus  
+      - name: Setup Lazarus
         uses: gcarreno/setup-lazarus@v3
         with:
           lazarus-version: "dist"
-          include-packages: "BGRABitmap, BGLControls"
-          with-cache: true
-      - name: Build
+          with-cache: false
+      - name: Download BGRABitmapPack
+        run: wget https://packages.lazarus-ide.org/BGRABitmap.zip
+      - name: Unzip BGRABitmapPack
+        run: unzip BGRABitmap.zip
+      - name: Build BGRABitmapPack
+        run: lazbuild BGRABitmap/bgrabitmap/bgrabitmappack.lpk
+      - name: Build Tiles Downloader
         run: lazbuild -B --bm="Release" src/tilesdownloader.lpi
