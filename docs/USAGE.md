@@ -172,6 +172,12 @@ If you need the file extension in the name, use this option. The parameter with 
 
 ****
 
+### skip-missing
+
+Skip missing tiles when receiving from the server.
+
+****
+
 ### full-map
 
 Download full map. Coordinates are not used.

@@ -23,7 +23,7 @@
 
 A detailed list of available options and their possible applications with examples of the use of both individual options and their combinations.
 
-🇬🇧 [English](./docs/USAGE.md) | 🇷🇺 [Russian](./docs/USAGE_RU.md)
+🇬🇧 [English](./docs/USAGE.md) | 🇷🇺 [Русский](./docs/USAGE_RU.md)
 
 ## Supported platforms
 
@@ -41,7 +41,7 @@ You can download the utility on the [releases tab](https://github.com/kfilippeno
 
 There are some restrictions when downloading tiles from OpenStreetMap and its like.
 
-🇬🇧 [English](./docs/RESTRICTIONS.md) | 🇷🇺 [Russian](./docs/RESTRICTIONS_RU.md)
+🇬🇧 [English](./docs/RESTRICTIONS.md) | 🇷🇺 [Русский](./docs/RESTRICTIONS_RU.md)
 
 ## Kanban
 

@@ -67,6 +67,7 @@ const
   defMinZoom = 6;
   defMaxZoom = 7;
   defShowFileType = False;
+  defSkipMissing = False;
   defTileRes = 256;
   defOtherTileRes = False;
 
@@ -101,6 +102,7 @@ type
     FMaxZoom: Integer;
     FCoordinates: array[0..1] of RCoordinate;
     FShowFileType: Boolean;
+    FSkipMissing: Boolean;
   strict private
     function GetOutPathAuto: String;
     function GetOutPathCustom: String;
@@ -143,6 +145,7 @@ type
     property MinZoom        : Integer     read FMinZoom        write FMinZoom        default defMinZoom;
     property MaxZoom        : Integer     read FMaxZoom        write FMaxZoom        default defMaxZoom;
     property ShowFileType   : Boolean     read FShowFileType   write FShowFileType   default defShowFileType;
+    property SkipMissing    : Boolean     read FSkipMissing    write FSkipMissing    default defSkipMissing;
     property Coordinates[Index: Integer]: RCoordinate read getCoordinate write setCoordinate;
     property TotalTilesCount             : Longword    read GetTotalTilesCount;
     property TotalTilesCountOnCoordinates: Longword    read GetTotalTilesCountOnCoordinates;
@@ -394,6 +397,7 @@ begin
   FMinZoom := defMinZoom;
   FMaxZoom := defMinZoom;
   FShowFileType := defShowFileType;
+  FSkipMissing := defSkipMissing;
 end;
 
 destructor CTilesDownloader.Destroy;
@@ -624,6 +628,12 @@ begin
         except
           on E: ETileDownload do
           begin
+            if SkipMissing and (E is ETDReceive) then
+            begin
+              WriteLn('! Skip missing tile');
+              Continue;
+            end;
+
             WriteLn;
             WriteLn('Error: ', E.Message);
             Exit;
@@ -678,6 +688,12 @@ begin
         except
           on E: ETileDownload do
           begin
+            if SkipMissing and (E is ETDReceive) then
+            begin
+              WriteLn('! Skip missing tile');
+              Continue;
+            end;
+
             WriteLn;
             WriteLn('Error: ', E.Message);
             Exit;

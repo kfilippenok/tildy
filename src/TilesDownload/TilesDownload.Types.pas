@@ -39,7 +39,8 @@ TOptionKind = (okHelp,
                okShowFileType,
                okFullMap,
                okTileRes,
-               okMerge);
+               okMerge,
+               okSkipMissing);
 
 TOptions = Set of TOptionKind;
 
@@ -66,6 +67,7 @@ begin
     okFullMap       : Exit('full-map');
     okTileRes       : Exit('tile-res');
     okMerge         : Exit('merge');
+    okSkipMissing   : Exit('skip-missing');
   else
     Exit('unknown');
   end;

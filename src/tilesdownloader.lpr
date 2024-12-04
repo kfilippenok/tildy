@@ -133,8 +133,8 @@ type
       if not OptionParameter[okPattern].IsEmpty then
         Pattern := OptionParameter[okPattern];
 
-       if okShowFileType in glOptions then
-        ShowFileType := True;
+      ShowFileType := okShowFileType in glOptions;
+      SkipMissing := okSkipMissing in glOptions;
     end;
     try
       try
