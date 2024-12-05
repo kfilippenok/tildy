@@ -20,15 +20,17 @@ jobs:
           lazarus-version: "dist"
           with-cache: false
           
-      - name: Download BGRABitmapPack
+      - name: Download BGRABitmapPack Windows
         if: ${{ matrix.operating-system == 'windows-latest' }}
         run: Invoke-WebRequest -Uri https://packages.lazarus-ide.org/BGRABitmap.zip -OutFile BGRABitmap.zip
+      - name: Download BGRABitmapPack Linux
         if: ${{ matrix.operating-system == 'ubuntu-latest' }} 
         run: wget https://packages.lazarus-ide.org/BGRABitmap.zip
 
-      - name: Unzip BGRABitmapPack
+      - name: Unzip BGRABitmapPack Windows
         if: ${{ matrix.operating-system == 'windows-latest' }}
         run: Expand-Archive -Path BGRABitmap.zip -DestinationPath . -Force
+      - name: Unzip BGRABitmapPack Linux  
         if: ${{ matrix.operating-system == 'ubuntu-latest' }} 
         run: unzip BGRABitmap.zip
 
