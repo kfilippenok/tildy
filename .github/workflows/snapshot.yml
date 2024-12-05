@@ -13,16 +13,31 @@ jobs:
     steps:
       - name: Checkout Tiles Downloader
         uses: actions/checkout@v4
+        
       - name: Setup Lazarus
         uses: gcarreno/setup-lazarus@v3
         with:
           lazarus-version: "dist"
           with-cache: false
+          
       - name: Download BGRABitmapPack
-        run: wget https://packages.lazarus-ide.org/BGRABitmap.zip
+        run: |
+          if (${{ matrix.operating-system }} -eq 'windows-latest') {
+            Invoke-WebRequest -Uri https://packages.lazarus-ide.org/BGRABitmap.zip -OutFile BGRABitmap.zip
+          } else {
+            wget https://packages.lazarus-ide.org/BGRABitmap.zip
+          }
+
       - name: Unzip BGRABitmapPack
-        run: unzip BGRABitmap.zip
+        run: |
+          if (${{ matrix.operating-system }} -eq 'windows-latest') {
+            Expand-Archive -Path BGRABitmap.zip -DestinationPath . -Force
+          } else {
+            unzip BGRABitmap.zip
+          }
+
       - name: Build BGRABitmapPack
         run: lazbuild BGRABitmap/bgrabitmap/bgrabitmappack.lpk
+        
       - name: Build Tiles Downloader
         run: lazbuild -B --bm="Release" src/tilesdownloader.lpi
