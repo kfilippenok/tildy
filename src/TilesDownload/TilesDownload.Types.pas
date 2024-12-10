@@ -40,7 +40,8 @@ TOptionKind = (okHelp,
                okFullMap,
                okTileRes,
                okMerge,
-               okSkipMissing);
+               okSkipMissing,
+               okGrayscale);
 
 TOptions = Set of TOptionKind;
 
@@ -68,6 +69,7 @@ begin
     okTileRes       : Exit('tile-res');
     okMerge         : Exit('merge');
     okSkipMissing   : Exit('skip-missing');
+    okGrayscale     : Exit('grayscale');
   else
     Exit('unknown');
   end;

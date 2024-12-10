@@ -48,7 +48,7 @@ type
   end;
 
   TSaveMethod = (smFolders, smPattern);
-
+  TFilterType = (ftNone, ftGrayscale);
   TPatternItem = (piProviderName, piZoom, piX, piY);
 
 var
@@ -61,6 +61,7 @@ const
   defUserAgent = 'Mozilla/5.0 (compatible; fpweb)';
   defProvider = 'osm';
   defSaveMethod = smFolders;
+  defFilter = ftNone;
   defProviderName = 'OpenStreetMap';
   defProviderLink = 'http://a.tile.openstreetmap.org';
   defOutPath = 'tiles';
@@ -77,6 +78,7 @@ type
 
   TGetFileName = function (const AZoom, AX, AY: Integer): String of object;
   TGetOutPath  = function : String of object;
+  TFilterTile  = procedure (var ATileImg: TBGRABitmap) of object;
 
   GPatternItems = specialize TFPGMap<TPatternItem, integer>;
   HPatternItemsHelper = class helper for GPatternItems
@@ -94,9 +96,11 @@ type
     FPattern, FInsertPattern: String;
     FGetFileName: TGetFileName;
     FGetOutPath : TGetOutPath;
+    FFilterTile : TFilterTile;
     FPatternItems: GPatternItems;
     FOtherTileRes: Boolean;
     FSaveMethod: TSaveMethod;
+    FFilter: TFilterType;
     FDivider: String;
     FMinZoom: Integer;
     FMaxZoom: Integer;
@@ -108,6 +112,7 @@ type
     function GetOutPathCustom: String;
     function GetOutPath: String;
     procedure SetOutPath(AOutPath: String);
+    procedure SetFilter(AValue: TFilterType);
     function GetProviderLink: String;
     procedure SetProviderLink(AValue: String);
     function GetProviderName: String;
@@ -131,6 +136,8 @@ type
     function GetFileName(const AZoom, AX, AY: Integer): String;
     procedure ReceiveTile(var ATileImg: TBGRABitmap; const AProviderLink: String; const AZoom: Integer; const ATile: RTile);
     procedure ResampleTile(var ATileImg: TBGRABitmap; const ATileRes: Integer);
+    procedure GrayscaleTile(var ATileImg: TBGRABitmap);
+    procedure FilterTile(var ATileImg: TBGRABitmap);
     procedure SaveTile(const ATileImg: TBGRABitmap; AFilePath: String);
     procedure DownloadTile(const AZoom: Integer; const ATile: RTile); virtual;
   public
@@ -142,6 +149,7 @@ type
     property TileRes        : Integer     read FTileRes        write SetTileRes     ;
     property Pattern        : String      read FPattern        write SetPattern     ;
     property SaveMethod     : TSaveMethod read FSaveMethod     write FSaveMethod     default defSaveMethod;
+    property Filter         : TFilterType read FFilter         write SetFilter       default defFilter;
     property MinZoom        : Integer     read FMinZoom        write FMinZoom        default defMinZoom;
     property MaxZoom        : Integer     read FMaxZoom        write FMaxZoom        default defMaxZoom;
     property ShowFileType   : Boolean     read FShowFileType   write FShowFileType   default defShowFileType;
@@ -313,6 +321,18 @@ begin
   Result := FGetOutPath();
 end;
 
+procedure CTilesDownloader.SetFilter(AValue: TFilterType);
+begin
+  if FFilter=AValue then Exit;
+
+  case AValue of
+    ftNone: FFilterTile := nil;
+    ftGrayscale: FFilterTile := @GrayscaleTile;
+  end;
+
+  FFilter:=AValue;
+end;
+
 procedure CTilesDownloader.SetProviderLink(AValue: String);
 begin
   if FMapProvider.Link = AValue then Exit;
@@ -388,6 +408,8 @@ begin
   FTileRes := defTileRes;
   FGetFileName := @GetFileNameDir;
   FGetOutPath := @GetOutPathAuto;
+  FFilterTile := nil;
+  FFilter := ftNone;
   FPatternItems := GPatternItems.Create;
   FUserAgent := defUserAgent;
   ProviderName := defProviderName;
@@ -519,6 +541,29 @@ begin
   end;
 end;
 
+procedure CTilesDownloader.GrayscaleTile(var ATileImg: TBGRABitmap);
+var
+  LOldTile: TBGRABitmap;
+begin
+  try
+    LOldTile := ATileImg;
+    ATileImg := ATileImg.FilterGrayscale(true);
+    LOldTile.Free;
+  except
+    on E: Exception do
+    begin
+      WriteLn(E.Message);
+      raise ETDFilter.Create('Failed filter file.');
+    end;
+  end;
+end;
+
+procedure CTilesDownloader.FilterTile(var ATileImg: TBGRABitmap);
+begin
+  if Assigned(FFilterTile) then
+    FFilterTile(ATileImg);
+end;
+
 procedure CTilesDownloader.SaveTile(const ATileImg: TBGRABitmap; AFilePath: String);
 var
   LFileStream: TFileStream;
@@ -548,6 +593,7 @@ begin
     ReceiveTile(LTileImg, ProviderLink, AZoom, ATile);
     if FOtherTileRes then
       ResampleTile(LTileImg, TileRes);
+    FilterTile(LTileImg);
     LFileName := GetFileName(AZoom, ATile.X, ATile.Y);
     LFilePath := Format('%s%s%s', [OutPath, PathDelim, LFileName]);
     SaveTile(LTileImg, LFilePath);
@@ -762,6 +808,7 @@ begin
       ResampleTile(LTileImg, TileRes);
     end;
     ResampleTile(LMergedTileImg, LTileImg.Width);
+    FilterTile(LTileImg);
     LTileImg.PutImage(0, 0, LMergedTileImg, dmDrawWithTransparency);
 
     LFileName := GetFileName(AZoom, ATile.X, ATile.Y);

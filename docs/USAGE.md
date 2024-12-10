@@ -178,6 +178,12 @@ Skip missing tiles when receiving from the server.
 
 ****
 
+### grayscale
+
+Applying a black and white filter to tiles from ``provider``.
+
+****
+
 ### full-map
 
 Download full map. Coordinates are not used.

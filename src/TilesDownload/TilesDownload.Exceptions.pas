@@ -33,6 +33,7 @@ type
   ETileDownload = class(Exception);
   ETDReceive     = class(ETileDownload);
   ETDResample    = class(ETileDownload);
+  ETDFilter      = class(ETileDownload);
   ETDGetFileName = class(ETileDownload);
   ETDSave        = class(ETileDownload);
 

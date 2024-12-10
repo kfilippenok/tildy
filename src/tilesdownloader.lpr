@@ -135,6 +135,8 @@ type
 
       ShowFileType := okShowFileType in glOptions;
       SkipMissing := okSkipMissing in glOptions;
+      if okGrayscale in glOptions then
+        Filter := ftGrayscale;
     end;
     try
       try
