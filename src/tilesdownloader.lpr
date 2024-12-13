@@ -24,8 +24,8 @@ uses
   {$IFDEF WINDOWS}
   Interfaces, // For BGRABitmap
   {$ENDIF}
-  SysUtils, Classes, CustApp,
-  TilesDownload.Classes, TilesDownload.Types, TilesDownload.Exceptions, TilesDownload.Utilities;
+  SysUtils, Classes, CustApp, TilesDownload.Classes, TilesDownload.Types,
+  TilesDownload.Exceptions, TilesDownload.Utilities;
 
 var
   OptionParameter: array[TOptionKind] of String;
