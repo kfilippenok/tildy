@@ -103,6 +103,7 @@ type
   strict private
     FUserAgents: TStringList;
     FUserAgent: String;
+    FUASelected: Boolean;
   strict private
     procedure SetupUserAgents; virtual;
     procedure AutoSelectUserAgent(const AURL: String); virtual; final;
@@ -360,9 +361,12 @@ var
   Complete: Boolean;
   LException: Exception;
 begin
+  Write('Setting up settings for connection... ');
+
   Complete := False;
   for i := 0 to FUserAgents.Count-1 do
     try
+      Self.AddHeader('User-Agent', FUserAgents[i]);
       Self.Get(AURL);
       Complete := True;
     except
@@ -372,8 +376,14 @@ begin
         Continue;
       end;
     end;
-  if not Complete then
+
+  if Complete then
+    WriteLn('Ok')
+  else
+  begin
+    WriteLn('Fail');
     raise LException;
+  end;
 end;
 
 constructor TProviderClient.Create(AOwner: TComponent);
@@ -385,6 +395,7 @@ begin
   Self.ConnectTimeOut := 10000;
   FUserAgents := TStringList.Create;
   SetupUserAgents;
+  FUASelected := False;
 end;
 
 destructor TProviderClient.Destroy;
@@ -400,6 +411,14 @@ var
 begin
   Result := nil;
 
+  if not FUASelected then
+    try
+      AutoSelectUserAgent(AURL);
+    except
+      on E: Exception do
+        raise;
+    end;
+
   WriteLn(Format('TileLink: %s', [AURL]));
   try
     LMemoryStream := TMemoryStream.Create;
@@ -410,8 +429,6 @@ begin
       except
         on E: ESocketError do
           continue;
-        on E: EHTTPClient do
-          AutoSelectUserAgent(AURL);
       end;
     LMemoryStream.Position := 0;
     Result.LoadFromStream(LMemoryStream);
@@ -444,6 +461,7 @@ end;
 
 function TProvider.GiveTile(AZoom: Integer; AX, AY: Integer): TBGRABitmap;
 begin
+  Write(Name + ': ');
   Result := FClient.ReceiveTile(Format('%s/%d/%d/%d.png',[URL, AZoom, AX, AY]));
 end;
 

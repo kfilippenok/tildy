@@ -63,7 +63,7 @@ type
   begin
     TilesManipulator := TTilesManipulator.Create;
     TilesManipulator.Layers.Add(Providers['osm-standard'], TFilterGrayscale.Create);
-    //TilesManipulator.Layers[0].Load(0, 0, 0);
+    TilesManipulator.Layers[0].Load(0, 0, 0);
 
     TilesManipulator.Free;
 
