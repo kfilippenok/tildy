@@ -102,12 +102,15 @@ type
   TProviderClient = class(TFPCustomHTTPClient)
   strict private
     FUserAgents: TStringList;
+    FUserAgent: String;
   strict private
     procedure SetupUserAgents; virtual;
+    procedure AutoSelectUserAgent(const AURL: String); virtual; final;
   public
     constructor Create(AOwner: TComponent); override;
     destructor Destroy; override;
-    function ReceiveTile(AURL: String): TBGRABitmap;
+  public
+    function ReceiveTile(const AURL: String): TBGRABitmap;
   end;
 
   IProvider = interface
@@ -147,9 +150,14 @@ type
   strict private
     FFilter: IFIlter;
     FProvider: IProvider;
+    FBGRABitmap: TBGRABitmap;
   public
     constructor Create(AProvider: IProvider; AFilter: IFilter); virtual; reintroduce;
+    destructor Destroy; override;
   public
+    procedure Load(const AZoom: Integer; const AX, AY: Integer);
+  public
+    property BGRABitmap: TBGRABitmap read FBGRABitmap write FBGRABitmap;
     property Filter: IFilter read FFilter write FFilter;
     property Provider: IProvider read FProvider write FProvider;
   end;
@@ -161,6 +169,7 @@ type
   TLayers = class(_TLayers)
   public
     function Add(AProvider: IProvider; AFilter: IFilter): Integer; virtual; reintroduce;
+    procedure Load(const AZoom: Integer; const AX, AY: Integer); virtual;
   end;
 
   { TTilesManipulator }
@@ -339,8 +348,32 @@ procedure TProviderClient.SetupUserAgents;
 begin
   if not Assigned(FUserAgents) then Exit;
 
-  FUserAgents.Add('Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 YaBrowser/24.6.0.0 Safari/537.36\');
   FUserAgents.Add('Mozilla/5.0 (compatible; fpweb)');
+  FUserAgents.Add('Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 YaBrowser/24.6.0.0 Safari/537.36\');
+
+  FUserAgent := FUserAgents[0];
+end;
+
+procedure TProviderClient.AutoSelectUserAgent(const AURL: String);
+var
+  i: Integer;
+  Complete: Boolean;
+  LException: Exception;
+begin
+  Complete := False;
+  for i := 0 to FUserAgents.Count-1 do
+    try
+      Self.Get(AURL);
+      Complete := True;
+    except
+      on E: Exception do
+      begin
+        LException := E;
+        Continue;
+      end;
+    end;
+  if not Complete then
+    raise LException;
 end;
 
 constructor TProviderClient.Create(AOwner: TComponent);
@@ -361,9 +394,36 @@ begin
   inherited Destroy;
 end;
 
-function TProviderClient.ReceiveTile(AURL: String): TBGRABitmap;
+function TProviderClient.ReceiveTile(const AURL: String): TBGRABitmap;
+var
+  LMemoryStream: TMemoryStream;
 begin
+  Result := nil;
 
+  WriteLn(Format('TileLink: %s', [AURL]));
+  try
+    LMemoryStream := TMemoryStream.Create;
+    while True do
+      try
+        Self.Get(AURL, LMemoryStream);
+        break;
+      except
+        on E: ESocketError do
+          continue;
+        on E: EHTTPClient do
+          AutoSelectUserAgent(AURL);
+      end;
+    LMemoryStream.Position := 0;
+    Result.LoadFromStream(LMemoryStream);
+    LMemoryStream.Free;
+  except
+    on E: Exception do
+    begin
+      WriteLn(E.ClassName + ' ' + E.Message);
+      LMemoryStream.Free;
+      raise ETDReceive.Create('Failed receive file.');
+    end;
+  end;
 end;
 
 constructor TProvider.Create(AName, AURL: String);
@@ -384,7 +444,7 @@ end;
 
 function TProvider.GiveTile(AZoom: Integer; AX, AY: Integer): TBGRABitmap;
 begin
-
+  Result := FClient.ReceiveTile(Format('%s/%d/%d/%d.png',[URL, AZoom, AX, AY]));
 end;
 
 { TProviders }
@@ -404,11 +464,31 @@ begin
   FFilter := AFilter;
 end;
 
+destructor TLayer.Destroy;
+begin
+  inherited Destroy;
+
+  FreeAndNil(FBGRABitmap);
+end;
+
+procedure TLayer.Load(const AZoom: Integer; const AX, AY: Integer);
+begin
+  BGRABitmap := Provider.GiveTile(AZoom, AX, AY);
+end;
+
 { TLayers }
 
 function TLayers.Add(AProvider: IProvider; AFilter: IFilter): Integer;
 begin
   Result := inherited Add(Tlayer.Create(AProvider, AFilter));
+end;
+
+procedure TLayers.Load(const AZoom: Integer; const AX, AY: Integer);
+var
+  i: Integer;
+begin
+  for i := 0 to Count-1 do
+    Items[i].Load(AZoom, AX, AY);
 end;
 
 { TTilesManipulator }
