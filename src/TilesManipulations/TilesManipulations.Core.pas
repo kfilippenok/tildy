@@ -13,7 +13,7 @@
   See the License for the specific language governing permissions and
   limitations under the License. }
 
-unit TilesDownload.Refactor.Classes;
+unit TilesManipulations.Core;
 
 {$mode ObjFPC}{$H+}{$MODESWITCH ADVANCEDRECORDS}
 
@@ -27,8 +27,8 @@ uses
 type
 
   RMapProvider = record
-    name: String;
-    link: String;
+    Name: String;
+    Link: String;
   end;
 
   RCoordinate = record
@@ -72,8 +72,6 @@ const
 
 type
 
-  RefTTilesDownloader = class of TTilesDownloader;
-
   TGetFileName = function (const AZoom, AX, AY: Integer): String of object;
   TGetOutPath  = function : String of object;
   TFilterTile  = procedure (var ATileImg: TBGRABitmap) of object;
@@ -85,86 +83,109 @@ type
 
   { TFilter }
 
-  TFilterType = (ftNone, ftGrayscale);
-  TFilterTransform = procedure (var ABGRABitmap: TBGRABitmap) of object;
+  IFilter = interface
+    ['{5DBCB3D5-A14F-48CD-9E72-1F38448C717E}']
+    procedure Transform(var ABGRABitmap: TBGRABitmap);
+  end;
 
-  TFilter = class
-  const
-    defFilterType = ftNone;
-  strict private
-    FFilterType: TFilterType;
-    FTransform: TFilterTransform;
-  strict private
-    procedure SetFilterType(AValue: TFilterType);
+  { TFilterGrayscale }
+
+  TFilterGrayscale = class(TInterfacedObject, IFilter)
   strict private
     procedure Grayscale(var ABGRABitmap: TBGRABitmap);
   public
-    constructor Create; virtual;
-    constructor Create(AFilterType: TFilterType); virtual; overload;
-    property FilterType: TFilterType read FFilterType write SetFilterType default defFilterType;
-    procedure Transform(var ABGRABitmap: TBGRABitmap); virtual;
+    procedure Transform(var ABGRABitmap: TBGRABitmap);
   end;
-
-  { TProvider }
-
-  TProvider = class
-  strict private
-    FName: String;
-    FLink: String;
-  public
-    function TileLink(AZoom: Integer; AX, AY: Integer): String;
-    property Name: String read FName write FName;
-    property Link: String read FName write FName;
-  end;
-
-  { TProviders }
-
-  TProviders = specialize TFPGMap<String, TProvider>;
 
   { TProviderClient }
 
   TProviderClient = class(TFPCustomHTTPClient)
   strict private
-    FProvider: TProvider;
     FUserAgents: TStringList;
   strict private
     procedure SetupUserAgents; virtual;
   public
-    constructor Create(AOwner); override;
+    constructor Create(AOwner: TComponent); override;
     destructor Destroy; override;
-    property Provider: TProvider read FProvider write FProvider;
+    function ReceiveTile(AURL: String): TBGRABitmap;
+  end;
+
+  IProvider = interface
+    ['{9DF4214B-DE9F-4882-8E62-C31AB8F51A1C}']
+    function GiveTile(AZoom: Integer; AX, AY: Integer): TBGRABitmap;
+  end;
+
+  { TProvider }
+
+  TProvider = class(TInterfacedObject, IProvider)
+  strict private
+    FName: String;
+    FURL: String;
+    FClient: TProviderClient;
+  public
+    constructor Create(AName, AURL: String); virtual; reintroduce;
+    destructor Destroy; override;
+  public
+    function GiveTile(AZoom: Integer; AX, AY: Integer): TBGRABitmap;
+  public
+    property Name: String read FName write FName;
+    property URL: String read FURL write FURL;
+  end;
+
+  _TProviders = specialize TFPGMap<String, IProvider>;
+
+  { TProviders }
+
+  TProviders = class(_TProviders)
+  public
+    function Add(AKey: String; AName, AURL: String): Integer; virtual; reintroduce;
   end;
 
   { TLayer }
 
   TLayer = class
   strict private
-    FFilter: TFIlter;
-    FProvider: TProvider;
+    FFilter: IFIlter;
+    FProvider: IProvider;
   public
-    constructor Create;
-    property Filter: TFilter read FFilter write FFilter;
-    property Provider: TProvider read FProvider write FProvider;
+    constructor Create(AProvider: IProvider; AFilter: IFilter); virtual; reintroduce;
+  public
+    property Filter: IFilter read FFilter write FFilter;
+    property Provider: IProvider read FProvider write FProvider;
   end;
 
   { TLayers }
 
-  TLayers = specialize TFPGObjectList<TLayer>;
+  _TLayers = specialize TFPGObjectList<TLayer>;
+
+  TLayers = class(_TLayers)
+  public
+    function Add(AProvider: IProvider; AFilter: IFilter): Integer; virtual; reintroduce;
+  end;
+
+  { TTilesManipulator }
+
+  TTilesManipulator = class
+  strict private
+    FLayers: TLayers;
+  public
+    constructor Create; virtual;
+    destructor Destroy; override;
+    property Layers: TLayers read FLayers write FLayers;
+  end;
 
   { TTilesDownloader }
 
   TTilesDownloader = class(TFPCustomHTTPClient)
-  strict private
-    FFilter: TFilter;
-    FProviderClient: TProviderClient;
-    FLayers: TLayers;
-    FProviders: TProviders;
-
+  protected
+    FUserAgent: String;
+    FMapProvider: RMapProvider;
     FOutPath: String;
     FTileRes: Integer;
     FPattern, FInsertPattern: String;
     FGetFileName: TGetFileName;
     FGetOutPath : TGetOutPath;
+    FFilterTile : TFilterTile;
     FPatternItems: GPatternItems;
     FOtherTileRes: Boolean;
     FSaveMethod: TSaveMethod;
@@ -178,7 +199,6 @@ type
     function GetOutPathCustom: String;
     function GetOutPath: String;
     procedure SetOutPath(AOutPath: String);
-    procedure SetFilter(AValue: TFilterType);
     function GetProviderLink: String;
     procedure SetProviderLink(AValue: String);
     function GetProviderName: String;
@@ -209,6 +229,8 @@ type
   public
     constructor Create(AOwner: TComponent); override;
     destructor Destroy; override;
+    property ProviderName   : String      read GetProviderName write SetProviderName;
+    property ProviderLink   : String      read GetProviderLink write SetProviderLink;
     property OutPath        : String      read GetOutPath      write SetOutPath;
     property TileRes        : Integer     read FTileRes        write SetTileRes;
     property Pattern        : String      read FPattern        write SetPattern;
@@ -217,30 +239,11 @@ type
     property MaxZoom        : Integer     read FMaxZoom        write FMaxZoom      default defMaxZoom;
     property ShowFileType   : Boolean     read FShowFileType   write FShowFileType default defShowFileType;
     property SkipMissing    : Boolean     read FSkipMissing    write FSkipMissing  default defSkipMissing;
-    property Layers         : TLayers     read FLayers         write FLayers;
-    property Providers      : TProviders  read FProviders      write FProviders;
     property Coordinates[Index: Integer] : RCoordinate read GetCoordinate write SetCoordinate;
     property TotalTilesCount             : Longword    read GetTotalTilesCount;
     property TotalTilesCountOnCoordinates: Longword    read GetTotalTilesCountOnCoordinates;
     procedure Download; virtual;
     procedure DownloadFullMap; virtual;
-  end;
-
-  { TTilesManager }
-
-  TTilesManager = class
-  strict private
-    FUserAgents: TStringList;
-    FProviderClient: TTilesDownloader;
-    FLayers: TLayers;
-    FProviders: TProviders;
-    procedure SetLayers(AValue: TLayers);
-    procedure SetProviders(AValue: TProviders);
-  public
-    constructor Create; override;
-    procedure Download();
-    property Layers: TLayers read FLayers write SetLayers;
-    property Providers: TProviders read FProviders write SetProviders;
   end;
 
   { CMergedTD }
@@ -313,66 +316,21 @@ begin
   end;
 end;
 
-{ TFilter }
+{ TFilterGrayscale }
 
-procedure TFilter.Grayscale(var ABGRABitmap: TBGRABitmap);
+procedure TFilterGrayscale.Grayscale(var ABGRABitmap: TBGRABitmap);
 var
   LOld: TBGRABitmap;
 begin
-  try
-    LOld := ABGRABitmap;
-    ABGRABitmap := ABGRABitmap.FilterGrayscale(true);
-    LOld.Free;
-  except
-    on E: Exception do
-    begin
-      WriteLn(E.Message);
-      raise ETDFilter.Create('Failed filter file.');
-    end;
-  end;
+  LOld := ABGRABitmap;
+  ABGRABitmap := ABGRABitmap.FilterGrayscale(true);
+  LOld.Free;
 end;
 
-procedure TFilter.SetFilterType(AValue: TFilterType);
+procedure TFilterGrayscale.Transform(var ABGRABitmap: TBGRABitmap);
 begin
-  if FFilterType = AValue then Exit;
-
-  case AValue of
-    ftNone: FTransform := nil;
-    ftGrayscale: FTransform := @Grayscale;
-  end;
-
-  FFilterType := AValue;
-end;
-
-constructor TFilter.Create;
-begin
-  inherited Create;
-  FFilterType := defFilterType;
-end;
-
-constructor TFilter.Create(AFilterType: TFilterType);
-begin
-  Create;
-  FFilterType := AFilterType;
-end;
-
-procedure TFilter.Transform(var ABGRABitmap: TBGRABitmap);
-begin
-  if Assigned(FTransform) then
-    FTransform(ABGRABitmap);
-end;
-
-constructor TFilter.Create;
-begin
-  Create;
-
-end;
-
-{ TProvider }
-
-function TProvider.TileLink(AZoom: Integer; AX, AY: Integer): String;
-begin
-  Result := '';
+  if Assigned(ABGRABitmap) then
+    Grayscale(ABGRABitmap);
 end;
 
 { TProviderClient }
@@ -385,49 +343,88 @@ begin
   FUserAgents.Add('Mozilla/5.0 (compatible; fpweb)');
 end;
 
-constructor TProviderClient.Create(AOwner);
+constructor TProviderClient.Create(AOwner: TComponent);
 begin
   inherited Create(AOwner);
 
+  InitSSLInterface;
+  Self.AllowRedirect := true;
+  Self.ConnectTimeOut := 10000;
   FUserAgents := TStringList.Create;
   SetupUserAgents;
 end;
 
 destructor TProviderClient.Destroy;
 begin
-  inherited Destroy;
-
   FreeAndNil(FUserAgents);
+
+  inherited Destroy;
+end;
+
+function TProviderClient.ReceiveTile(AURL: String): TBGRABitmap;
+begin
+
+end;
+
+constructor TProvider.Create(AName, AURL: String);
+begin
+  inherited Create;
+
+  FName := AName;
+  FUrl := AURL;
+  FClient := TProviderClient.Create(nil);
+end;
+
+destructor TProvider.Destroy;
+begin
+  FreeAndNil(FClient);
+
+  inherited Destroy;
+end;
+
+function TProvider.GiveTile(AZoom: Integer; AX, AY: Integer): TBGRABitmap;
+begin
+
+end;
+
+{ TProviders }
+
+function TProviders.Add(AKey: String; AName, AURL: String): Integer;
+begin
+  Result := inherited Add(AKey, TProvider.Create(AName, AUrl));
 end;
 
 { TLayer }
 
-constructor TLayer.Create;
+constructor TLayer.Create(AProvider: IProvider; AFilter: IFilter);
 begin
   inherited Create;
 
-  FFilter := FFilter.Create;
+  FProvider := AProvider;
+  FFilter := AFilter;
 end;
 
-{ TTilesManager }
+{ TLayers }
 
-procedure TTilesManager.SetLayers(AValue: TLayers);
+function TLayers.Add(AProvider: IProvider; AFilter: IFilter): Integer;
 begin
-  if FLayers=AValue then Exit;
-  FLayers:=AValue;
+  Result := inherited Add(Tlayer.Create(AProvider, AFilter));
 end;
 
-procedure TTilesManager.SetProviders(AValue: TProviders);
-begin
-  if FProviders=AValue then Exit;
-  FProviders:=AValue;
-end;
+{ TTilesManipulator }
 
-constructor TTilesManager.Create;
+constructor TTilesManipulator.Create;
 begin
   inherited Create;
 
-  FProviders := TProviders.Create;
+  FLayers := TLayers.Create(True);
+end;
+
+destructor TTilesManipulator.Destroy;
+begin
+  inherited Destroy;
+
+  FreeAndNil(FLayers);
 end;
 
 operator = (const First, Second: RCoordinate) R : boolean;
@@ -490,18 +487,6 @@ end;
 function TTilesDownloader.GetOutPath: String;
 begin
   Result := FGetOutPath();
-end;
-
-procedure TTilesDownloader.SetFilter(AValue: TFilterType);
-begin
-  if FFilter=AValue then Exit;
-
-  case AValue of
-    ftNone: FFilterTile := nil;
-    ftGrayscale: FFilterTile := @GrayscaleTile;
-  end;
-
-  FFilter:=AValue;
 end;
 
 procedure TTilesDownloader.SetProviderLink(AValue: String);
@@ -575,16 +560,10 @@ constructor TTilesDownloader.Create(AOwner: TComponent);
 begin
   inherited Create(AOwner);
 
-  FFilter := TFilter.Create;
-  FProviderClient := TTilesDownloader.Create(nil);
-  FLayers := TLayers.Create(True);
-  FProviders := TProviders.Create;
-
   FOtherTileRes := defOtherTileRes;
   FTileRes := defTileRes;
   FGetFileName := @GetFileNameDir;
   FGetOutPath := @GetOutPathAuto;
-  FFilterTile := nil;
   FPatternItems := GPatternItems.Create;
   FOutPath := defOutPath;
   FSaveMethod := smFolders;
@@ -597,11 +576,6 @@ end;
 destructor TTilesDownloader.Destroy;
 begin
   inherited Destroy;
-
-  FreeAndNil(FFilter);
-  FreeAndNil(FProviderClient);
-  FreeAndNil(FLayers);
-  FreeAndNil(FProviders);
 
   FreeAndNil(FPatternItems);
 end;
@@ -928,43 +902,43 @@ begin
   end;
 end;
 
-{ CTDOpenStreetMap }
-
-constructor CTDOpenStreetMap.Create(AOwner: TComponent);
-begin
-  inherited Create(AOwner);
-end;
-
-{ CTDOpenTopotMap }
-
-constructor CTDOpenTopotMap.Create(AOwner: TComponent);
-begin
-  inherited Create(AOwner);
-
-  ProviderName := 'Open Topo Map';
-  ProviderLink := 'http://a.tile.opentopomap.org';
-end;
-
-{ CTDCycleOSM }
-
-constructor CTDCycleOSM.Create(AOwner: TComponent);
-begin
-  inherited Create(AOwner);
-
-  ProviderName := 'CycleOSM';
-  ProviderLink := 'https://c.tile-cyclosm.openstreetmap.fr/cyclosm/';
-end;
-
-{ CTDOpenRailwayMap }
-
-constructor CTDOpenRailwayMap.Create(AOwner: TComponent);
-begin
-  inherited Create(AOwner);
-
-  FUserAgent := 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 YaBrowser/24.6.0.0 Safari/537.36\';
-  ProviderName := 'OpenRailwayMap';
-  ProviderLink := 'http://b.tiles.openrailwaymap.org/standard';
-end;
+//{ CTDOpenStreetMap }
+//
+//constructor CTDOpenStreetMap.Create(AOwner: TComponent);
+//begin
+//  inherited Create(AOwner);
+//end;
+//
+//{ CTDOpenTopotMap }
+//
+//constructor CTDOpenTopotMap.Create(AOwner: TComponent);
+//begin
+//  inherited Create(AOwner);
+//
+//  ProviderName := 'Open Topo Map';
+//  ProviderLink := 'http://a.tile.opentopomap.org';
+//end;
+//
+//{ CTDCycleOSM }
+//
+//constructor CTDCycleOSM.Create(AOwner: TComponent);
+//begin
+//  inherited Create(AOwner);
+//
+//  ProviderName := 'CycleOSM';
+//  ProviderLink := 'https://c.tile-cyclosm.openstreetmap.fr/cyclosm/';
+//end;
+//
+//{ CTDOpenRailwayMap }
+//
+//constructor CTDOpenRailwayMap.Create(AOwner: TComponent);
+//begin
+//  inherited Create(AOwner);
+//
+//  FUserAgent := 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 YaBrowser/24.6.0.0 Safari/537.36\';
+//  ProviderName := 'OpenRailwayMap';
+//  ProviderLink := 'http://b.tiles.openrailwaymap.org/standard';
+//end;
 
 { CMergedTD }
 

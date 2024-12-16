@@ -23,7 +23,7 @@
           </Target>
           <SearchPaths>
             <IncludeFiles Value="$(ProjOutDir)"/>
-            <OtherUnitFiles Value="TilesDownload"/>
+            <OtherUnitFiles Value="TilesDownload;TilesManipulations"/>
             <UnitOutputDirectory Value="../out/$(TargetCPU)-$(TargetOS)"/>
           </SearchPaths>
           <Parsing>
@@ -60,7 +60,7 @@
           </Target>
           <SearchPaths>
             <IncludeFiles Value="$(ProjOutDir)"/>
-            <OtherUnitFiles Value="TilesDownload"/>
+            <OtherUnitFiles Value="TilesDownload;TilesManipulations"/>
             <UnitOutputDirectory Value="../out/$(TargetCPU)-$(TargetOS)"/>
           </SearchPaths>
           <CodeGeneration>
@@ -102,19 +102,15 @@
         <IsPartOfProject Value="True"/>
       </Unit>
       <Unit>
-        <Filename Value="TilesDownload/TilesDownload.Types.pas"/>
-        <IsPartOfProject Value="True"/>
-      </Unit>
-      <Unit>
         <Filename Value="TilesDownload/TilesDownload.Exceptions.pas"/>
         <IsPartOfProject Value="True"/>
       </Unit>
       <Unit>
-        <Filename Value="TilesDownload/TilesDownload.Utilities.pas"/>
+        <Filename Value="TilesManipulations/TilesManipulations.Core.pas"/>
         <IsPartOfProject Value="True"/>
       </Unit>
       <Unit>
-        <Filename Value="TilesDownload/TilesDownload.Refactor.Classes.pas"/>
+        <Filename Value="TilesDownloader/TilesDownloader.Options.pas"/>
         <IsPartOfProject Value="True"/>
       </Unit>
     </Units>
@@ -126,7 +122,7 @@
     </Target>
     <SearchPaths>
       <IncludeFiles Value="$(ProjOutDir)"/>
-      <OtherUnitFiles Value="TilesDownload"/>
+      <OtherUnitFiles Value="TilesDownload;TilesManipulations"/>
       <UnitOutputDirectory Value="../out/$(TargetCPU)-$(TargetOS)"/>
     </SearchPaths>
     <Linking>
