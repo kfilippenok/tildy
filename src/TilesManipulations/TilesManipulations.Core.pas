@@ -176,11 +176,27 @@ type
   { TTilesManipulator }
 
   TTilesManipulator = class
+  const
+    MinLongitude = -180.0;
+    MaxLongitude = 180.0;
+    MinLatitude = -85.0511;
+    MaxLatitude = 85.0511;
   strict private
     FLayers: TLayers;
-  public
+  public // Calculations
+    class function CalcTileX(const AZoom: Byte; const ALongitude: Float): QWord; static;
+    class function CalcTileY(const AZoom: Byte; const ALatitude: Float): QWord; static;
+    class function CalcRowTilesCount(const AMinX, AMaxX: QWord): QWord; overload; static;
+    class function CalcColumnTilesCount(const AMinY, AMaxY: QWord): QWord; static;
+    class function CalcZoomTilesCount(const AZoom: Byte; const AMinLatitude, AMaxLatitude, AMinLongitude, AMaxLongitude: Float): QWord; static;
+    class function CalcTotalTilesCount(const AMinZoom, AMaxZoom: Byte; const AMinLatitude, AMaxLatitude, AMinLongitude, AMaxLongitude: Float): QWord; static;
+  public // Create and Destroy
     constructor Create; virtual;
     destructor Destroy; override;
+  public
+    procedure Download(const AMinZoom, AMaxZoom: Integer); virtual;
+    procedure Download(const AMinZoom, AMaxZoom: Integer; const AMinLatitude, AMaxLatitude, AMinLongtude, AMaxLongtude: Float); virtual; overload;
+  public
     property Layers: TLayers read FLayers write FLayers;
   end;
 
@@ -361,7 +377,7 @@ var
   Complete: Boolean;
   LException: Exception;
 begin
-  Write('Setting up settings for connection... ');
+  Write('Setting up connection... ');
 
   Complete := False;
   for i := 0 to FUserAgents.Count-1 do
@@ -369,6 +385,8 @@ begin
       Self.AddHeader('User-Agent', FUserAgents[i]);
       Self.Get(AURL);
       Complete := True;
+      WriteLn('Ok');
+      Break;
     except
       on E: Exception do
       begin
@@ -377,9 +395,9 @@ begin
       end;
     end;
 
-  if Complete then
-    WriteLn('Ok')
-  else
+  WriteLn(FUserAgent);
+
+  if not Complete then
   begin
     WriteLn('Fail');
     raise LException;
@@ -431,13 +449,14 @@ begin
           continue;
       end;
     LMemoryStream.Position := 0;
-    Result.LoadFromStream(LMemoryStream);
+    Result := TBGRABitmap.Create(LMemoryStream);
     LMemoryStream.Free;
   except
     on E: Exception do
     begin
       WriteLn(E.ClassName + ' ' + E.Message);
-      LMemoryStream.Free;
+      if Assigned(LMemoryStream) then FreeAndNil(LMemoryStream);
+      if Assigned(Result) then FreeAndNil(Result);
       raise ETDReceive.Create('Failed receive file.');
     end;
   end;
@@ -462,7 +481,12 @@ end;
 function TProvider.GiveTile(AZoom: Integer; AX, AY: Integer): TBGRABitmap;
 begin
   Write(Name + ': ');
-  Result := FClient.ReceiveTile(Format('%s/%d/%d/%d.png',[URL, AZoom, AX, AY]));
+  Result := nil;
+  try
+    Result := FClient.ReceiveTile(Format('%s/%d/%d/%d.png',[URL, AZoom, AX, AY]));
+  except
+    raise;
+  end;
 end;
 
 { TProviders }
@@ -503,13 +527,67 @@ end;
 
 procedure TLayers.Load(const AZoom: Integer; const AX, AY: Integer);
 var
-  i: Integer;
+  Layer: TLayer;
 begin
-  for i := 0 to Count-1 do
-    Items[i].Load(AZoom, AX, AY);
+  for Layer in Self do
+    Layer.Load(AZoom, AX, AY);
 end;
 
 { TTilesManipulator }
+
+class function TTilesManipulator.CalcTileX(const AZoom: Byte; const ALongitude: Float): QWord;
+var
+  n: Float;
+begin
+  n := Power(2, AZoom);
+  Result := Trunc(((ALongitude + 180) / 360) * n);
+end;
+
+class function TTilesManipulator.CalcTileY(const AZoom: Byte; const ALatitude: Float): QWord;
+var
+  lat_rad, n, x1, x2, x3, x4, x5: Float;
+begin
+  n := Power(2, AZoom);
+  lat_rad := DegToRad(ALatitude);
+  x1 := Tan(lat_rad);
+  x2 := ArcSinH(x1);
+  x3 := x2 / Pi;
+  x4 := (1 - x3);
+  x5 := x4 / 2.0;
+  Result := Trunc(x4 / 2.0 * n);
+end;
+
+class function TTilesManipulator.CalcRowTilesCount(const AMinX, AMaxX: QWord): QWord;
+begin
+  Result := AMaxX - AMinX + 1;
+end;
+
+class function TTilesManipulator.CalcColumnTilesCount(const AMinY, AMaxY: QWord): QWord;
+begin
+  Result := AMaxY - AMinY + 1;
+end;
+
+class function TTilesManipulator.CalcZoomTilesCount(const AZoom: Byte;
+                                                    const AMinLatitude, AMaxLatitude, AMinLongitude, AMaxLongitude: Float): QWord;
+var
+  MinX, MaxX, MinY, MaxY: QWord;
+begin
+  MinX := CalcTileX(AZoom, AMinLongitude);
+  MaxX := CalcTileX(AZoom, AMaxLongitude);
+  MinY := CalcTileY(AZoom, AMinLatitude);
+  MaxY := CalcTileY(AZoom, AMaxLatitude);
+  Result := (MaxX - MinX) * (MaxY - MinY);
+end;
+
+class function TTilesManipulator.CalcTotalTilesCount(const AMinZoom, AMaxZoom: Byte;
+                                                     const AMinLatitude, AMaxLatitude, AMinLongitude, AMaxLongitude: Float): QWord;
+var
+  iz: Byte;
+begin
+  Result := 0;
+  for iz := AMinZoom to AMaxZoom do
+    Result := Result + CalcZoomTilesCount(iz, AMinLatitude, AMaxLatitude, AMinLongitude, AMaxLongitude);
+end;
 
 constructor TTilesManipulator.Create;
 begin
@@ -523,6 +601,75 @@ begin
   inherited Destroy;
 
   FreeAndNil(FLayers);
+end;
+
+procedure TTilesManipulator.Download(const AMinZoom, AMaxZoom: Integer);
+begin
+  Download(AMinZoom, AMaxZoom, MinLatitude, MaxLatitude, MinLongitude, MaxLongitude);
+end;
+
+procedure TTilesManipulator.Download(const AMinZoom, AMaxZoom: Integer; const AMinLatitude, AMaxLatitude, AMinLongtude, AMaxLongtude: Float);
+var
+  MinX, MaxX, MinY, MaxY: QWord;
+  iz: Byte;
+  ix, iy: Longword;
+  LZoomCurrentCount, LZoomTotalCount, LCurrentCount, LTotalCount: QWord;
+begin
+  LCurrentCount := 0;
+
+  LTotalCount := CalcTotalTilesCount(AMinZoom, AMaxZoom, AMinLatitude, AMaxLatitude, AMinLongtude, AMaxLongtude);
+  WriteLn(LTotalCount);
+
+  //for iz := MinZoom to MaxZoom do
+  //begin
+  //  if SaveMethod = smFolders then
+  //  if not DirectoryExists(Format('%s/%d', [OutPath, iz])) then
+  //  if not ForceDirectories(Format('%s/%d', [OutPath, iz])) then
+  //    raise Exception.Create('The necessary paths could not be created. Check the specified path');
+  //
+  //  CalcTileNumber(Coordinates[0], iz, LTile1);
+  //  CalcTileNumber(Coordinates[1], iz, LTile2);
+  //  {$IFDEF DEBUG}
+  //  WriteLn(Format('Coordinates[0]: %f, %f, Zoom: %d -> Tile: %d, %d', [Coordinates[0].lat, Coordinates[0].lon, iz,  LTile1.x, LTile1.y]));
+  //  WriteLn(Format('Coordinates[1]: %f, %f, Zoom: %d -> Tile: %d, %d', [Coordinates[1].lat, Coordinates[1].lon, iz,  LTile2.x, LTile2.y]));
+  //  {$ENDIF}
+  //
+  //  LZoomCurrentCount := 0;
+  //  LZoomTotalCount := CalcZoomTilesCount(LTile1, Ltile2);
+  //
+  //  for ix := LTile1.X to LTile2.x do
+  //  begin
+  //    if SaveMethod = smFolders then
+  //    if not DirectoryExists(Format('%s/%d/%d', [OutPath, iz, ix])) then
+  //      ForceDirectories(Format('%s/%d/%d', [OutPath, iz, ix]));
+  //
+  //    for iy := LTile1.y to LTile2.y do
+  //    begin
+  //      LTileTmp.x := ix;
+  //      LTileTmp.y := iy;
+  //      try
+  //        DownloadTile(iz, LTileTmp);
+  //        Inc(LZoomCurrentCount);
+  //        Inc(LCurrentCount);
+  //        WriteLn(Format('Total: %d/%d <- (Zoom %d: %d/%d)', [LCurrentCount, LTotalCount, iz, LZoomCurrentCount, LZoomTotalCount]));
+  //      except
+  //        on E: ETileDownload do
+  //        begin
+  //          if SkipMissing and (E is ETDReceive) then
+  //          begin
+  //            WriteLn('! Skip missing tile');
+  //            Continue;
+  //          end;
+  //
+  //          WriteLn;
+  //          WriteLn('Error: ', E.Message);
+  //          Exit;
+  //        end;
+  //      end;
+  //    end;
+  //  end;
+  //
+  //end;
 end;
 
 operator = (const First, Second: RCoordinate) R : boolean;

@@ -63,7 +63,14 @@ type
   begin
     TilesManipulator := TTilesManipulator.Create;
     TilesManipulator.Layers.Add(Providers['osm-standard'], TFilterGrayscale.Create);
-    TilesManipulator.Layers[0].Load(0, 0, 0);
+    //TilesManipulator.Layers.Load(0, 0, 0);
+    //TilesManipulator.Download(1, 1);
+
+    WriteLn(TilesManipulator.CalcTileX(0, 180));
+    WriteLn(TilesManipulator.CalcTileY(0, -85.0511));
+
+    //ProviderClient := TProviderClient.Create(nil);
+    //ProviderClient.;
 
     TilesManipulator.Free;
 
