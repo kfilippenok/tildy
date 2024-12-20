@@ -13,7 +13,7 @@
   See the License for the specific language governing permissions and
   limitations under the License. }
 
-unit TilesManipulations.Core;
+unit TilesManipulations;
 
 {$mode ObjFPC}{$H+}{$MODESWITCH ADVANCEDRECORDS}
 
@@ -153,7 +153,7 @@ type
     FProvider: IProvider;
     FBGRABitmap: TBGRABitmap;
   public
-    constructor Create(AProvider: IProvider; AFilter: IFilter); virtual; reintroduce;
+    constructor Create(AProvider: IProvider); virtual; reintroduce;
     destructor Destroy; override;
   public
     procedure Load(const AZoom: Integer; const AX, AY: Integer);
@@ -169,7 +169,7 @@ type
 
   TLayers = class(_TLayers)
   public
-    function Add(AProvider: IProvider; AFilter: IFilter): Integer; virtual; reintroduce;
+    function Add(AProvider: IProvider): Integer; virtual; reintroduce;
     procedure Load(const AZoom: Integer; const AX, AY: Integer); virtual;
   end;
 
@@ -498,12 +498,12 @@ end;
 
 { TLayer }
 
-constructor TLayer.Create(AProvider: IProvider; AFilter: IFilter);
+constructor TLayer.Create(AProvider: IProvider);
 begin
   inherited Create;
 
   FProvider := AProvider;
-  FFilter := AFilter;
+  FFilter := nil;
 end;
 
 destructor TLayer.Destroy;
@@ -515,14 +515,16 @@ end;
 
 procedure TLayer.Load(const AZoom: Integer; const AX, AY: Integer);
 begin
-  BGRABitmap := Provider.GiveTile(AZoom, AX, AY);
+  FBGRABitmap := Provider.GiveTile(AZoom, AX, AY);
+  if Assigned(Filter) then
+    Filter.Transform(FBGRABitmap);
 end;
 
 { TLayers }
 
-function TLayers.Add(AProvider: IProvider; AFilter: IFilter): Integer;
+function TLayers.Add(AProvider: IProvider): Integer;
 begin
-  Result := inherited Add(Tlayer.Create(AProvider, AFilter));
+  Result := inherited Add(Tlayer.Create(AProvider));
 end;
 
 procedure TLayers.Load(const AZoom: Integer; const AX, AY: Integer);

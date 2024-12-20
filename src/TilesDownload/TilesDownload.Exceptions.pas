@@ -20,13 +20,9 @@ unit TilesDownload.Exceptions;
 interface
 
 uses
-  Classes, SysUtils, TilesDownload.Types;
+  Classes, SysUtils;
 
 type
-
-  EMissingOptions = class(Exception)
-    constructor Create(AOptions: TOptions); overload;
-  end;
 
   EUnknownIdentProvider = class(Exception);
 
@@ -38,20 +34,6 @@ type
   ETDSave        = class(ETileDownload);
 
 implementation
-
-  constructor EMissingOptions.Create(AOptions: TOptions);
-  var LMsg: String;
-      LOption: TOptionKind;
-  begin
-    LMsg := 'Options: ';
-    for LOption in AOptions do
-    begin
-      LMsg := LMsg + Format('-%s ', [getOptionName(LOption)]);
-    end;
-    LMsg := LMsg + 'are missing';
-
-    inherited Create(LMsg);
-  end;
 
 end.
 

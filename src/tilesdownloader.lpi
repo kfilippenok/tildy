@@ -106,11 +106,11 @@
         <IsPartOfProject Value="True"/>
       </Unit>
       <Unit>
-        <Filename Value="TilesManipulations/TilesManipulations.Core.pas"/>
+        <Filename Value="TilesDownloader/TilesDownloader.Options.pas"/>
         <IsPartOfProject Value="True"/>
       </Unit>
       <Unit>
-        <Filename Value="TilesDownloader/TilesDownloader.Options.pas"/>
+        <Filename Value="TilesManipulations/TilesManipulations.pas"/>
         <IsPartOfProject Value="True"/>
       </Unit>
     </Units>
