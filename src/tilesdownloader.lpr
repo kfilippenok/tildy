@@ -24,7 +24,8 @@ uses
   {$IFDEF WINDOWS}
   Interfaces, // For BGRABitmap
   {$ENDIF}
-  SysUtils, Classes, CustApp, TilesManipulations;
+  SysUtils, Classes, CustApp,
+  TilesManipulations.Base, TilesManipulations.Projections, TilesManipulations.Filters;
 
 var
   //OptionParameter: array[TOptionKind] of String;
@@ -50,10 +51,10 @@ type
 
   procedure ATilesDownloader.SetupProviders;
   begin
-    Providers.Add('osm-standard'            , 'OpenStreetMap-Standard'        , 'http://a.tile.openstreetmap.org');
-    Providers.Add('railway-standard'        , 'OpenRailwayMap-Standard'       , 'http://b.tiles.openrailwaymap.org/standard');
-    Providers.Add('railway-maxspeed'        , 'OpenRailwayMap-Maxspeed'       , 'http://b.tiles.openrailwaymap.org/maxspeed');
-    Providers.Add('railway-electrification' , 'OpenRailwayMap-Electrification', 'http://b.tiles.openrailwaymap.org/electrification');
+    Providers.Add('osm-standard', 'OpenStreetMap-Standard', 'http://a.tile.openstreetmap.org', TEPSG3857.Create);
+    Providers.Add('railway-standard'        , 'OpenRailwayMap-Standard'       , 'http://b.tiles.openrailwaymap.org/standard', TEPSG3857.Create);
+    Providers.Add('railway-maxspeed'        , 'OpenRailwayMap-Maxspeed'       , 'http://b.tiles.openrailwaymap.org/maxspeed', TEPSG3857.Create);
+    Providers.Add('railway-electrification' , 'OpenRailwayMap-Electrification', 'http://b.tiles.openrailwaymap.org/electrification', TEPSG3857.Create);
   end;
 
   procedure ATilesDownloader.DoRun;
@@ -65,8 +66,8 @@ type
     //TilesManipulator.Layers.Load(0, 0, 0);
     //TilesManipulator.Download(1, 1);
 
-    WriteLn(TilesManipulator.CalcTileX(0, 180));
-    WriteLn(TilesManipulator.CalcTileY(0, -85.0511));
+    WriteLn(TilesManipulator.Layers[0].Provider.Projection.CalcTileX(0, 180));
+    WriteLn(TilesManipulator.Layers[0].Provider.Projection.CalcTileY(0, -85.059999));
 
     //ProviderClient := TProviderClient.Create(nil);
     //ProviderClient.;

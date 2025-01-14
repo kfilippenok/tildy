@@ -110,7 +110,15 @@
         <IsPartOfProject Value="True"/>
       </Unit>
       <Unit>
-        <Filename Value="TilesManipulations/TilesManipulations.pas"/>
+        <Filename Value="TilesManipulations/TilesManipulations.Base.pas"/>
+        <IsPartOfProject Value="True"/>
+      </Unit>
+      <Unit>
+        <Filename Value="TilesManipulations/TilesManipulations.Projections.pas"/>
+        <IsPartOfProject Value="True"/>
+      </Unit>
+      <Unit>
+        <Filename Value="TilesManipulations/TilesManipulations.Filters.pas"/>
         <IsPartOfProject Value="True"/>
       </Unit>
     </Units>

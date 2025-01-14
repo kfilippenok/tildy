@@ -13,7 +13,7 @@
   See the License for the specific language governing permissions and
   limitations under the License. }
 
-unit TilesManipulations;
+unit TilesManipulations.Base;
 
 {$mode ObjFPC}{$H+}{$MODESWITCH ADVANCEDRECORDS}
 
@@ -81,20 +81,19 @@ type
     procedure SortOnData;
   end;
 
-  { TFilter }
-
   IFilter = interface
     ['{5DBCB3D5-A14F-48CD-9E72-1F38448C717E}']
     procedure Transform(var ABGRABitmap: TBGRABitmap);
   end;
 
-  { TFilterGrayscale }
-
-  TFilterGrayscale = class(TInterfacedObject, IFilter)
-  strict private
-    procedure Grayscale(var ABGRABitmap: TBGRABitmap);
-  public
-    procedure Transform(var ABGRABitmap: TBGRABitmap);
+  IProjection = interface
+    ['{1F79F1B6-41F0-4B3F-83DD-0FA312C73BCB}']
+    function MinLat: Extended;
+    function MaxLat: Extended;
+    function MinLon: Extended;
+    function MaxLon: Extended;
+    function CalcTileX(const AZoom: Byte; const ALongitude: Extended): QWord;
+    function CalcTileY(const AZoom: Byte; const ALatitude: Extended): QWord;
   end;
 
   { TProviderClient }
@@ -114,25 +113,35 @@ type
     function ReceiveTile(const AURL: String): TBGRABitmap;
   end;
 
+  { IProvider }
+
   IProvider = interface
     ['{9DF4214B-DE9F-4882-8E62-C31AB8F51A1C}']
     function GiveTile(AZoom: Integer; AX, AY: Integer): TBGRABitmap;
+    function GetProjection: IProjection;
+    procedure SetProjection(AValue: IProjection);
+    property Projection: IProjection read GetProjection write SetProjection;
   end;
 
   { TProvider }
 
   TProvider = class(TInterfacedObject, IProvider)
   strict private
-    FName: String;
-    FURL: String;
     FClient: TProviderClient;
+    FName: String;
+    FProjection: IProjection;
+    FURL: String;
+  strict private
+    function GetProjection: IProjection;
+    procedure SetProjection(AValue: IProjection);
   public
-    constructor Create(AName, AURL: String); virtual; reintroduce;
+    constructor Create(AName, AURL: String; AProjection: IProjection); virtual; reintroduce;
     destructor Destroy; override;
   public
     function GiveTile(AZoom: Integer; AX, AY: Integer): TBGRABitmap;
   public
     property Name: String read FName write FName;
+    property Projection: IProjection read GetProjection write SetProjection;
     property URL: String read FURL write FURL;
   end;
 
@@ -142,7 +151,7 @@ type
 
   TProviders = class(_TProviders)
   public
-    function Add(AKey: String; AName, AURL: String): Integer; virtual; reintroduce;
+    function Add(AKey: String; AName, AURL: String; AProjection: IProjection): Integer; virtual; reintroduce;
   end;
 
   { TLayer }
@@ -176,20 +185,13 @@ type
   { TTilesManipulator }
 
   TTilesManipulator = class
-  const
-    MinLongitude = -180.0;
-    MaxLongitude = 180.0;
-    MinLatitude = -85.0511;
-    MaxLatitude = 85.0511;
   strict private
     FLayers: TLayers;
   public // Calculations
-    class function CalcTileX(const AZoom: Byte; const ALongitude: Float): QWord; static;
-    class function CalcTileY(const AZoom: Byte; const ALatitude: Float): QWord; static;
     class function CalcRowTilesCount(const AMinX, AMaxX: QWord): QWord; overload; static;
     class function CalcColumnTilesCount(const AMinY, AMaxY: QWord): QWord; static;
-    class function CalcZoomTilesCount(const AZoom: Byte; const AMinLatitude, AMaxLatitude, AMinLongitude, AMaxLongitude: Float): QWord; static;
-    class function CalcTotalTilesCount(const AMinZoom, AMaxZoom: Byte; const AMinLatitude, AMaxLatitude, AMinLongitude, AMaxLongitude: Float): QWord; static;
+    class function CalcZoomTilesCount(AProjecion: IProjection; const AZoom: Byte; const AMinLatitude, AMaxLatitude, AMinLongitude, AMaxLongitude: Float): QWord; static;
+    class function CalcTotalTilesCount(AProjecion: IProjection; const AMinZoom, AMaxZoom: Byte; const AMinLatitude, AMaxLatitude, AMinLongitude, AMaxLongitude: Float): QWord; static;
   public // Create and Destroy
     constructor Create; virtual;
     destructor Destroy; override;
@@ -342,23 +344,6 @@ begin
   end;
 end;
 
-{ TFilterGrayscale }
-
-procedure TFilterGrayscale.Grayscale(var ABGRABitmap: TBGRABitmap);
-var
-  LOld: TBGRABitmap;
-begin
-  LOld := ABGRABitmap;
-  ABGRABitmap := ABGRABitmap.FilterGrayscale(true);
-  LOld.Free;
-end;
-
-procedure TFilterGrayscale.Transform(var ABGRABitmap: TBGRABitmap);
-begin
-  if Assigned(ABGRABitmap) then
-    Grayscale(ABGRABitmap);
-end;
-
 { TProviderClient }
 
 procedure TProviderClient.SetupUserAgents;
@@ -462,11 +447,23 @@ begin
   end;
 end;
 
-constructor TProvider.Create(AName, AURL: String);
+function TProvider.GetProjection: IProjection;
+begin
+  Result := FProjection;
+end;
+
+procedure TProvider.SetProjection(AValue: IProjection);
+begin
+  if FProjection = AValue then Exit;
+  FProjection := AValue;
+end;
+
+constructor TProvider.Create(AName, AURL: String; AProjection: IProjection);
 begin
   inherited Create;
 
   FName := AName;
+  FProjection := AProjection;
   FUrl := AURL;
   FClient := TProviderClient.Create(nil);
 end;
@@ -491,9 +488,9 @@ end;
 
 { TProviders }
 
-function TProviders.Add(AKey: String; AName, AURL: String): Integer;
+function TProviders.Add(AKey: String; AName, AURL: String; AProjection: IProjection): Integer;
 begin
-  Result := inherited Add(AKey, TProvider.Create(AName, AUrl));
+  Result := inherited Add(AKey, TProvider.Create(AName, AUrl, AProjection));
 end;
 
 { TLayer }
@@ -537,28 +534,6 @@ end;
 
 { TTilesManipulator }
 
-class function TTilesManipulator.CalcTileX(const AZoom: Byte; const ALongitude: Float): QWord;
-var
-  n: Float;
-begin
-  n := Power(2, AZoom);
-  Result := Trunc(((ALongitude + 180) / 360) * n);
-end;
-
-class function TTilesManipulator.CalcTileY(const AZoom: Byte; const ALatitude: Float): QWord;
-var
-  lat_rad, n, x1, x2, x3, x4, x5: Float;
-begin
-  n := Power(2, AZoom);
-  lat_rad := DegToRad(ALatitude);
-  x1 := Tan(lat_rad);
-  x2 := ArcSinH(x1);
-  x3 := x2 / Pi;
-  x4 := (1 - x3);
-  x5 := x4 / 2.0;
-  Result := Trunc(x4 / 2.0 * n);
-end;
-
 class function TTilesManipulator.CalcRowTilesCount(const AMinX, AMaxX: QWord): QWord;
 begin
   Result := AMaxX - AMinX + 1;
@@ -569,26 +544,26 @@ begin
   Result := AMaxY - AMinY + 1;
 end;
 
-class function TTilesManipulator.CalcZoomTilesCount(const AZoom: Byte;
+class function TTilesManipulator.CalcZoomTilesCount(AProjecion: IProjection; const AZoom: Byte;
                                                     const AMinLatitude, AMaxLatitude, AMinLongitude, AMaxLongitude: Float): QWord;
 var
   MinX, MaxX, MinY, MaxY: QWord;
 begin
-  MinX := CalcTileX(AZoom, AMinLongitude);
-  MaxX := CalcTileX(AZoom, AMaxLongitude);
-  MinY := CalcTileY(AZoom, AMinLatitude);
-  MaxY := CalcTileY(AZoom, AMaxLatitude);
+  MinX := AProjecion.CalcTileX(AZoom, AMinLongitude);
+  MaxX := AProjecion.CalcTileX(AZoom, AMaxLongitude);
+  MinY := AProjecion.CalcTileY(AZoom, AMinLatitude);
+  MaxY := AProjecion.CalcTileY(AZoom, AMaxLatitude);
   Result := (MaxX - MinX) * (MaxY - MinY);
 end;
 
-class function TTilesManipulator.CalcTotalTilesCount(const AMinZoom, AMaxZoom: Byte;
+class function TTilesManipulator.CalcTotalTilesCount(AProjecion: IProjection; const AMinZoom, AMaxZoom: Byte;
                                                      const AMinLatitude, AMaxLatitude, AMinLongitude, AMaxLongitude: Float): QWord;
 var
   iz: Byte;
 begin
   Result := 0;
   for iz := AMinZoom to AMaxZoom do
-    Result := Result + CalcZoomTilesCount(iz, AMinLatitude, AMaxLatitude, AMinLongitude, AMaxLongitude);
+    Result := Result + CalcZoomTilesCount(AProjecion, iz, AMinLatitude, AMaxLatitude, AMinLongitude, AMaxLongitude);
 end;
 
 constructor TTilesManipulator.Create;
@@ -606,8 +581,13 @@ begin
 end;
 
 procedure TTilesManipulator.Download(const AMinZoom, AMaxZoom: Integer);
+var
+  LMainProjection: IProjection;
 begin
-  Download(AMinZoom, AMaxZoom, MinLatitude, MaxLatitude, MinLongitude, MaxLongitude);
+  if FLayers.Count < 1 then Exit;
+
+  LMainProjection := FLayers[0].Provider.Projection;
+  Download(AMinZoom, AMaxZoom, LMainProjection.MinLat, LMainProjection.MaxLat, LMainProjection.MinLon, LMainProjection.MaxLon);
 end;
 
 procedure TTilesManipulator.Download(const AMinZoom, AMaxZoom: Integer; const AMinLatitude, AMaxLatitude, AMinLongtude, AMaxLongtude: Float);
@@ -616,10 +596,12 @@ var
   iz: Byte;
   ix, iy: Longword;
   LZoomCurrentCount, LZoomTotalCount, LCurrentCount, LTotalCount: QWord;
+  LMainProjection: IProjection;
 begin
   LCurrentCount := 0;
 
-  LTotalCount := CalcTotalTilesCount(AMinZoom, AMaxZoom, AMinLatitude, AMaxLatitude, AMinLongtude, AMaxLongtude);
+  LMainProjection := FLayers[0].Provider.Projection;
+  LTotalCount := CalcTotalTilesCount(LMainProjection, AMinZoom, AMaxZoom, AMinLatitude, AMaxLatitude, AMinLongtude, AMaxLongtude);
   WriteLn(LTotalCount);
 
   //for iz := MinZoom to MaxZoom do
