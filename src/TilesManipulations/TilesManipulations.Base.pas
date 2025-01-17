@@ -123,6 +123,8 @@ type
     property Projection: IProjection read GetProjection write SetProjection;
   end;
 
+  EProvider = class(Exception);
+
   { TProvider }
 
   TProvider = class(TInterfacedObject, IProvider)
@@ -154,20 +156,22 @@ type
     function Add(AKey: String; AName, AURL: String; AProjection: IProjection): Integer; virtual; reintroduce;
   end;
 
+  ELayer = class(Exception);
+
   { TLayer }
 
   TLayer = class
   strict private
     FFilter: IFIlter;
     FProvider: IProvider;
-    FBGRABitmap: TBGRABitmap;
+    FBuffer: TBGRABitmap;
   public
     constructor Create(AProvider: IProvider); virtual; reintroduce;
     destructor Destroy; override;
   public
     procedure Load(const AZoom: Integer; const AX, AY: Integer);
   public
-    property BGRABitmap: TBGRABitmap read FBGRABitmap write FBGRABitmap;
+    property Buffer: TBGRABitmap read FBuffer write FBuffer;
     property Filter: IFilter read FFilter write FFilter;
     property Provider: IProvider read FProvider write FProvider;
   end;
@@ -198,7 +202,7 @@ type
   public
     procedure Download(const AZoom: Integer); virtual;
     procedure Download(const AMinZoom, AMaxZoom: Integer); virtual;
-    procedure Download(const AMinZoom, AMaxZoom: Integer; const AMinLatitude, AMaxLatitude, AMinLongtude, AMaxLongtude: Float); virtual; overload;
+    procedure Download(const AMinZoom, AMaxZoom: Integer; const AMinLatitude, AMaxLatitude, AMinLongitude, AMaxLongitude: Float); virtual; overload;
   public
     property Layers: TLayers read FLayers write FLayers;
   end;
@@ -372,6 +376,7 @@ begin
       Self.Get(AURL);
       Complete := True;
       WriteLn('Ok');
+      FUASelected := True;
       Break;
     except
       on E: Exception do
@@ -483,7 +488,8 @@ begin
   try
     Result := FClient.ReceiveTile(Format('%s/%d/%d/%d.png',[URL, AZoom, AX, AY]));
   except
-    raise;
+    on E: Exception do
+      raise EProvider.Create('An error occurred while downloading');
   end;
 end;
 
@@ -508,14 +514,22 @@ destructor TLayer.Destroy;
 begin
   inherited Destroy;
 
-  FreeAndNil(FBGRABitmap);
+  if Assigned(FBuffer) then
+    FreeAndNil(FBuffer);
 end;
 
 procedure TLayer.Load(const AZoom: Integer; const AX, AY: Integer);
 begin
-  FBGRABitmap := Provider.GiveTile(AZoom, AX, AY);
-  if Assigned(Filter) then
-    Filter.Transform(FBGRABitmap);
+  if Assigned(FBuffer) then
+    FBuffer.Free;
+  try
+    FBuffer := Provider.GiveTile(AZoom, AX, AY);
+    if Assigned(Filter) then
+      Filter.Transform(FBuffer);
+  except
+    on E: Exception do
+      raise ELayer.Create(E.ClassName + ': ' + E.Message);
+  end;
 end;
 
 { TLayers }
@@ -583,6 +597,8 @@ end;
 
 procedure TTilesManipulator.Download(const AZoom: Integer);
 begin
+  if FLayers.Count < 1 then Exit;
+
   Download(AZoom, AZoom);
 end;
 
@@ -596,18 +612,41 @@ begin
   Download(AMinZoom, AMaxZoom, LMainProjection.MinLat, LMainProjection.MaxLat, LMainProjection.MinLon, LMainProjection.MaxLon);
 end;
 
-procedure TTilesManipulator.Download(const AMinZoom, AMaxZoom: Integer; const AMinLatitude, AMaxLatitude, AMinLongtude, AMaxLongtude: Float);
+procedure TTilesManipulator.Download(const AMinZoom, AMaxZoom: Integer; const AMinLatitude, AMaxLatitude, AMinLongitude, AMaxLongitude: Float);
 var
   MinX, MaxX, MinY, MaxY: QWord;
   iz: Byte;
-  ix, iy: Longword;
+  ix, iy, il: Longword;
   LZoomCurrentCount, LZoomTotalCount, LCurrentCount, LTotalCount: QWord;
   LMainProjection: IProjection;
+  LBuffer: TBGRABitmap;
 begin
-  LCurrentCount := 0;
+  if FLayers.Count < 1 then Exit;
 
   LMainProjection := FLayers[0].Provider.Projection;
-  LTotalCount := CalcTotalTilesCount(LMainProjection, AMinZoom, AMaxZoom, AMinLatitude, AMaxLatitude, AMinLongtude, AMaxLongtude);
+  LTotalCount := CalcTotalTilesCount(LMainProjection, AMinZoom, AMaxZoom, AMinLatitude, AMaxLatitude, AMinLongitude, AMaxLongitude);
+  LCurrentCount := 0;
+
+  for iz := AMinZoom to AMaxZoom do
+  begin
+    LZoomTotalCount := CalcZoomTilesCount(LMainProjection, iz, AMinLatitude, AMaxLatitude, AMinLongitude, AMaxLongitude);
+    LZoomCurrentCount := 0;
+    MinX := LMainProjection.CalcTileX(iz, AMinLongitude);
+    MaxX := LMainProjection.CalcTileX(iz, AMaxLongitude);
+    for ix := MinX to MaxX do
+    begin
+      MinY := LMainProjection.CalcTileY(iz, AMaxLatitude);
+      MaxY := LMainProjection.CalcTileY(iz, AMinLatitude);
+      for iy := MinY to MaxY do
+      begin
+        for il := 0 to Layers.Count-1 do
+          Layers[il].Load(iz, ix, iy);
+        Inc(LCurrentCount);
+        Inc(LZoomCurrentCount);
+        WriteLn(Format('Total: %d/%d <- (Zoom %d: %d/%d)', [LCurrentCount, LTotalCount, iz, LZoomCurrentCount, LZoomTotalCount]));
+      end;
+    end;
+  end;
 
   //for iz := MinZoom to MaxZoom do
   //begin

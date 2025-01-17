@@ -63,7 +63,8 @@ type
   begin
     TilesManipulator := TTilesManipulator.Create;
     TilesManipulator.Layers.Add(Providers['osm-standard']);
-    TilesManipulator.Download(0, 1);
+    TilesManipulator.Layers.Add(Providers['railway-standard']);
+    TilesManipulator.Download(0, 2);
     TilesManipulator.Free;
 
     Terminate;
