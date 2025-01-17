@@ -196,6 +196,7 @@ type
     constructor Create; virtual;
     destructor Destroy; override;
   public
+    procedure Download(const AZoom: Integer); virtual;
     procedure Download(const AMinZoom, AMaxZoom: Integer); virtual;
     procedure Download(const AMinZoom, AMaxZoom: Integer; const AMinLatitude, AMaxLatitude, AMinLongtude, AMaxLongtude: Float); virtual; overload;
   public
@@ -551,9 +552,9 @@ var
 begin
   MinX := AProjecion.CalcTileX(AZoom, AMinLongitude);
   MaxX := AProjecion.CalcTileX(AZoom, AMaxLongitude);
-  MinY := AProjecion.CalcTileY(AZoom, AMinLatitude);
-  MaxY := AProjecion.CalcTileY(AZoom, AMaxLatitude);
-  Result := (MaxX - MinX) * (MaxY - MinY);
+  MinY := AProjecion.CalcTileY(AZoom, AMaxLatitude);
+  MaxY := AProjecion.CalcTileY(AZoom, AMinLatitude);
+  Result := CalcRowTilesCount(MinX, MaxX) * CalcColumnTilesCount(MinY, MaxY);
 end;
 
 class function TTilesManipulator.CalcTotalTilesCount(AProjecion: IProjection; const AMinZoom, AMaxZoom: Byte;
@@ -580,6 +581,11 @@ begin
   FreeAndNil(FLayers);
 end;
 
+procedure TTilesManipulator.Download(const AZoom: Integer);
+begin
+  Download(AZoom, AZoom);
+end;
+
 procedure TTilesManipulator.Download(const AMinZoom, AMaxZoom: Integer);
 var
   LMainProjection: IProjection;
@@ -602,7 +608,6 @@ begin
 
   LMainProjection := FLayers[0].Provider.Projection;
   LTotalCount := CalcTotalTilesCount(LMainProjection, AMinZoom, AMaxZoom, AMinLatitude, AMaxLatitude, AMinLongtude, AMaxLongtude);
-  WriteLn(LTotalCount);
 
   //for iz := MinZoom to MaxZoom do
   //begin

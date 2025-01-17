@@ -14,10 +14,10 @@ type
   TEPSG3857 = class(TInterfacedObject, IProjection)
   const
     // https://epsg.io/3857
-    LAT_MIN = -85.06;
-    LAT_MAX = 85.06;
-    LON_MIN = -180.0;
-    LON_MAX = 180.0;
+    LAT_MIN = -85.0511;
+    LAT_MAX = 85.0511;
+    LON_MIN = -179.99999;
+    LON_MAX = 179.99999;
   public
     function MinLat: Extended;
     function MaxLat: Extended;
@@ -58,6 +58,8 @@ function TEPSG3857.CalcTileX(const AZoom: Byte; const ALongitude: Extended): QWo
 var
   n: Extended;
 begin
+  if AZoom = 0 then Exit(0);
+
   n := Power(2, AZoom);
   Result := Trunc(((ALongitude + 180) / 360) * n);
 end;
@@ -66,6 +68,8 @@ function TEPSG3857.CalcTileY(const AZoom: Byte; const ALatitude: Extended): QWor
 var
   lat_rad, n, x1, x2, x3, x4, x5: Extended;
 begin
+  if AZoom = 0 then Exit(0);
+
   n := Power(2, AZoom);
   lat_rad := DegToRad(ALatitude);
   x1 := Tan(lat_rad);
@@ -73,7 +77,7 @@ begin
   x3 := x2 / Pi;
   x4 := (1 - x3);
   x5 := x4 / 2.0;
-  Result := Trunc(x4 / 2.0 * n);
+  Result := Trunc(x5 * n);
 end;
 
 end.
