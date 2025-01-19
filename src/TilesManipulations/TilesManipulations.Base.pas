@@ -121,6 +121,9 @@ type
     function GetProjection: IProjection;
     procedure SetProjection(AValue: IProjection);
     property Projection: IProjection read GetProjection write SetProjection;
+    function GetName: String;
+    procedure SetName(AValue: String);
+    property Name: String read GetName write SetName;
   end;
 
   EProvider = class(Exception);
@@ -134,8 +137,11 @@ type
     FProjection: IProjection;
     FURL: String;
   strict private
-    function GetProjection: IProjection;
+    function  GetName: String;
+    procedure SetName(AValue: String);
+    function  GetProjection: IProjection;
     procedure SetProjection(AValue: IProjection);
+  strict private
     function GetTileLink(AZoom: Integer; AX, AY: Integer): String;
   public
     constructor Create(AName, AURL: String; AProjection: IProjection); virtual; reintroduce;
@@ -143,7 +149,7 @@ type
   public
     function GiveTile(AZoom: Integer; AX, AY: Integer): TBGRABitmap;
   public
-    property Name: String read FName write FName;
+    property Name: String read GetName write SetName;
     property Projection: IProjection read GetProjection write SetProjection;
     property URL: String read FURL write FURL;
   end;
@@ -163,7 +169,7 @@ type
 
   TLayer = class
   const
-    defOpacity = 0;
+    defOpacity = 255;
   strict private
     FBuffer: TBGRABitmap;
     FFilter: IFIlter;
@@ -173,7 +179,7 @@ type
     constructor Create(AProvider: IProvider); virtual; reintroduce;
     destructor Destroy; override;
   public
-    procedure Load(const AZoom: Integer; const AX, AY: Integer);
+    procedure Load(const AZoom, AX, AY: Integer);
     procedure ResampleAndPaintTo(var ABGRABitmap: TBGRABitmap);
   public
     property Buffer: TBGRABitmap read FBuffer write FBuffer;
@@ -192,11 +198,18 @@ type
     procedure Load(const AZoom: Integer; const AX, AY: Integer); virtual;
   end;
 
+  ETilesManipulator = class(Exception);
+  ETMSave = class(ETilesManipulator);
+
   { TTilesManipulator }
 
   TTilesManipulator = class
   strict private
     FLayers: TLayers;
+    FPath: String;
+  strict private
+    function GetProcessedPath(const AProviderName: String; const AZoom: Integer; const AX, AY: Integer): String;
+    procedure SaveTile(const ATileImg: TBGRABitmap; AFilePath: String);
   public // Calculations
     class function CalcRowTilesCount(const AMinX, AMaxX: QWord): QWord; overload; static;
     class function CalcColumnTilesCount(const AMinY, AMaxY: QWord): QWord; static;
@@ -211,6 +224,7 @@ type
     procedure Download(const AMinZoom, AMaxZoom: Integer; const AMinLatitude, AMaxLatitude, AMinLongitude, AMaxLongitude: Float); virtual; overload;
   public
     property Layers: TLayers read FLayers write FLayers;
+    property Path  : String  read FPath write FPath;
   end;
 
   { TTilesDownloader }
@@ -461,6 +475,17 @@ begin
   end;
 end;
 
+function TProvider.GetName: String;
+begin
+  Result := FName;
+end;
+
+procedure TProvider.SetName(AValue: String);
+begin
+  if FName = AValue then Exit;
+  FName := AValue;
+end;
+
 function TProvider.GetProjection: IProjection;
 begin
   Result := FProjection;
@@ -578,6 +603,37 @@ end;
 
 { TTilesManipulator }
 
+function TTilesManipulator.GetProcessedPath(const AProviderName: String;
+                                            const AZoom: Integer; const AX, AY: Integer): String;
+begin
+  Result := Path;
+  Result := StringReplace(Result, '{p}', AProviderName, [rfReplaceAll]);
+  Result := StringReplace(Result, '{z}', AZoom.ToString, [rfReplaceAll]);
+  Result := StringReplace(Result, '{x}', AX.ToString, [rfReplaceAll]);
+  Result := StringReplace(Result, '{y}', AY.ToString, [rfReplaceAll]);
+end;
+
+procedure TTilesManipulator.SaveTile(const ATileImg: TBGRABitmap;
+  AFilePath: String);
+var
+  LFileStream: TFileStream;
+begin
+  WriteLn(Format('FilePath: %s', [AFilePath]));
+  ForceDirectories(ExtractFilePath(AFilePath));
+  try
+    LFileStream := TFileStream.Create(AFilePath, fmCreate or fmOpenWrite);
+    ATileImg.SaveToStreamAsPng(LFileStream);
+    LFileStream.Free;
+  except
+    on E: Exception do
+    begin
+      WriteLn(E.Message);
+      LFileStream.Free;
+      raise ETMSave.Create('Failed save file.');
+    end;
+  end;
+end;
+
 class function TTilesManipulator.CalcRowTilesCount(const AMinX, AMaxX: QWord): QWord;
 begin
   Result := AMaxX - AMinX + 1;
@@ -679,7 +735,7 @@ begin
             end;
             Layers[il].ResampleAndPaintTo(LBuffer);
           end;
-          LBuffer.SaveToFile('test.png');
+          SaveTile(LBuffer, GetProcessedPath(Layers[0].Provider.Name, iz, ix, iy));
           FreeAndNil(LBuffer);
         except
           on E: Exception do
