@@ -170,6 +170,7 @@ type
     destructor Destroy; override;
   public
     procedure Load(const AZoom: Integer; const AX, AY: Integer);
+    procedure ResampleAndPaintTo(var ABGRABitmap: TBGRABitmap);
   public
     property Buffer: TBGRABitmap read FBuffer write FBuffer;
     property Filter: IFilter read FFilter write FFilter;
@@ -532,6 +533,18 @@ begin
   end;
 end;
 
+procedure TLayer.ResampleAndPaintTo(var ABGRABitmap: TBGRABitmap);
+var
+  LResampledBuffer: TBGRABitmap;
+begin
+  if not Assigned(FBuffer) then
+    Exit;
+
+  LResampledBuffer := FBuffer.Resample(ABGRABitmap.Width, ABGRABitmap.Height);
+  ABGRABitmap.PutImage(0, 0, LResampledBuffer, dmDrawWithTransparency);
+  LResampledBuffer.Free;
+end;
+
 { TLayers }
 
 function TLayers.Add(AProvider: IProvider): Integer;
@@ -639,8 +652,26 @@ begin
       MaxY := LMainProjection.CalcTileY(iz, AMinLatitude);
       for iy := MinY to MaxY do
       begin
-        for il := 0 to Layers.Count-1 do
-          Layers[il].Load(iz, ix, iy);
+        try
+          for il := 0 to Layers.Count-1 do
+          begin
+            Layers[il].Load(iz, ix, iy);
+            if il = 0 then
+            begin
+              LBuffer := Layers[il].Buffer.Duplicate(True);
+              Continue;
+            end;
+            Layers[il].ResampleAndPaintTo(LBuffer);
+          end;
+          LBuffer.SaveToFile('test.png');
+          FreeAndNil(LBuffer);
+        except
+          on E: Exception do
+          begin
+            WriteLn(E.ClassName + ': ' + E.Message);
+            if Assigned(LBuffer) then FreeAndNil(LBuffer);
+          end;
+        end;
         Inc(LCurrentCount);
         Inc(LZoomCurrentCount);
         WriteLn(Format('Total: %d/%d <- (Zoom %d: %d/%d)', [LCurrentCount, LTotalCount, iz, LZoomCurrentCount, LZoomTotalCount]));
