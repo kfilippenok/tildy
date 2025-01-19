@@ -161,10 +161,13 @@ type
   { TLayer }
 
   TLayer = class
+  const
+    defOpacity = 0;
   strict private
+    FBuffer: TBGRABitmap;
     FFilter: IFIlter;
     FProvider: IProvider;
-    FBuffer: TBGRABitmap;
+    FOpacity: Byte;
   public
     constructor Create(AProvider: IProvider); virtual; reintroduce;
     destructor Destroy; override;
@@ -175,6 +178,7 @@ type
     property Buffer: TBGRABitmap read FBuffer write FBuffer;
     property Filter: IFilter read FFilter write FFilter;
     property Provider: IProvider read FProvider write FProvider;
+    property Opacity: Byte read FOpacity write FOpacity default defOpacity;
   end;
 
   { TLayers }
@@ -509,6 +513,7 @@ begin
 
   FProvider := AProvider;
   FFilter := nil;
+  FOpacity := defOpacity;
 end;
 
 destructor TLayer.Destroy;
@@ -541,7 +546,7 @@ begin
     Exit;
 
   LResampledBuffer := FBuffer.Resample(ABGRABitmap.Width, ABGRABitmap.Height);
-  ABGRABitmap.PutImage(0, 0, LResampledBuffer, dmDrawWithTransparency);
+  ABGRABitmap.PutImage(0, 0, LResampledBuffer, dmDrawWithTransparency, Opacity);
   LResampledBuffer.Free;
 end;
 
