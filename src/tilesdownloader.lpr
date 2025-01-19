@@ -51,10 +51,10 @@ type
 
   procedure ATilesDownloader.SetupProviders;
   begin
-    Providers.Add('osm-standard', 'OpenStreetMap-Standard', 'http://a.tile.openstreetmap.org', TEPSG3857.Create);
-    Providers.Add('railway-standard'        , 'OpenRailwayMap-Standard'       , 'http://b.tiles.openrailwaymap.org/standard', TEPSG3857.Create);
-    Providers.Add('railway-maxspeed'        , 'OpenRailwayMap-Maxspeed'       , 'http://b.tiles.openrailwaymap.org/maxspeed', TEPSG3857.Create);
-    Providers.Add('railway-electrification' , 'OpenRailwayMap-Electrification', 'http://b.tiles.openrailwaymap.org/electrification', TEPSG3857.Create);
+    Providers.Add('osm-standard', 'OpenStreetMap-Standard', 'http://a.tile.openstreetmap.org/{z}/{x}/{y}.png', TEPSG3857.Create);
+    Providers.Add('railway-standard', 'OpenRailwayMap-Standard', 'http://b.tiles.openrailwaymap.org/standard/{z}/{x}/{y}.png', TEPSG3857.Create);
+    Providers.Add('railway-maxspeed', 'OpenRailwayMap-Maxspeed', 'http://b.tiles.openrailwaymap.org/maxspeed/{z}/{x}/{y}.png', TEPSG3857.Create);
+    Providers.Add('railway-electrification' , 'OpenRailwayMap-Electrification', 'http://b.tiles.openrailwaymap.org/electrification/{z}/{x}/{y}.png', TEPSG3857.Create);
   end;
 
   procedure ATilesDownloader.DoRun;

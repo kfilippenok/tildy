@@ -136,6 +136,7 @@ type
   strict private
     function GetProjection: IProjection;
     procedure SetProjection(AValue: IProjection);
+    function GetTileLink(AZoom: Integer; AX, AY: Integer): String;
   public
     constructor Create(AName, AURL: String; AProjection: IProjection); virtual; reintroduce;
     destructor Destroy; override;
@@ -391,7 +392,9 @@ begin
       end;
     end;
 
+  {$IFDEF DEBUG}
   WriteLn(FUserAgent);
+  {$ENDIF}
 
   if not Complete then
   begin
@@ -469,6 +472,14 @@ begin
   FProjection := AValue;
 end;
 
+function TProvider.GetTileLink(AZoom: Integer; AX, AY: Integer): String;
+begin
+  Result := URL;
+  Result := StringReplace(Result, '{z}', AZoom.ToString, [rfReplaceAll]);
+  Result := StringReplace(Result, '{x}', AX.ToString, [rfReplaceAll]);
+  Result := StringReplace(Result, '{y}', AY.ToString, [rfReplaceAll]);
+end;
+
 constructor TProvider.Create(AName, AURL: String; AProjection: IProjection);
 begin
   inherited Create;
@@ -491,7 +502,7 @@ begin
   Write(Name + ': ');
   Result := nil;
   try
-    Result := FClient.ReceiveTile(Format('%s/%d/%d/%d.png',[URL, AZoom, AX, AY]));
+    Result := FClient.ReceiveTile(GetTileLink(AZoom, AX, AY));
   except
     on E: Exception do
       raise EProvider.Create('An error occurred while downloading');
