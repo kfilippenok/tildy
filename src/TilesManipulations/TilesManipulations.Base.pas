@@ -158,10 +158,13 @@ type
 
   TTilesManipulator = class
   const
+    defPath = 'tiles/{p}/{z}/{x}/{y}';
     defSkipMissing = False;
+    defShowFileType = False;
   strict private
     FLayers: TLayers;
     FPath: String;
+    FShowFileType: Boolean;
     FSkipMissing: Boolean;
   strict private
     function ProcessPath(const AProviderName: String; const AZoom: Integer; const AX, AY: Integer): String;
@@ -179,9 +182,10 @@ type
     procedure Download(const AMinZoom, AMaxZoom: Integer); virtual;
     procedure Download(const AMinZoom, AMaxZoom: Integer; const AMinLatitude, AMaxLatitude, AMinLongitude, AMaxLongitude: Float); virtual; overload;
   public
-    property Layers     : TLayers read FLayers      write FLayers;
-    property Path       : String  read FPath        write FPath;
-    property SkipMissing: Boolean read FSkipMissing write FSkipMissing default defSkipMissing;
+    property Layers      : TLayers read FLayers       write FLayers;
+    property Path        : String  read FPath         write FPath;
+    property ShowFileType: Boolean read FShowFileType write FShowFileType default defShowFileType;
+    property SkipMissing : Boolean read FSkipMissing  write FSkipMissing  default defSkipMissing;
   end;
 
 implementation
@@ -430,6 +434,7 @@ begin
   Result := StringReplace(Result, '{z}', AZoom.ToString, [rfReplaceAll]);
   Result := StringReplace(Result, '{x}', AX.ToString, [rfReplaceAll]);
   Result := StringReplace(Result, '{y}', AY.ToString, [rfReplaceAll]);
+  Result := Result + IfThen(ShowFileType, '.png');
 end;
 
 procedure TTilesManipulator.SaveTile(const ATileImg: TBGRABitmap;
@@ -491,6 +496,8 @@ begin
   inherited Create;
 
   FLayers := TLayers.Create(True);
+  FPath := defPath;
+  FShowFileType := defShowFileType;
   FSkipMissing := defSkipMissing;
 end;
 

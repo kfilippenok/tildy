@@ -65,7 +65,6 @@ type
     TilesManipulator := TTilesManipulator.Create;
     TilesManipulator.Layers.Add(Providers['osm-standard']);
     TilesManipulator.Layers.Add(Providers['railway-standard']);
-    TilesManipulator.Path := 'tiles/{p}/{z}/{x}_{y}';
     TilesManipulator.Download(0, 1);
     TilesManipulator.Free;
 
