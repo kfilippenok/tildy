@@ -25,11 +25,12 @@ uses
   Interfaces, // For BGRABitmap
   {$ENDIF}
   SysUtils, Classes, CustApp,
+  TilesDownloader.Options,
   TilesManipulations.Base, TilesManipulations.Projections, TilesManipulations.Filters;
 
 var
-  //OptionParameter: array[TOptionKind] of String;
-  //glOptions: TOptions;
+  OptionParameter: array[TOptionKind] of String;
+  glOptions: TOptions;
   FormatSettings: TFormatSettings;
 
 type

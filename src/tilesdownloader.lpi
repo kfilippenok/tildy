@@ -23,7 +23,7 @@
           </Target>
           <SearchPaths>
             <IncludeFiles Value="$(ProjOutDir)"/>
-            <OtherUnitFiles Value="TilesDownload;TilesManipulations"/>
+            <OtherUnitFiles Value="TilesDownload;TilesManipulations;TilesDownloader"/>
             <UnitOutputDirectory Value="../out/$(TargetCPU)-$(TargetOS)"/>
           </SearchPaths>
           <Parsing>
@@ -60,7 +60,7 @@
           </Target>
           <SearchPaths>
             <IncludeFiles Value="$(ProjOutDir)"/>
-            <OtherUnitFiles Value="TilesDownload;TilesManipulations"/>
+            <OtherUnitFiles Value="TilesDownload;TilesManipulations;TilesDownloader"/>
             <UnitOutputDirectory Value="../out/$(TargetCPU)-$(TargetOS)"/>
           </SearchPaths>
           <CodeGeneration>
@@ -130,7 +130,7 @@
     </Target>
     <SearchPaths>
       <IncludeFiles Value="$(ProjOutDir)"/>
-      <OtherUnitFiles Value="TilesDownload;TilesManipulations"/>
+      <OtherUnitFiles Value="TilesDownload;TilesManipulations;TilesDownloader"/>
       <UnitOutputDirectory Value="../out/$(TargetCPU)-$(TargetOS)"/>
     </SearchPaths>
     <Linking>

@@ -28,7 +28,6 @@ const
   defMinZoom = 6;
   defMaxZoom = 7;
   defShowFileType = False;
-  defSkipMissing = False;
   defTileRes = 256;
   defOtherTileRes = False;
 
@@ -153,15 +152,19 @@ type
 
   ETilesManipulator = class(Exception);
   ETMSave = class(ETilesManipulator);
+  ETMDownload = class(ETilesManipulator);
 
   { TTilesManipulator }
 
   TTilesManipulator = class
+  const
+    defSkipMissing = False;
   strict private
     FLayers: TLayers;
     FPath: String;
+    FSkipMissing: Boolean;
   strict private
-    function GetProcessedPath(const AProviderName: String; const AZoom: Integer; const AX, AY: Integer): String;
+    function ProcessPath(const AProviderName: String; const AZoom: Integer; const AX, AY: Integer): String;
     procedure SaveTile(const ATileImg: TBGRABitmap; AFilePath: String);
   public // Calculations
     class function CalcRowTilesCount(const AMinX, AMaxX: QWord): QWord; overload; static;
@@ -176,8 +179,9 @@ type
     procedure Download(const AMinZoom, AMaxZoom: Integer); virtual;
     procedure Download(const AMinZoom, AMaxZoom: Integer; const AMinLatitude, AMaxLatitude, AMinLongitude, AMaxLongitude: Float); virtual; overload;
   public
-    property Layers: TLayers read FLayers write FLayers;
-    property Path  : String  read FPath write FPath;
+    property Layers     : TLayers read FLayers      write FLayers;
+    property Path       : String  read FPath        write FPath;
+    property SkipMissing: Boolean read FSkipMissing write FSkipMissing default defSkipMissing;
   end;
 
 implementation
@@ -418,7 +422,7 @@ end;
 
 { TTilesManipulator }
 
-function TTilesManipulator.GetProcessedPath(const AProviderName: String;
+function TTilesManipulator.ProcessPath(const AProviderName: String;
                                             const AZoom: Integer; const AX, AY: Integer): String;
 begin
   Result := Path;
@@ -434,7 +438,8 @@ var
   LFileStream: TFileStream;
 begin
   WriteLn(Format('FilePath: %s', [AFilePath]));
-  ForceDirectories(ExtractFilePath(AFilePath));
+  if not ForceDirectories(ExtractFilePath(AFilePath)) then
+    raise ETMSave.Create('Failed create dirs.');
   try
     LFileStream := TFileStream.Create(AFilePath, fmCreate or fmOpenWrite);
     ATileImg.SaveToStreamAsPng(LFileStream);
@@ -486,6 +491,7 @@ begin
   inherited Create;
 
   FLayers := TLayers.Create(True);
+  FSkipMissing := defSkipMissing;
 end;
 
 destructor TTilesManipulator.Destroy;
@@ -550,14 +556,29 @@ begin
             end;
             Layers[il].ResampleAndPaintTo(LBuffer);
           end;
-          SaveTile(LBuffer, GetProcessedPath(Layers[0].Provider.Name, iz, ix, iy));
+          SaveTile(LBuffer, ProcessPath(Layers[0].Provider.Name, iz, ix, iy));
           FreeAndNil(LBuffer);
         except
-          on E: Exception do
-          begin
-            WriteLn(E.ClassName + ': ' + E.Message);
-            if Assigned(LBuffer) then FreeAndNil(LBuffer);
-          end;
+          on E: ELayer do
+            begin
+              if Assigned(LBuffer) then FreeAndNil(LBuffer);
+              if SkipMissing then
+              begin
+                WriteLn('! Skip missing tile');
+                Continue;
+              end;
+
+              WriteLn;
+              WriteLn('Error: ', E.Message);
+              Exit;
+            end;
+          on E: ETMSave do
+            begin
+              if Assigned(LBuffer) then FreeAndNil(LBuffer);
+              WriteLn;
+              WriteLn('Error: ', E.Message);
+              Exit;
+            end;
         end;
         Inc(LCurrentCount);
         Inc(LZoomCurrentCount);
