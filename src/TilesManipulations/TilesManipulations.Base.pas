@@ -161,14 +161,20 @@ type
     defPath = 'tiles/{p}/{z}/{x}/{y}';
     defSkipMissing = False;
     defShowFileType = False;
+    defUseOtherTileRes = False;
   strict private
     FLayers: TLayers;
     FPath: String;
     FShowFileType: Boolean;
     FSkipMissing: Boolean;
+    FTileRes: Word;
+    FUseOtherTileRes: Boolean;
   strict private
     function ProcessPath(const AProviderName: String; const AZoom: Integer; const AX, AY: Integer): String;
+    procedure ResizeIfNeeded(var ATileImg: TBGRABitmap);
     procedure SaveTile(const ATileImg: TBGRABitmap; AFilePath: String);
+  strict private // Getters and Setters
+    procedure SetTileRes(AValue: Word);
   public // Calculations
     class function CalcRowTilesCount(const AMinX, AMaxX: QWord): QWord; overload; static;
     class function CalcColumnTilesCount(const AMinY, AMaxY: QWord): QWord; static;
@@ -186,6 +192,7 @@ type
     property Path        : String  read FPath         write FPath;
     property ShowFileType: Boolean read FShowFileType write FShowFileType default defShowFileType;
     property SkipMissing : Boolean read FSkipMissing  write FSkipMissing  default defSkipMissing;
+    property TileRes     : Word    read FTileRes      write SetTileRes;
   end;
 
 implementation
@@ -437,6 +444,17 @@ begin
   Result := Result + IfThen(ShowFileType, '.png');
 end;
 
+procedure TTilesManipulator.ResizeIfNeeded(var ATileImg: TBGRABitmap);
+var
+  OldTileImg: TBGRABitmap;
+begin
+  if not FUseOtherTileRes then Exit;
+
+  OldTileImg := ATileImg;
+  ATileImg := ATileImg.Resample(TileRes, TileRes);
+  OldTileImg.Free;
+end;
+
 procedure TTilesManipulator.SaveTile(const ATileImg: TBGRABitmap;
   AFilePath: String);
 var
@@ -457,6 +475,13 @@ begin
       raise ETMSave.Create('Failed save file.');
     end;
   end;
+end;
+
+procedure TTilesManipulator.SetTileRes(AValue: Word);
+begin
+  FUseOtherTileRes := True;
+  if FTileRes = AValue then Exit;
+  FTileRes := AValue;
 end;
 
 class function TTilesManipulator.CalcRowTilesCount(const AMinX, AMaxX: QWord): QWord;
@@ -496,6 +521,7 @@ begin
   inherited Create;
 
   FLayers := TLayers.Create(True);
+  FUseOtherTileRes := defUseOtherTileRes;
   FPath := defPath;
   FShowFileType := defShowFileType;
   FSkipMissing := defSkipMissing;
@@ -561,6 +587,7 @@ begin
               LBuffer := Layers[il].Buffer.Duplicate(True);
               Continue;
             end;
+            ResizeIfNeeded(LBuffer);
             Layers[il].ResampleAndPaintTo(LBuffer);
           end;
           SaveTile(LBuffer, ProcessPath(Layers[0].Provider.Name, iz, ix, iy));
