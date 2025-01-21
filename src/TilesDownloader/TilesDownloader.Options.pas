@@ -26,22 +26,18 @@ type
 
 TOptionKind = (okHelp,
                okProvider,
-               okProviderName,
-               okProviderLink,
+               okProviders,
                okOutput,
-               okPattern,
                okMinZoom,
                okMaxZoom,
-               okFirstCoordLat,
-               okFirstCoordLon,
-               okSecondCoordLat,
-               okSecondCoordLon,
+               okLeft,
+               okTop,
+               okRight,
+               okBottom,
                okShowFileType,
-               okFullMap,
                okTileRes,
-               okMerge,
                okSkipMissing,
-               okGrayscale);
+               okFilter);
 
 TOptions = Set of TOptionKind;
 
@@ -54,22 +50,18 @@ begin
   case Option of
     okHelp          : Exit('help');
     okProvider      : Exit('provider');
-    okProviderName  : Exit('provider-name');
-    okProviderLink  : Exit('provider-link');
-    okOutput        : Exit('output');
-    okPattern       : Exit('pattern');
+    okProviders     : Exit('providers');
+    okOutput        : Exit('out');
     okMinZoom       : Exit('min-zoom');
     okMaxZoom       : Exit('max-zoom');
-    okFirstCoordLat : Exit('fcoord-lat');
-    okFirstCoordLon : Exit('fcoord-lon');
-    okSecondCoordLat: Exit('scoord-lat');
-    okSecondCoordLon: Exit('scoord-lon');
+    okLeft          : Exit('left');
+    okTop           : Exit('right');
+    okRight         : Exit('top');
+    okBottom        : Exit('bottom');
     okShowFileType  : Exit('show-file-type');
-    okFullMap       : Exit('full-map');
     okTileRes       : Exit('tile-res');
-    okMerge         : Exit('merge');
     okSkipMissing   : Exit('skip-missing');
-    okGrayscale     : Exit('grayscale');
+    okFilter        : Exit('filter');
   else
     Exit('unknown');
   end;

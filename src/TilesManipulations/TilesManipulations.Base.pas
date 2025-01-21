@@ -38,6 +38,15 @@ type
     procedure Transform(var ABGRABitmap: TBGRABitmap);
   end;
 
+  _TFilters = specialize TFPGMap<String, IFilter>;
+
+  { TFilters }
+
+  TFilters = class(_TFilters)
+  public
+    function Add(AKey: String; AFilter: IFilter): Integer; virtual; reintroduce;
+  end;
+
   IProjection = interface
     ['{1F79F1B6-41F0-4B3F-83DD-0FA312C73BCB}']
     function MinLat: Extended;
@@ -362,6 +371,13 @@ begin
     on E: Exception do
       raise EProvider.Create('An error occurred while downloading');
   end;
+end;
+
+{ TFilters }
+
+function TFilters.Add(AKey: String; AFilter: IFilter): Integer;
+begin
+  Result := inherited Add(AKey, AFilter);
 end;
 
 { TProviders }
