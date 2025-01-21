@@ -25,7 +25,7 @@ uses
   Interfaces, // For BGRABitmap
   {$ENDIF}
   SysUtils, Classes, CustApp,
-  TilesDownloader.Options, IniFiles,//TilesDownloader.IniFiles,
+  TilesDownloader.Options, IniFiles,
   TilesManipulations.Base, TilesManipulations.Projections, TilesManipulations.Filters;
 
 var
