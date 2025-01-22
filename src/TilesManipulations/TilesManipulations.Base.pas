@@ -180,12 +180,12 @@ type
     FSkipMissing: Boolean;
     FTileRes: Word;
     FUseOtherTileRes: Boolean;
+  strict private // Getters and Setters
+    procedure SetTileRes(AValue: Word);
   strict private
     function ProcessPath(const AProviderName: String; const AZoom: Integer; const AX, AY: Integer): String;
     procedure ResizeIfNeeded(var ATileImg: TBGRABitmap);
     procedure SaveTile(const ATileImg: TBGRABitmap; AFilePath: String);
-  strict private // Getters and Setters
-    procedure SetTileRes(AValue: Word);
   public // Calculations
     class function CalcRowTilesCount(const AMinX, AMaxX: QWord): QWord; overload; static;
     class function CalcColumnTilesCount(const AMinY, AMaxY: QWord): QWord; static;
@@ -225,37 +225,32 @@ end;
 procedure TProviderClient.AutoSelectUserAgent(const AURL: String);
 var
   i: Integer;
-  Complete: Boolean;
-  LException: Exception;
 begin
   Write('Setting up connection... ');
 
-  Complete := False;
   for i := 0 to FUserAgents.Count-1 do
     try
       Self.AddHeader('User-Agent', FUserAgents[i]);
       Self.Get(AURL);
-      Complete := True;
       WriteLn('Ok');
       FUASelected := True;
       Break;
     except
       on E: Exception do
       begin
-        LException := E;
-        Continue;
+        if i = FUserAgents.Count-1 then
+        begin
+          WriteLn('Fail');
+          raise;
+        end
+        else
+          Continue;
       end;
     end;
 
   {$IFDEF DEBUG}
   WriteLn(FUserAgent);
   {$ENDIF}
-
-  if not Complete then
-  begin
-    WriteLn('Fail');
-    raise LException;
-  end;
 end;
 
 constructor TProviderClient.Create(AOwner: TComponent);
@@ -308,7 +303,6 @@ begin
   except
     on E: Exception do
     begin
-      WriteLn(E.ClassName + ' ' + E.Message);
       if Assigned(LMemoryStream) then FreeAndNil(LMemoryStream);
       if Assigned(Result) then FreeAndNil(Result);
       raise Exception.Create('Failed receive file.');
@@ -421,14 +415,14 @@ end;
 procedure TLayer.Load(const AZoom: Integer; const AX, AY: Integer);
 begin
   if Assigned(FBuffer) then
-    FBuffer.Free;
+    FreeAndNil(FBuffer);
   try
     FBuffer := Provider.GiveTile(AZoom, AX, AY);
     if Assigned(Filter) then
       Filter.Transform(FBuffer);
   except
     on E: Exception do
-      raise ELayer.Create(E.ClassName + ': ' + E.Message);
+      raise ELayer.Create(E.Message);
   end;
 end;
 
@@ -477,6 +471,8 @@ var
   OldTileImg: TBGRABitmap;
 begin
   if not FUseOtherTileRes then Exit;
+  if not Assigned(ATileImg) then Exit;
+  if (ATileImg.Width = TileRes) and (ATileImg.Height = TileRes) then Exit;
 
   OldTileImg := ATileImg;
   ATileImg := ATileImg.Resample(TileRes, TileRes);
@@ -590,6 +586,8 @@ var
 begin
   if FLayers.Count < 1 then Exit;
 
+  LBuffer := nil;
+
   LMainProjection := FLayers[0].Provider.Projection;
   LTotalCount := CalcTotalTilesCount(LMainProjection, AMinZoom, AMaxZoom, AMinLatitude, AMaxLatitude, AMinLongitude, AMaxLongitude);
   LCurrentCount := 0;
@@ -607,6 +605,7 @@ begin
       for iy := MinY to MaxY do
       begin
         try
+          if Assigned(LBuffer) then FreeAndNil(LBuffer);
           for il := 0 to Layers.Count-1 do
           begin
             Layers[il].Load(iz, ix, iy);
