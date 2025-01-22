@@ -24,24 +24,41 @@ uses
 
 type
 
-TOptionKind = (okHelp,
-               okProvider,
-               okProviders,
-               okOutput,
-               okMinZoom,
-               okMaxZoom,
-               okLeft,
-               okTop,
-               okRight,
-               okBottom,
-               okShowFileType,
-               okTileRes,
-               okSkipMissing,
-               okFilter);
+  EOption = class(Exception);
+  EOpProvider = class(EOption);
+  EOpProviders = class(EOption);
+  EOpLayers = class(EOption);
+  EOpOutput = class(EOption);
+  EOpMinZoom = class(EOption);
+  EOpMaxZoom = class(EOption);
+  EOpLeft = class(EOption);
+  EOpTop = class(EOption);
+  EOpRight = class(EOption);
+  EOpBottom = class(EOption);
+  EOpShowFileType = class(EOption);
+  EOpTileRes = class(EOption);
+  EOpSkipMissing = class(EOption);
+  EOpFilter = class(EOption);
 
-TOptions = Set of TOptionKind;
+  TOptionKind = (okHelp,
+                 okProvider,
+                 okProviders,
+                 okLayers,
+                 okOut,
+                 okMinZoom,
+                 okMaxZoom,
+                 okLeft,
+                 okTop,
+                 okRight,
+                 okBottom,
+                 okShowFileType,
+                 okTileRes,
+                 okSkipMissing,
+                 okFilter);
 
-function getOptionName(Option: TOptionKind): String;
+  TOptions = Set of TOptionKind;
+
+  function getOptionName(Option: TOptionKind): String;
 
 implementation
 
@@ -51,7 +68,8 @@ begin
     okHelp          : Exit('help');
     okProvider      : Exit('provider');
     okProviders     : Exit('providers');
-    okOutput        : Exit('out');
+    okLayers        : Exit('layers');
+    okOut           : Exit('out');
     okMinZoom       : Exit('min-zoom');
     okMaxZoom       : Exit('max-zoom');
     okLeft          : Exit('left');

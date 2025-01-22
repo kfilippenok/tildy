@@ -31,7 +31,6 @@ uses
 var
   OptionParameter: array[TOptionKind] of String;
   glOptions: TOptions;
-  FormatSettings: TFormatSettings;
 
 type
 
@@ -41,8 +40,10 @@ type
   strict private
     FProviders: TProviders;
     FFilters  : TFilters;
+  strict private
     procedure SetupProviders;
     procedure SetupFilters;
+    procedure ParseParameters;
   protected
     procedure DoRun; override;
   public
@@ -70,9 +71,39 @@ type
     Filters.Add('grayscale', TFilterGrayscale.Create);
   end;
 
+  procedure ATilesDownloader.parseParameters;
+  var
+    OptionKind: TOptionKind;
+  begin
+    for OptionKind := Low(TOptionKind) to High(TOptionKind) do
+    begin
+      {$IFDEF DEBUG}
+      write(getOptionName(OptionKind));
+      {$ENDIF}
+      if hasOption(getOptionName(OptionKind)) then
+      begin
+         Include(glOptions, OptionKind);
+         {$IFDEF DEBUG}
+         write(' finded, value = ');
+         {$ENDIF}
+         OptionParameter[OptionKind] := getOptionValue(getOptionName(OptionKind));
+         {$IFDEF DEBUG}
+         writeLn(OptionParameter[OptionKind]);
+         {$ENDIF}
+      end
+      else
+        {$IFDEF DEBUG}
+        WriteLn;
+        {$ENDIF}
+    end;
+  end;
+
   procedure ATilesDownloader.DoRun;
   var
     TilesManipulator: TTilesManipulator;
+    LMinZoom, LMaxZoom: Byte;
+    LLeft, LTop, LRight, LBottom: Extended;
+    LUseArea: Boolean = False;
   begin
     if hasOption(getOptionName(okHelp)) then
     begin
@@ -81,24 +112,179 @@ type
       Exit;
     end;
 
+    ParseParameters;
     TilesManipulator := TTilesManipulator.Create;
-    ImportProviders('layers.ini');
-    ImportLayers(TilesManipulator, 'layers.ini');
-    TilesManipulator.Path := 'tiles/{p}/{z}/{x}/{y}';
-    TilesManipulator.Download(0, 1);
-    TilesManipulator.Free;
 
+    { TODO
+
+      - Испарвить: Неверная обработка ошибки получения плитки от провайдера, вылетают утечки
+      - Добавить: ограничение области скачивания
+    }
+
+    try
+      // -providers
+      if okProviders in glOptions then
+      begin
+        if not ImportProviders(OptionParameter[okProviders]) then
+          raise EOpProviders.Create('Error when processing providers.');
+      end
+      // -provider
+      else
+      begin
+        if not (okLayers in glOptions) then
+          if okProvider in glOptions then
+          begin
+            if not Providers.Contains(OptionParameter[okProvider]) then
+              raise EOpProvider.Create('The specified provider was not found.');
+            TilesManipulator.Layers.Add(Providers[OptionParameter[okProvider]])
+          end
+          else
+            raise EOpProvider.Create('The provider is not specified.');
+      end;
+
+      // -layers
+      if okLayers in glOptions then
+      begin
+        if not ImportLayers(TilesManipulator, OptionParameter[okLayers]) then
+          raise EOpLayers.Create('Error when processing layers.');
+      end
+      // -filter
+      else
+      begin
+        if okFilter in glOptions then
+        begin
+          if not Filters.Contains(OptionParameter[okFilter]) then
+            raise EOpFilter.Create('The specified filter was not found.');
+          TilesManipulator.Layers[0].Filter := Filters[OptionParameter[okFilter]];
+        end;
+      end;
+
+      // -out
+      if okOut in glOptions then
+        TilesManipulator.Path := OptionParameter[okOut];
+
+      // -min-zoom
+      if okMinZoom in glOptions then
+      begin
+        try
+          LMinZoom := OptionParameter[okMinZoom].ToInteger
+        except
+          on E: Exception do
+            raise EOpMinZoom.Create(E.Message);
+        end;
+      end
+      else
+        raise EOpMinZoom.Create('The required "-min-zoom" option is missing.');
+
+      // -max-zoom
+      if okMaxZoom in glOptions then
+      begin
+        try
+          LMaxZoom := OptionParameter[okMaxZoom].ToInteger;
+        except
+          on E: Exception do
+            raise EOpMaxZoom.Create(E.Message);
+        end;
+      end
+      else
+        raise EOpMaxZoom.Create('The required "-max-zoom" option is missing.');
+
+      // -left, -top, -right, -bottom
+      LUseArea := (okLeft   in glOptions)
+               or (okTop    in glOptions)
+               or (okRight  in glOptions)
+               or (okBottom in glOptions);
+
+      // -left
+      if okLeft in glOptions then
+      begin
+        try
+          LLeft := OptionParameter[okLeft].ToExtended;
+        except
+          on E: Exception do
+            raise EOpLeft.Create(E.Message);
+        end;
+      end
+      else if LUseArea then
+        raise EOpLeft.Create('The "-left" option is missing.');
+
+      // -top
+      if okTop in glOptions then
+      begin
+        try
+          LTop := OptionParameter[okTop].ToExtended;
+        except
+          on E: Exception do
+            raise EOpTop.Create(E.Message);
+        end;
+      end
+      else if LUseArea then
+        raise EOpTop.Create('The "-top" option is missing.');
+
+      // -right
+      if okRight in glOptions then
+      begin
+        try
+          LRight := OptionParameter[okRight].ToExtended;
+        except
+          on E: Exception do
+            raise EOpRight.Create(E.Message);
+        end;
+      end
+      else if LUseArea then
+        raise EOpRight.Create('The "-right" option is missing.');
+
+      // -bottom
+      if okBottom in glOptions then
+      begin
+        try
+          LBottom := OptionParameter[okBottom].ToExtended;
+        except
+          on E: Exception do
+            raise EOpBottom.Create(E.Message);
+        end;
+      end
+      else if LUseArea then
+        raise EOpBottom.Create('The "-bottom" option is missing.');
+
+      // -show-file-type
+      if okShowFileType in glOptions then
+        TilesManipulator.ShowFileType := True;
+
+      // skip-missing
+      if okSkipMissing in glOptions then
+        TilesManipulator.SkipMissing := True;
+
+      // -tile-res
+      if okTileRes in glOptions then
+        try
+          TilesManipulator.TileRes := OptionParameter[okTileRes].ToInteger;
+        except
+          on E: Exception do
+            raise EOpTileRes.Create(E.Message);
+        end;
+
+      if LUseArea then
+        TilesManipulator.Download(LMinZoom, LMaxZoom, LBottom, LTop, LLeft, LRight)
+      else
+        TilesManipulator.Download(LMinZoom, LMaxZoom);
+    except
+      on E: Exception do
+        WriteLn(E.ClassName + ': ' + E.Message);
+    end;
+
+    TilesManipulator.Free;
     Terminate;
   end;
 
   constructor ATilesDownloader.Create(TheOwner: TComponent);
   begin
     inherited Create(TheOwner);
+    StopOnException := True;
 
     FFilters   := TFilters.Create  ; SetupFilters;
     FProviders := TProviders.Create; SetupProviders;
 
-    StopOnException := True;
     FormatSettings.DecimalSeparator := '.';
   end;
 

@@ -45,6 +45,7 @@ type
   TFilters = class(_TFilters)
   public
     function Add(AKey: String; AFilter: IFilter): Integer; virtual; reintroduce;
+    function Contains(AKey: String): Boolean; virtual;
   end;
 
   IProjection = interface
@@ -122,6 +123,7 @@ type
   TProviders = class(_TProviders)
   public
     function Add(AKey: String; AName, AURL: String; AProjection: IProjection): Integer; virtual; reintroduce;
+    function Contains(AKey: String): Boolean; virtual;
   end;
 
   ELayer = class(Exception);
@@ -380,11 +382,21 @@ begin
   Result := inherited Add(AKey, AFilter);
 end;
 
+function TFilters.Contains(AKey: String): Boolean;
+begin
+  Result := IndexOf(AKey) <> -1;
+end;
+
 { TProviders }
 
 function TProviders.Add(AKey: String; AName, AURL: String; AProjection: IProjection): Integer;
 begin
   Result := inherited Add(AKey, TProvider.Create(AName, AUrl, AProjection));
+end;
+
+function TProviders.Contains(AKey: String): Boolean;
+begin
+  Result := IndexOf(AKey) <> -1;
 end;
 
 { TLayer }
@@ -601,9 +613,9 @@ begin
             if il = 0 then
             begin
               LBuffer := Layers[il].Buffer.Duplicate(True);
+              ResizeIfNeeded(LBuffer);
               Continue;
             end;
-            ResizeIfNeeded(LBuffer);
             Layers[il].ResampleAndPaintTo(LBuffer);
           end;
           SaveTile(LBuffer, ProcessPath(Layers[0].Provider.Name, iz, ix, iy));
