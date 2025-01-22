@@ -1,4 +1,8 @@
-
+<div align="right">
+  🇬🇧 English
+  |
+  🇷🇺 <a href="./README_RU.md"> Русский</a>
+</div>
 <p align="center">
   <img src="./docs/media/logo.svg" width="300">
 </p>
@@ -14,16 +18,14 @@
 	- Completely the entire map
 	- By the specified zoom levels
 	- By the selected area
-- Custom providers
-- Save in two versions: by folders or by pattern
-- Combine tiles from two specified providers
+- Add Custom Providers
+- Save tiles name and structuring according to the specified template
+- Combining tiles from multiple providers into one common one
 - Set the final resolution of tiles
 
 ## Usage
 
-A detailed list of available options and their possible applications with examples of the use of both individual options and their combinations.
-
-🇬🇧 [English](./docs/USAGE.md) | 🇷🇺 [Русский](./docs/USAGE_RU.md)
+A [detailed list](./docs/USAGE.md) of available options and their possible applications with examples of the use of both individual options and their combinations.
 
 ## Supported platforms
 
@@ -39,9 +41,7 @@ You can download the utility on the [releases tab](https://github.com/kfilippeno
 
 ## Restrictions
 
-There are some restrictions when downloading tiles from OpenStreetMap and its like.
-
-🇬🇧 [English](./docs/RESTRICTIONS.md) | 🇷🇺 [Русский](./docs/RESTRICTIONS_RU.md)
+There are some [restrictions](./docs/RESTRICTIONS.md) when downloading tiles from OpenStreetMap and its like.
 
 ## Kanban
 
