@@ -73,8 +73,8 @@ begin
     okMinZoom       : Exit('min-zoom');
     okMaxZoom       : Exit('max-zoom');
     okLeft          : Exit('left');
-    okTop           : Exit('right');
-    okRight         : Exit('top');
+    okTop           : Exit('top');
+    okRight         : Exit('right');
     okBottom        : Exit('bottom');
     okShowFileType  : Exit('show-file-type');
     okTileRes       : Exit('tile-res');
