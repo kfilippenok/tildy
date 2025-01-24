@@ -115,32 +115,11 @@ type
     ParseParameters;
     TilesManipulator := TTilesManipulator.Create;
 
-    { TODO
-
-      - Испарвить: Неверная обработка ошибки получения плитки от провайдера, вылетают утечки
-      - Добавить: ограничение области скачивания
-    }
-
     try
       // -providers
       if okProviders in glOptions then
-      begin
         if not ImportProviders(OptionParameter[okProviders]) then
           raise EOpProviders.Create('Error when processing providers.');
-      end
-      // -provider
-      else
-      begin
-        if not (okLayers in glOptions) then
-          if okProvider in glOptions then
-          begin
-            if not Providers.Contains(OptionParameter[okProvider]) then
-              raise EOpProvider.Create('The specified provider was not found.');
-            TilesManipulator.Layers.Add(Providers[OptionParameter[okProvider]])
-          end
-          else
-            raise EOpProvider.Create('The provider is not specified.');
-      end;
 
       // -layers
       if okLayers in glOptions then
@@ -148,9 +127,19 @@ type
         if not ImportLayers(TilesManipulator, OptionParameter[okLayers]) then
           raise EOpLayers.Create('Error when processing layers.');
       end
-      // -filter
       else
       begin
+        // -provider
+        if okProvider in glOptions then
+        begin
+          if not Providers.Contains(OptionParameter[okProvider]) then
+            raise EOpProvider.Create('The specified provider was not found.');
+          TilesManipulator.Layers.Add(Providers[OptionParameter[okProvider]])
+        end
+        else
+          raise EOpProvider.Create('The provider is not specified.');
+
+        // -filter
         if okFilter in glOptions then
         begin
           if not Filters.Contains(OptionParameter[okFilter]) then
