@@ -100,7 +100,7 @@ type
 
   procedure ATilesDownloader.DoRun;
   var
-    TilesManipulator: TTilesManipulator;
+    TilesManipulator: TTilesManipulator = nil;
     LMinZoom, LMaxZoom: Byte;
     LLeft, LTop, LRight, LBottom: Extended;
     LUseArea: Boolean = False;
@@ -329,10 +329,10 @@ type
   const
     _ProviderSectionStr = 'Provider';
   var
-    LIniFile: TMemIniFile;
-    LSection: TStringList;
+    LIniFile: TMemIniFile = nil;
+    LSection: TStringList = nil;
     LIdent, LName, LURL: String;
-    LMemoryStream: TMemoryStream;
+    LMemoryStream: TMemoryStream = nil;
   begin
     Result := True;
     try
@@ -372,12 +372,12 @@ type
   const
     _LayerSectionStr = 'Layer';
   var
-    LIniFile: TMemIniFile;
-    LSection: TStringList;
+    LIniFile: TMemIniFile = nil;
+    LSection: TStringList = nil;
     LCreatedLayerIndex: Integer;
     LByte: Byte;
     LString: String;
-    LMemoryStream: TMemoryStream;
+    LMemoryStream: TMemoryStream = nil;
   begin
     Result := True;
     try
