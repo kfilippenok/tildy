@@ -6,7 +6,7 @@
 <p align="center">
   <img src="./docs/media/logo.svg" width="300">
 </p>
-<h1 align="center">Tiles Downloader</h1>
+<h2 align="center">tildy</h2>
 <p align="center">
   Утилита с командным интерфейсом для скачивания плиток карт от различных провайдеров.
 </p>
@@ -37,7 +37,7 @@
 
 ## Релизы
 
-Готовые сборки можно скачать на [вкладке релизов](https://github.com/kfilippenok/tilesdownloader/releases).
+Готовые сборки можно скачать на [вкладке релизов](https://github.com/kfilippenok/tildy/releases).
 
 ## Ограничения
 

@@ -1,217 +1,208 @@
-# Usage
+<div align="right">
+  🇬🇧 English
+  |
+  🇷🇺 <a href="./USAGE_RU.md">Русский</a>
+</div>
 
-🇬🇧 English | 🇷🇺 [Русский](./USAGE_RU.md)
+# USAGE
 
 ## Synopsis
-./tilesdownloader **[OPTION]** **[PARAMETER]** ...
+./tildy **[OPTION]** **[PARAMETER]** ...
+
 
 ## Syntax
 
 ```
-./tilesdownloader -provider osm ...
+./tildy -provider osm-standard ...
 ```
 ```
-./tilesdownloader --provider=osm ...
+./tildy --provider=osm-standard ...
 ```
 
 ## Options
 
 ### provider [String]
 
-You can use prepared providers. 
+Choosing the provider that will provide the tiles. List of prepared providers: 
 
-* *osm* - OpenStreetMap
-* *otm* - Open Topo Map
-* *osm-cycle* - OpenStreetMap Cycle
-* *railway* - OpenRailwayMap
+* *osm-standard* - OpenStreetMap Standard
+* *railway-standard* - OpenRailwayMap Standard
+* *railway-maxspeed* - OpenRailwayMap Maxspeed
+* *railway-electrification* - OpenRailwayMap Electrification
 
 
-### provider-name [String]
+### providers [String]
 
-You can specify provider name. You will need this when saving images. Can be used in conjunction with [provider](#provider-[string]).
+You can import your providers via the configuration file. Each provider starts with ``[Provider]``. 
+
+Fields used:
+
+* *identifier* - the identifier to be used in layers or in *provider*
+* *name* - the name of the provider, which will then be used when substituting macros in *out*
+* *url* - a link with macros that will be used to get tiles.
+
+Example of a configuration file *custom_providers.ini*:
+
+```ini
+[Provider]
+ident=osm-standard-local
+name=OpenStreetMap-Mapnik
+url=http://localhost:8080/tile/{z}/{x}/{y}.png
+```
 
 Example:
 ```
-... -provider-name MyProviderName
-```
-```
-... -provider-name My Provider Name
+... -providers custom_providers.ini -provider osm-standard-local
 ```
 
 
-### provider-link [String]
+****
 
-Specifying your own link to the provider for downloading tiles without a slash at the end.
+### layers [String] 
+
+Using a configuration file with layers. The layers are tiles from selected providers. All the layers are superimposed on each other, eventually forming one single one. The layers are described in order from the bottom to the top. Each layer starts with ``[Layer]``. 
+
+Fields used:
+
+* *provider* - the provider used
+* *filter* - the filter used
+* *opacity* - opacity from 0 to 255, maximum by default
+
+Example of a configuration file *layers.ini*:
+
+```ini
+[Layer]
+provider=osm-standard
+filter=grayscale
+
+[Layer]
+provider=railway-standard
+```
 
 Example:
 ```
-... -provider-link http://b.tiles.openrailwaymap.org/standard
+.. -layers layers.ini
 ```
 
 ****
 
-### output [String]
+### out [String] 
 
-You can specify the absolute or relative path where the images will be downloaded. 
+The absolute or relative path for program output. You can use macros that will be replaced with real values when saved. If there are no folders in the path, they will be created.
+
+Macros:
+
+* ``{p}`` - provider name
+* ``{z}`` - zoom
+* ``{x}`` - X of tile number
+* ``{y}`` - Y of tile number
 
 Example:
 ```
-/home/user1/tiles
-```
-```
-mydir
+.. -out tiles/{p}/{z}/{x}_{y}
 ```
 
 Default:
 ```
-tiles
+tiles/{p}/{z}/{x}/{y}
 ```
-
-****
-
-### pattern [String]
-
-Saving files with a pattern-generated name. Keywords:
-- %provider-name%
-- %x%
-- %y%
-- %z%
-
-All you need is to insert the above keywords in the required place. You can also choose not to add keywords that you don't need. But I do not advise removing the `x`, `y` and `z`, because if you do, the downloaded tiles will be overwritten by others higher up, since they will have the same names.
-
-Example:
-```
-./tilesdownloader -provider osm -pattern %x%_%y%_%z%-%provider-name% -min-zoom 1 -max-zoom 2 -full-map
-```
-
-Result:
-```
-0_0_1-OpenStreetMap
-```
-
-By default, files will be sorted into folders without using a template.
 
 ****
 
 ### min-zoom [Unsigned Integer]
 
-Lower zoom limit, in range 0..19.
+> Required option 
+
+The lower limit of the zoom.
 
 Example:
 ```
 ... -min-zoom 6
 ```
 
-Default: *6*
-
 ### max-zoom [Unsigned Integer]
 
-Highest zoom limit, in range 0..19.
+> Required option
+
+The higher limit of the zoom.
 
 Example:
 ```
 ... -max-zoom 7
 ```
 
-Default: *7*
-
 ****
-![coordinates](./media/coordinates.png)
 
-
-**Attention!** To work with negative values, you must use the following syntax
-
+**Important!** In order for negative coordinate values to be taken into account, they must be specified using the following syntax:
 ```
-... --fcoord-lat=-56.674619
+... --left=-56.674619
 ```
 
+### left [Double]
 
-### fсoord-lat [Double]
-
-Latitude of first coordinate.
+The left border of the selected area (minimum longitude).
 
 Example:
 ```
-... --fсoord-lat=57.02137767
+... --left=57.02137767
 ```
 
 
-### fсoord-lon [Double]
+### top [Double]
 
-Longtitude of first coordinate.
+The upper limit of the selected area (maximum latitude).
 
 Example:
 ```
-... --fсoord-lon=120
+... --top=120
 ```
 
 
-### sсoord-lat [Double]
+### right [Double]
 
-Latitude of second coordinate.
+The right border of the selected area (maximum longitude).
 
 Example:
 ```
-... --sсoord-lat=42.7
+... --right=42.7
 ```
 
-### sсoord-lon [Double]
+### bottom [Double]
 
-Longtitude of second coordinate.
+The lower boundary of the selected area (minimum latitude).
 
 Example:
 ```
-... --sсoord-lon=143.1
+... --bottom=143.1
 ```
 
 ****
 
 ### show-file-type
 
-If you need the file extension in the name, use this option. The parameter with the file extension is not specified, since the image is always downloaded as a *PNG*.
+Enabling the display of the ``.png`` extension in the file name. The extension is always *PNG*.
 
 ****
 
 ### skip-missing
 
-Skip missing tiles when receiving from the server.
+Skipping missing tiles when received from the server.
 
 ****
 
-### grayscale
+### filter
 
-Applying a black and white filter to tiles from ``provider``.
+Applying a filter to tiles from the ``provider``. List of prepared filters:
 
-****
-
-### full-map
-
-Download full map. Coordinates are not used.
-
-Example:
-```
-./tilesdownloader -provider osm -full-map
-```
+* *grayscale* - grayscale
 
 ****
 
 ### tile-res [Unsigned Integer]
 
-The resolution of the saved images. Use it if you are not satisfied with the original permission.
+The resolution of the saved images. Use it if you are not satisfied with the original resolution.
 
 Example:
 ```
-./tilesdownloader -provider railway -full-map -tile-res 256
-```
-
-
-***
-
-### merge [String]
-
-Combining tiles from two different providers. The main one is the one specified via the [provider] option(#provider-[string]). The second provider must be in the list of embedded ones. The resolution of the final tiles will be adjusted to the main provider or from [tile-res](#tile-res).
-
-Example:
-```
-./tilesdownloader -provider osm -merge railway -min-zoom 0 -max-zoom 5 -provider-name OpenRailwayMap-Standard -pattern %provider-name%_%x%_%y%_%z% -full-map
+./tildy -provider railway-standard -min-zoom 0 -max-zoom 2 -tile-res 256
 ```

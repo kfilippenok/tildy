@@ -1,3 +1,9 @@
+<div align="right">
+  🇬🇧 English
+  |
+  🇷🇺 <a href="./RESTRICTIONS_RU.md">Русский</a>
+</div>
+
 # RESTRICTIONS
 
 🇬🇧 English | 🇷🇺 [Русский](./RESTRICTIONS_RU.md)
@@ -180,22 +186,8 @@ http://localhost:8080/tile/{z}/{x}/{y}.png
 Trying to download the tiles we need:
 
 ```bash
-./tilesdownloader \
-    -min-zoom 10 \
-    -max-zoom 10 \
-    -provider-name MyProviderName \
-    -provider-link http://localhost:8080/tile \
-    -fcoord-lat 57 \
-    -fcoord-lon 31 \
-    -scoord-lat 50 \
-    -scoord-lon 70 \
-    -pattern %provider-name%_%x%_%y%_%z% \
-    -output tiles/local \
+tildy/examples/custom_providers.sh
 ```
-
-And we are happy about the download speed :)
-
-![coordinates](./media/localosm_download_demo.gif)
 
 It will be slow the first time, as the tiles will be generated in real time. You can generate them in advance:
 

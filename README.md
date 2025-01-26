@@ -6,7 +6,7 @@
 <p align="center">
   <img src="./docs/media/logo.svg" width="300">
 </p>
-<h1 align="center">Tiles Downloader</h1>
+<h2 align="center">tildy</h2>
 <p align="center">
   A CLI utility for download tiles from various map providers.
 </p>
@@ -37,7 +37,7 @@ A [detailed list](./docs/USAGE.md) of available options and their possible appli
 
 ## Releases
 
-You can download the utility on the [releases tab](https://github.com/kfilippenok/tilesdownloader/releases).
+You can download the utility on the [releases tab](https://github.com/kfilippenok/tildy/releases).
 
 ## Restrictions
 
@@ -45,7 +45,7 @@ There are some [restrictions](./docs/RESTRICTIONS.md) when downloading tiles fro
 
 ## Kanban
 
-To display the work on the project, a [Kanban board](https://github.com/users/kfilippenok/projects/1) is used, implemented as a Github project.
+To display the work on the project, a [Kanban board](https://github.com/users/tildy/projects/1) is used, implemented as a Github project.
  
 ## Dependencies
 

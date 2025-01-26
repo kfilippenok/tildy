@@ -11,7 +11,7 @@ jobs:
         operating-system: [windows-latest, ubuntu-latest]
     runs-on: ${{ matrix.operating-system }}
     steps:
-      - name: Checkout Tiles Downloader
+      - name: Checkout tildy
         uses: actions/checkout@v4
         
       - name: Setup Lazarus
@@ -37,5 +37,5 @@ jobs:
       - name: Build BGRABitmapPack
         run: lazbuild BGRABitmap/bgrabitmap/bgrabitmappack.lpk
         
-      - name: Build Tiles Downloader
-        run: lazbuild -B --bm="Release" src/tilesdownloader.lpi
+      - name: Build tildy
+        run: lazbuild -B --bm="Release" src/tildy.lpi

@@ -9,7 +9,7 @@
         <MainUnitHasScaledStatement Value="False"/>
       </Flags>
       <SessionStorage Value="InProjectDir"/>
-      <Title Value="tilesdownloader"/>
+      <Title Value="tildy"/>
       <UseAppBundle Value="False"/>
       <ResourceType Value="res"/>
     </General>
@@ -19,11 +19,11 @@
         <CompilerOptions>
           <Version Value="11"/>
           <Target>
-            <Filename Value="../tilesdownloader"/>
+            <Filename Value="../tildy"/>
           </Target>
           <SearchPaths>
             <IncludeFiles Value="$(ProjOutDir)"/>
-            <OtherUnitFiles Value="TilesManipulations;TilesDownloader"/>
+            <OtherUnitFiles Value="TilesManipulations;Tildy"/>
             <UnitOutputDirectory Value="../out/$(TargetCPU)-$(TargetOS)"/>
           </SearchPaths>
           <Parsing>
@@ -56,11 +56,11 @@
         <CompilerOptions>
           <Version Value="11"/>
           <Target>
-            <Filename Value="../tilesdownloader"/>
+            <Filename Value="../tildy"/>
           </Target>
           <SearchPaths>
             <IncludeFiles Value="$(ProjOutDir)"/>
-            <OtherUnitFiles Value="TilesManipulations;TilesDownloader"/>
+            <OtherUnitFiles Value="TilesManipulations;Tildy"/>
             <UnitOutputDirectory Value="../out/$(TargetCPU)-$(TargetOS)"/>
           </SearchPaths>
           <CodeGeneration>
@@ -94,11 +94,7 @@
     </RequiredPackages>
     <Units>
       <Unit>
-        <Filename Value="tilesdownloader.lpr"/>
-        <IsPartOfProject Value="True"/>
-      </Unit>
-      <Unit>
-        <Filename Value="TilesDownloader/TilesDownloader.Options.pas"/>
+        <Filename Value="tildy.lpr"/>
         <IsPartOfProject Value="True"/>
       </Unit>
       <Unit>
@@ -113,16 +109,20 @@
         <Filename Value="TilesManipulations/TilesManipulations.Filters.pas"/>
         <IsPartOfProject Value="True"/>
       </Unit>
+      <Unit>
+        <Filename Value="Tildy/Tildy.Options.pas"/>
+        <IsPartOfProject Value="True"/>
+      </Unit>
     </Units>
   </ProjectOptions>
   <CompilerOptions>
     <Version Value="11"/>
     <Target>
-      <Filename Value="../tilesdownloader"/>
+      <Filename Value="../tildy"/>
     </Target>
     <SearchPaths>
       <IncludeFiles Value="$(ProjOutDir)"/>
-      <OtherUnitFiles Value="TilesManipulations;TilesDownloader"/>
+      <OtherUnitFiles Value="TilesManipulations;Tildy"/>
       <UnitOutputDirectory Value="../out/$(TargetCPU)-$(TargetOS)"/>
     </SearchPaths>
     <Linking>

@@ -7,7 +7,7 @@
 backup/
 lib/
 *.exe
-tilesdownloader
+tildy
 *.lps
 tiles/
 cache/
