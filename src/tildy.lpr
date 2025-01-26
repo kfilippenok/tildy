@@ -1,5 +1,5 @@
 {
-  Copyright (c) 2024 Kirill Filippenok
+  Copyright (c) 2024-2025 Kirill Filippenok
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -13,7 +13,7 @@
   See the License for the specific language governing permissions and
   limitations under the License. }
 
-program tilesdownloader;
+program tildy;
 
 {$mode objfpc}{$H+}
 
@@ -24,8 +24,8 @@ uses
   {$IFDEF WINDOWS}
   Interfaces, // For BGRABitmap
   {$ENDIF}
-  SysUtils, Classes, CustApp,
-  TilesDownloader.Options, IniFiles,
+  SysUtils, Classes, CustApp, IniFiles,
+  Tildy.Options,
   TilesManipulations.Base, TilesManipulations.Projections, TilesManipulations.Filters;
 
 var
@@ -34,9 +34,9 @@ var
 
 type
 
-  { ATilesDownloader }
+  { ATildy }
 
-  ATilesDownloader = class(TCustomApplication)
+  ATildy = class(TCustomApplication)
   strict private
     FProviders: TProviders;
     FFilters  : TFilters;
@@ -58,7 +58,7 @@ type
     property Filters  : TFilters   read FFilters   write FFilters;
   end;
 
-  procedure ATilesDownloader.SetupProviders;
+  procedure ATildy.SetupProviders;
   begin
     Providers.Add('osm-standard', 'OpenStreetMap-Standard', 'http://a.tile.openstreetmap.org/{z}/{x}/{y}.png', TEPSG3857.Create);
     Providers.Add('railway-standard', 'OpenRailwayMap-Standard', 'http://b.tiles.openrailwaymap.org/standard/{z}/{x}/{y}.png', TEPSG3857.Create);
@@ -66,12 +66,12 @@ type
     Providers.Add('railway-electrification' , 'OpenRailwayMap-Electrification', 'http://b.tiles.openrailwaymap.org/electrification/{z}/{x}/{y}.png', TEPSG3857.Create);
   end;
 
-  procedure ATilesDownloader.SetupFilters;
+  procedure ATildy.SetupFilters;
   begin
     Filters.Add('grayscale', TFilterGrayscale.Create);
   end;
 
-  procedure ATilesDownloader.parseParameters;
+  procedure ATildy.parseParameters;
   var
     OptionKind: TOptionKind;
   begin
@@ -98,7 +98,7 @@ type
     end;
   end;
 
-  procedure ATilesDownloader.DoRun;
+  procedure ATildy.DoRun;
   var
     TilesManipulator: TTilesManipulator = nil;
     LMinZoom, LMaxZoom: Byte;
@@ -266,7 +266,7 @@ type
     Terminate;
   end;
 
-  constructor ATilesDownloader.Create(TheOwner: TComponent);
+  constructor ATildy.Create(TheOwner: TComponent);
   begin
     inherited Create(TheOwner);
     StopOnException := True;
@@ -277,7 +277,7 @@ type
     FormatSettings.DecimalSeparator := '.';
   end;
 
-  destructor ATilesDownloader.Destroy;
+  destructor ATildy.Destroy;
   begin
     inherited Destroy;
 
@@ -285,10 +285,10 @@ type
     FreeAndNil(FProviders);
   end;
 
-  procedure ATilesDownloader.WriteHelp;
+  procedure ATildy.WriteHelp;
   begin
-    WriteLn('tilesdownloader : Usage : ');
-    WriteLn('    ./tilesdownloader [OPTION] [PARAMETER]...');
+    WriteLn('tildy : Usage : ');
+    WriteLn('    ./tildy [OPTION] [PARAMETER]...');
     WriteLn('');
     WriteLn('Donwload tiles from map providers.');
     WriteLn('');
@@ -321,11 +321,11 @@ type
     WriteLn('    -tile-res         [Unsigned Integer]     resolution of the saved images.');
     WriteLn('');
     WriteLn('Examples:');
-    WriteLn('    ./tilesdownloader -provider osm-standard -min-zoom 1 -max-zoom 7');
-    WriteLn('    ./tilesdownloader -provider osm-standard -min-zoom 1 -max-zoom 7 -out tiles/{p}/{z}/{x}_{y}');
+    WriteLn('    ./tildy -provider osm-standard -min-zoom 1 -max-zoom 7');
+    WriteLn('    ./tildy -provider osm-standard -min-zoom 1 -max-zoom 7 -out tiles/{p}/{z}/{x}_{y}');
   end;
 
-  function ATilesDownloader.ImportProviders(AFilePath: String): Boolean;
+  function ATildy.ImportProviders(AFilePath: String): Boolean;
   const
     _ProviderSectionStr = 'Provider';
   var
@@ -368,7 +368,7 @@ type
     end;
   end;
 
-  function ATilesDownloader.ImportLayers(ATilesManipulator: TTilesManipulator; AFilePath: String): Boolean;
+  function ATildy.ImportLayers(ATilesManipulator: TTilesManipulator; AFilePath: String): Boolean;
   const
     _LayerSectionStr = 'Layer';
   var
@@ -419,11 +419,11 @@ type
 
 
 var
-  appTilesDownloader: ATilesDownloader;
+  apptildy: ATildy;
 begin
-  appTilesDownloader := ATilesDownloader.Create(nil);
-  appTilesDownloader.Title := 'Tiles downloader';
-  appTilesDownloader.Run;
-  appTilesDownloader.Free;
+  apptildy := ATildy.Create(nil);
+  apptildy.Title := 'tildy';
+  apptildy.Run;
+  apptildy.Free;
 end.
 

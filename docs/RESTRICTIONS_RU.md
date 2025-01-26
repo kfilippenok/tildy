@@ -1,6 +1,10 @@
-# Ограничения
+<div align="right">
+  🇬🇧 <a href="./RESTRICTIONS.md">English</a>
+  |
+  🇷🇺 Русский
+</div>
 
-🇬🇧 [English](./RESTRICTIONS.md) | 🇷🇺 Русский 
+# Ограничения 
 
 ## OpenStreetMap
 
@@ -179,22 +183,8 @@ http://localhost:8080/tile/{z}/{x}/{y}.png
 Пробуем скачать нужные нам плитки:
 
 ```bash
-./tilesdownloader \
-    -min-zoom 10 \
-    -max-zoom 10 \
-    -provider-name MyProviderName \
-    -provider-link http://localhost:8080/tile \
-    -fcoord-lat 57 \
-    -fcoord-lon 31 \
-    -scoord-lat 50 \
-    -scoord-lon 70 \
-    -pattern %provider-name%_%x%_%y%_%z% \
-    -output tiles/local \
+tildy/examples/custom_providers.sh
 ```
-
-И радуемся скорости загрузки :)
-
-![coordinates](./media/localosm_download_demo.gif)
 
 В первый раз это будет медленно, так как плитки будут генерироваться в реальном времени. Можно заранее их сгенерировать:
 
