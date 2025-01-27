@@ -482,7 +482,7 @@ end;
 procedure TTilesManipulator.SaveTile(const ATileImg: TBGRABitmap;
   AFilePath: String);
 var
-  LFileStream: TFileStream;
+  LFileStream: TFileStream = nil;
 begin
   WriteLn(Format('FilePath: %s', [AFilePath]));
   if not ForceDirectories(ExtractFilePath(AFilePath)) then
@@ -490,12 +490,12 @@ begin
   try
     LFileStream := TFileStream.Create(AFilePath, fmCreate or fmOpenWrite);
     ATileImg.SaveToStreamAsPng(LFileStream);
-    LFileStream.Free;
+    FreeAndNil(LFileStream);
   except
     on E: Exception do
     begin
       WriteLn(E.Message);
-      LFileStream.Free;
+      if Assigned(LFileStream) then FreeAndNil(LFileStream);
       raise ETMSave.Create('Failed save file.');
     end;
   end;
@@ -582,11 +582,9 @@ var
   ix, iy, il: Longword;
   LZoomCurrentCount, LZoomTotalCount, LCurrentCount, LTotalCount: QWord;
   LMainProjection: IProjection;
-  LBuffer: TBGRABitmap;
+  LBuffer: TBGRABitmap = nil;
 begin
   if FLayers.Count < 1 then Exit;
-
-  LBuffer := nil;
 
   LMainProjection := FLayers[0].Provider.Projection;
   LTotalCount := CalcTotalTilesCount(LMainProjection, AMinZoom, AMaxZoom, AMinLatitude, AMaxLatitude, AMinLongitude, AMaxLongitude);
