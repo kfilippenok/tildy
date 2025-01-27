@@ -60,6 +60,7 @@ type
   TOptions = Set of TOptionKind;
 
   function getOptionName(Option: TOptionKind): String;
+  function getOptionIdent(Option: TOptionKind): String;
 
 implementation
 
@@ -83,7 +84,31 @@ begin
     okFilter        : Exit('filter');
     okVersion       : Exit('version');
   else
-    Exit('unknown');
+    raise Exception.Create('Unknown option');
+  end;
+end;
+
+function getOptionIdent(Option: TOptionKind): String;
+begin
+  case Option of
+    okHelp          : Exit('h');
+    okProvider      : Exit('p');
+    okProviders     : Exit('ps');
+    okLayers        : Exit('ls');
+    okOut           : Exit('o');
+    okMinZoom       : Exit('z');
+    okMaxZoom       : Exit('Z');
+    okLeft          : Exit('l');
+    okTop           : Exit('t');
+    okRight         : Exit('r');
+    okBottom        : Exit('b');
+    okShowFileType  : Exit('sft');
+    okTileRes       : Exit('res');
+    okSkipMissing   : Exit('skeep');
+    okFilter        : Exit('f');
+    okVersion       : Exit('v');
+  else
+    raise Exception.Create('Unknown option');
   end;
 end;
 

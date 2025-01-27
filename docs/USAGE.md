@@ -21,7 +21,7 @@
 
 ## Options
 
-### provider [String]
+### provider, p [String]
 
 Choosing the provider that will provide the tiles. List of prepared providers: 
 
@@ -30,8 +30,16 @@ Choosing the provider that will provide the tiles. List of prepared providers:
 * *railway-maxspeed* - OpenRailwayMap Maxspeed
 * *railway-electrification* - OpenRailwayMap Electrification
 
+Example:
 
-### providers [String]
+```
+... -provider osm-standard
+```
+```
+... -p osm-standard
+```
+
+### providers, ps [String]
 
 You can import your providers via the configuration file. Each provider starts with ``[Provider]``. 
 
@@ -54,11 +62,14 @@ Example:
 ```
 ... -providers custom_providers.ini -provider osm-standard-local
 ```
+```
+... -ps custom_providers.ini -p osm-standard-local
+```
 
 
 ****
 
-### layers [String] 
+### layers, ls [String] 
 
 Using a configuration file with layers. The layers are tiles from selected providers. All the layers are superimposed on each other, eventually forming one single one. The layers are described in order from the bottom to the top. Each layer starts with ``[Layer]``. 
 
@@ -83,10 +94,13 @@ Example:
 ```
 .. -layers layers.ini
 ```
+```
+.. -ls layers.ini
+```
 
 ****
 
-### out [String] 
+### out, o [String] 
 
 The absolute or relative path for program output. You can use macros that will be replaced with real values when saved. If there are no folders in the path, they will be created.
 
@@ -101,6 +115,9 @@ Example:
 ```
 .. -out tiles/{p}/{z}/{x}_{y}
 ```
+```
+.. -o tiles/{p}/{z}/{x}_{y}
+```
 
 Default:
 ```
@@ -109,7 +126,7 @@ tiles/{p}/{z}/{x}/{y}
 
 ****
 
-### min-zoom [Unsigned Integer]
+### min-zoom, z [Unsigned Integer]
 
 > Required option 
 
@@ -119,8 +136,11 @@ Example:
 ```
 ... -min-zoom 6
 ```
+```
+... -z 6
+```
 
-### max-zoom [Unsigned Integer]
+### max-zoom, Z [Unsigned Integer]
 
 > Required option
 
@@ -130,6 +150,9 @@ Example:
 ```
 ... -max-zoom 7
 ```
+```
+... -Z 7
+```
 
 ****
 
@@ -138,76 +161,99 @@ Example:
 ... --left=-56.674619
 ```
 
-### left [Double]
+### left, l [Double]
 
 The left border of the selected area (minimum longitude).
 
 Example:
 ```
-... --left=57.02137767
+... -left 57.02137767
+```
+```
+... -l 57.02137767
 ```
 
 
-### top [Double]
+### top, t [Double]
 
 The upper limit of the selected area (maximum latitude).
 
 Example:
 ```
-... --top=120
+... -top 120
+```
+```
+... -t 120
 ```
 
 
-### right [Double]
+### right, r [Double]
 
 The right border of the selected area (maximum longitude).
 
 Example:
 ```
-... --right=42.7
+... --bottom=143.1
+```
+```
+... -b 143.1
 ```
 
-### bottom [Double]
+### bottom, b [Double]
 
 The lower boundary of the selected area (minimum latitude).
 
 Example:
 ```
-... --bottom=143.1
+... -bottom 143.1
+```
+```
+... -b 143.1
 ```
 
 ****
 
-### show-file-type
+### show-file-type, sft
 
 Enabling the display of the ``.png`` extension in the file name. The extension is always *PNG*.
 
 ****
 
-### skip-missing
+### skip-missing, skeep
 
 Skipping missing tiles when received from the server.
 
 ****
 
-### filter
+### filter, f [String]
 
 Applying a filter to tiles from the ``provider``. List of prepared filters:
 
 * *grayscale* - grayscale
 
+Example:
+```
+... -filter grayscale
+```
+```
+... -f grayscale
+```
+
 ****
 
-### tile-res [Unsigned Integer]
+### tile-res, res [Unsigned Integer]
 
 The resolution of the saved images. Use it if you are not satisfied with the original resolution.
 
 Example:
 ```
-./tildy -provider railway-standard -min-zoom 0 -max-zoom 2 -tile-res 256
+./tildy -p railway-standard -z 0 -Z 2 -tile-res 256 
+```
+```
+./tildy -p railway-standard -z 0 -Z 2 -res 256 
 ```
 
-### version
+### version, v
 
 Print program version in format:
 

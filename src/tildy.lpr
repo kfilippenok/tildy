@@ -80,16 +80,32 @@ type
       {$IFDEF DEBUG}
       write(getOptionName(OptionKind));
       {$ENDIF}
-      if hasOption(getOptionName(OptionKind)) then
+      if HasOption(getOptionName(OptionKind)) then
       begin
-         Include(glOptions, OptionKind);
-         {$IFDEF DEBUG}
-         write(' finded, value = ');
-         {$ENDIF}
-         OptionParameter[OptionKind] := getOptionValue(getOptionName(OptionKind));
-         {$IFDEF DEBUG}
-         writeLn(OptionParameter[OptionKind]);
-         {$ENDIF}
+        Include(glOptions, OptionKind);
+        {$IFDEF DEBUG}
+        write(' finded, value = ');
+        {$ENDIF}
+        try
+          OptionParameter[OptionKind] := getOptionValue(getOptionName(OptionKind));
+        finally end;
+        {$IFDEF DEBUG}
+        writeLn(OptionParameter[OptionKind]);
+        {$ENDIF}
+        Continue;
+      end
+      else if HasOption(getOptionIdent(OptionKind)) then
+      begin
+        Include(glOptions, OptionKind);
+        {$IFDEF DEBUG}
+        write(' finded, value = ');
+        {$ENDIF}
+        try
+          OptionParameter[OptionKind] := getOptionValue(getOptionIdent(OptionKind));
+        finally end;
+        {$IFDEF DEBUG}
+        writeLn(OptionParameter[OptionKind]);
+        {$ENDIF}
       end
       else
         {$IFDEF DEBUG}

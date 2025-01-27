@@ -21,7 +21,7 @@
 
 ## Опции
 
-### provider [String]
+### provider, p [String]
 
 Выбор провайдера, который будет предоставлять плитки. Список подготовленных провайдеров: 
 
@@ -30,8 +30,15 @@
 * *railway-maxspeed* - OpenRailwayMap Maxspeed
 * *railway-electrification* - OpenRailwayMap Electrification
 
+Пример:
+```
+... -provider osm-standard
+```
+```
+... -p osm-standard
+```
 
-### providers [String]
+### providers, ps [String]
 
 Вы можете импортировать своих провайдеров, через конфигурационный файл. Каждый провайдер начинается с ``[Provider]``. 
 
@@ -54,11 +61,14 @@ url=http://localhost:8080/tile/{z}/{x}/{y}.png
 ```
 ... -providers custom_providers.ini -provider osm-standard-local
 ```
+```
+... -ps custom_providers.ini -p osm-standard-local
+```
 
 
 ****
 
-### layers [String] 
+### layers, ls [String] 
 
 Использование файла с конфигурацией со слоями. Слои представляют собой плитки от выбранных провайдеров. Все слои накладываются друг на друга по итогу формируя одну единую. Описание слоёв идёт по порядку с нижнего к верхнему. Каждый слой начинается с ``[Layer]``. 
 
@@ -83,10 +93,13 @@ provider=railway-standard
 ```
 .. -layers layers.ini
 ```
+```
+.. -ls layers.ini
+```
 
 ****
 
-### out [String] 
+### out, o [String] 
 
 Абсолютный или относительный путь для вывода программы. Можно использовать макросы, которые при сохранении будут подменятся на реальные значения. Если папки в пути отсутствуют, они будут созданы.
 
@@ -101,6 +114,9 @@ provider=railway-standard
 ```
 .. -out tiles/{p}/{z}/{x}_{y}
 ```
+```
+.. -o tiles/{p}/{z}/{x}_{y}
+```
 
 По умолчанию:
 ```
@@ -109,7 +125,7 @@ tiles/{p}/{z}/{x}/{y}
 
 ****
 
-### min-zoom [Unsigned Integer]
+### min-zoom, z [Unsigned Integer]
 
 > Обязательный параметр
 
@@ -119,8 +135,11 @@ tiles/{p}/{z}/{x}/{y}
 ```
 ... -min-zoom 6
 ```
+```
+... -z 6
+```
 
-### max-zoom [Unsigned Integer]
+### max-zoom, Z [Unsigned Integer]
 
 > Обязательный параметр
 
@@ -128,7 +147,7 @@ tiles/{p}/{z}/{x}/{y}
 
 Пример:
 ```
-... -max-zoom 7
+... -Z 7
 ```
 
 ****
@@ -138,76 +157,99 @@ tiles/{p}/{z}/{x}/{y}
 ... --left=-56.674619
 ```
 
-### left [Double]
+### left, l [Double]
 
 Левая граница выбранной области (минимальная долгота).
 
 Пример:
 ```
-... --left=57.02137767
+... -left 57.02137767
+```
+```
+... -l 57.02137767
 ```
 
 
-### top [Double]
+### top, t [Double]
 
 Верхняя граница выбранной области (максимальная широта).
 
 Пример:
 ```
-... --top=120
+... -top 120
+```
+```
+... -t 120
 ```
 
 
-### right [Double]
+### right, r [Double]
 
 Правая граница выбранной области (максимальная долгота).
 
 Пример:
 ```
-... --right=42.7
+... -right 42.7
+```
+```
+... -r 42.7
 ```
 
-### bottom [Double]
+### bottom, b [Double]
 
 Нижняя граница выбранной области (минимальная широта).
 
 Пример:
 ```
-... --bottom=143.1
+... -bottom 143.1
+```
+```
+... -b 143.1
 ```
 
 ****
 
-### show-file-type
+### show-file-type, sft
 
 Включение отображение расширения ```.png``` в названии файла. Расширение всегда *PNG*.
 
 ****
 
-### skip-missing
+### skip-missing, skeep
 
 Пропуск отсутствующих плиток при получении с сервера.
 
 ****
 
-### filter
+### filter, f [String]
 
 Наложение фильтра к плиткам от ``provider``. Список подготовленных фильтров: 
 
 * *grayscale* - тёмно-серый
 
+Пример:
+```
+... -filter grayscale
+```
+```
+... -f grayscale
+```
+
 ****
 
-### tile-res [Unsigned Integer]
+### tile-res, res [Unsigned Integer]
 
 Разрешение сохраняемых изображений. Используйте, если оригинальное разрешение вас не устраивает.
 
 Пример:
 ```
-./tildy -provider railway-standard -min-zoom 0 -max-zoom 2 -tile-res 256 
+./tildy -p railway-standard -z 0 -Z 2 -tile-res 256 
+```
+```
+./tildy -p railway-standard -z 0 -Z 2 -res 256 
 ```
 
-### version
+### version, v
 
 Вывод версии программы в формате:
 
