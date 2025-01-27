@@ -206,3 +206,11 @@ tiles/{p}/{z}/{x}/{y}
 ```
 ./tildy -provider railway-standard -min-zoom 0 -max-zoom 2 -tile-res 256 
 ```
+
+### version
+
+Вывод версии программы в формате:
+
+``` 
+tildy [мажор].[минор]
+```

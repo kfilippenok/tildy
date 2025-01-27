@@ -206,3 +206,11 @@ Example:
 ```
 ./tildy -provider railway-standard -min-zoom 0 -max-zoom 2 -tile-res 256
 ```
+
+### version
+
+Print program version in format:
+
+``` 
+tildy [major].[minor]
+```

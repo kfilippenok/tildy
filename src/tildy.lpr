@@ -104,7 +104,7 @@ type
     LMinZoom, LMaxZoom: Byte;
     LLeft, LTop, LRight, LBottom: Extended;
     LUseArea: Boolean = False;
-    LVersion: TVersionQuad;
+    LProgramVersion: TProgramVersion;
   begin
     if hasOption(getOptionName(okHelp)) then
     begin
@@ -115,8 +115,8 @@ type
 
     if hasOption(getOptionName(okVersion)) then
     begin
-      GetProgramVersion(LVersion);
-      WriteLn(Format('tildy %d.%d', [LVersion[1], LVersion[2]]));
+      GetProgramVersion(LProgramVersion);
+      WriteLn(Format('tildy %d.%d', [LProgramVersion.Major, LProgramVersion.Minor]));
       Terminate;
       Exit;
     end;
