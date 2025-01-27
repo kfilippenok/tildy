@@ -24,7 +24,7 @@ uses
   {$IFDEF WINDOWS}
   Interfaces, // For BGRABitmap
   {$ENDIF}
-  SysUtils, Classes, CustApp, IniFiles,
+  SysUtils, Classes, CustApp, IniFiles, fileinfo,
   Tildy.Options,
   TilesManipulations.Base, TilesManipulations.Projections, TilesManipulations.Filters;
 
@@ -104,10 +104,19 @@ type
     LMinZoom, LMaxZoom: Byte;
     LLeft, LTop, LRight, LBottom: Extended;
     LUseArea: Boolean = False;
+    LVersion: TVersionQuad;
   begin
     if hasOption(getOptionName(okHelp)) then
     begin
       writeHelp;
+      Terminate;
+      Exit;
+    end;
+
+    if hasOption(getOptionName(okVersion)) then
+    begin
+      GetProgramVersion(LVersion);
+      WriteLn(Format('tildy %d.%d', [LVersion[1], LVersion[2]]));
       Terminate;
       Exit;
     end;
@@ -420,6 +429,9 @@ type
 
 var
   apptildy: ATildy;
+
+{$R *.res}
+
 begin
   apptildy := ATildy.Create(nil);
   apptildy.Title := 'tildy';

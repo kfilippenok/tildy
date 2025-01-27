@@ -54,7 +54,8 @@ type
                  okShowFileType,
                  okTileRes,
                  okSkipMissing,
-                 okFilter);
+                 okFilter,
+                 okVersion);
 
   TOptions = Set of TOptionKind;
 
@@ -80,6 +81,7 @@ begin
     okTileRes       : Exit('tile-res');
     okSkipMissing   : Exit('skip-missing');
     okFilter        : Exit('filter');
+    okVersion       : Exit('version');
   else
     Exit('unknown');
   end;
