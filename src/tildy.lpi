@@ -16,6 +16,7 @@
     <VersionInfo>
       <UseVersionInfo Value="True"/>
       <MajorVersionNr Value="1"/>
+      <MinorVersionNr Value="1"/>
       <StringTable LegalCopyright="Apache 2.0"/>
     </VersionInfo>
     <BuildModes>
