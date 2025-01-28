@@ -35,11 +35,10 @@ type
   EOpTop = class(EOption);
   EOpRight = class(EOption);
   EOpBottom = class(EOption);
-  EOpShowFileType = class(EOption);
   EOpTileRes = class(EOption);
-  EOpSkipMissing = class(EOption);
   EOpFilter = class(EOption);
   EOpBoundingBox = class(EOption);
+
 
   TOptionKind = (okHelp,
                  okProvider,
@@ -55,6 +54,7 @@ type
                  okShowFileType,
                  okTileRes,
                  okSkipMissing,
+                 okSkipExisting,
                  okFilter,
                  okVersion,
                  okBoundingBox);
@@ -83,6 +83,7 @@ begin
     okShowFileType  : Exit('show-file-type');
     okTileRes       : Exit('tile-res');
     okSkipMissing   : Exit('skip-missing');
+    okSkipExisting  : Exit('skip-existing');
     okFilter        : Exit('filter');
     okVersion       : Exit('version');
     okBoundingBox   : Exit('bbox');
@@ -107,7 +108,8 @@ begin
     okBottom        : Exit('b');
     okShowFileType  : Exit('sft');
     okTileRes       : Exit('res');
-    okSkipMissing   : Exit('skip');
+    okSkipMissing   : Exit('skm');
+    okSkipExisting  : Exit('ske');
     okFilter        : Exit('f');
     okVersion       : Exit('v');
     okBoundingBox   : Exit('bb');

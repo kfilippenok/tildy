@@ -215,7 +215,13 @@ tiles/{p}/{z}/{x}/{y}
 
 ****
 
-### skip-missing, skeep
+### skip-existing, ske
+
+Skipping tiles that already exist on the disk when received from the server.
+
+****
+
+### skip-missing, skm
 
 Пропуск отсутствующих плиток при получении с сервера.
 

@@ -308,6 +308,9 @@ type
       if okSkipMissing in glOptions then
         TilesManipulator.SkipMissing := True;
 
+      if okSkipExisting in glOptions then
+        TilesManipulator.SkipExisting := True;
+
       // -tile-res
       if okTileRes in glOptions then
         try

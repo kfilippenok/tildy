@@ -170,6 +170,7 @@ type
   TTilesManipulator = class
   const
     defPath = 'tiles/{p}/{z}/{x}/{y}';
+    defSkipExisting = False;
     defSkipMissing = False;
     defShowFileType = False;
     defUseOtherTileRes = False;
@@ -177,6 +178,7 @@ type
     FLayers: TLayers;
     FPath: String;
     FShowFileType: Boolean;
+    FSkipExisting: Boolean;
     FSkipMissing: Boolean;
     FTileRes: Word;
     FUseOtherTileRes: Boolean;
@@ -202,6 +204,7 @@ type
     property Layers      : TLayers read FLayers       write FLayers;
     property Path        : String  read FPath         write FPath;
     property ShowFileType: Boolean read FShowFileType write FShowFileType default defShowFileType;
+    property SkipExisting: Boolean read FSkipExisting write FSkipExisting default defSkipExisting;
     property SkipMissing : Boolean read FSkipMissing  write FSkipMissing  default defSkipMissing;
     property TileRes     : Word    read FTileRes      write SetTileRes;
   end;
@@ -548,6 +551,7 @@ begin
   FUseOtherTileRes := defUseOtherTileRes;
   FPath := defPath;
   FShowFileType := defShowFileType;
+  FSkipExisting := defSkipExisting;
   FSkipMissing := defSkipMissing;
 end;
 
@@ -583,6 +587,7 @@ var
   LZoomCurrentCount, LZoomTotalCount, LCurrentCount, LTotalCount: QWord;
   LMainProjection: IProjection;
   LBuffer: TBGRABitmap = nil;
+  LSavePath: String;
 begin
   if FLayers.Count < 1 then Exit;
 
@@ -602,43 +607,48 @@ begin
       MaxY := LMainProjection.CalcTileY(iz, AMinLatitude);
       for iy := MinY to MaxY do
       begin
-        try
-          if Assigned(LBuffer) then FreeAndNil(LBuffer);
-          for il := 0 to Layers.Count-1 do
-          begin
-            Layers[il].Load(iz, ix, iy);
-            if il = 0 then
+        LSavePath := ProcessPath(Layers[0].Provider.Name, iz, ix, iy);
+
+        if not (SkipExisting and FileExists(LSavePath)) then
+          try
+            if Assigned(LBuffer) then FreeAndNil(LBuffer);
+            for il := 0 to Layers.Count-1 do
             begin
-              LBuffer := Layers[il].Buffer.Duplicate(True);
-              ResizeIfNeeded(LBuffer);
-              Continue;
-            end;
-            Layers[il].ResampleAndPaintTo(LBuffer);
-          end;
-          SaveTile(LBuffer, ProcessPath(Layers[0].Provider.Name, iz, ix, iy));
-          FreeAndNil(LBuffer);
-        except
-          on E: ELayer do
-            begin
-              if Assigned(LBuffer) then FreeAndNil(LBuffer);
-              if SkipMissing then
+              Layers[il].Load(iz, ix, iy);
+              if il = 0 then
               begin
-                WriteLn('! Skip missing tile');
+                LBuffer := Layers[il].Buffer.Duplicate(True);
+                ResizeIfNeeded(LBuffer);
                 Continue;
               end;
+              Layers[il].ResampleAndPaintTo(LBuffer);
+            end;
+            SaveTile(LBuffer, LSavePath);
+            FreeAndNil(LBuffer);
+          except
+            on E: ELayer do
+              begin
+                if Assigned(LBuffer) then FreeAndNil(LBuffer);
+                if SkipMissing then
+                begin
+                  WriteLn('! Skip missing tile');
+                  Continue;
+                end;
 
-              WriteLn;
-              WriteLn('Error: ', E.Message);
-              Exit;
-            end;
-          on E: ETMSave do
-            begin
-              if Assigned(LBuffer) then FreeAndNil(LBuffer);
-              WriteLn;
-              WriteLn('Error: ', E.Message);
-              Exit;
-            end;
-        end;
+                WriteLn;
+                WriteLn('Error: ', E.Message);
+                Exit;
+              end;
+            on E: ETMSave do
+              begin
+                if Assigned(LBuffer) then FreeAndNil(LBuffer);
+                WriteLn;
+                WriteLn('Error: ', E.Message);
+                Exit;
+              end;
+          end
+        else
+          WriteLn('! SkipExisting');
         Inc(LCurrentCount);
         Inc(LZoomCurrentCount);
         WriteLn(Format('Total: %d/%d <- (Zoom %d: %d/%d)', [LCurrentCount, LTotalCount, iz, LZoomCurrentCount, LZoomTotalCount]));
