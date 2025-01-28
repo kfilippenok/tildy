@@ -39,6 +39,7 @@ type
   EOpTileRes = class(EOption);
   EOpSkipMissing = class(EOption);
   EOpFilter = class(EOption);
+  EOpBoundingBox = class(EOption);
 
   TOptionKind = (okHelp,
                  okProvider,
@@ -55,7 +56,8 @@ type
                  okTileRes,
                  okSkipMissing,
                  okFilter,
-                 okVersion);
+                 okVersion,
+                 okBoundingBox);
 
   TOptions = Set of TOptionKind;
 
@@ -83,6 +85,7 @@ begin
     okSkipMissing   : Exit('skip-missing');
     okFilter        : Exit('filter');
     okVersion       : Exit('version');
+    okBoundingBox   : Exit('bbox');
   else
     Exit('unknown');
   end;
@@ -107,6 +110,7 @@ begin
     okSkipMissing   : Exit('skip');
     okFilter        : Exit('f');
     okVersion       : Exit('v');
+    okBoundingBox   : Exit('bb');
   else
     Exit('unknown');
   end;

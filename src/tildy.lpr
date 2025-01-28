@@ -44,6 +44,7 @@ type
     procedure SetupProviders;
     procedure SetupFilters;
     procedure ParseParameters;
+    procedure ParseBoundingBox(ABoundingBoxString: String; out ABottom, ATop, ALeft, ARight: Extended);
   protected
     procedure DoRun; override;
   public
@@ -71,7 +72,7 @@ type
     Filters.Add('grayscale', TFilterGrayscale.Create);
   end;
 
-  procedure ATildy.parseParameters;
+    procedure ATildy.ParseParameters;
   var
     OptionKind: TOptionKind;
   begin
@@ -112,6 +113,31 @@ type
         WriteLn;
         {$ENDIF}
     end;
+  end;
+
+  procedure ATildy.ParseBoundingBox(ABoundingBoxString: String; out ABottom, ATop, ALeft, ARight: Extended);
+  const
+    _Delim = ',';
+  var
+    StartPosition, EndPosition: Integer;
+  begin
+    // MinLon,MinLat,MaxLon,MaxLat -> ALeft,ABottom,ARight,ATop
+    // ALeft
+    StartPosition := 1;
+    EndPosition := Pos(_Delim, ABoundingBoxString);
+    ALeft := Copy(ABoundingBoxString, StartPosition, EndPosition - StartPosition).ToExtended;
+    // ABottom
+    StartPosition := EndPosition + 1;
+    EndPosition := Pos(_Delim, ABoundingBoxString, StartPosition);
+    ABottom := Copy(ABoundingBoxString, StartPosition, EndPosition - StartPosition).ToExtended;
+    // ARight
+    StartPosition := EndPosition + 1;
+    EndPosition := Pos(_Delim, ABoundingBoxString, StartPosition);
+    ARight := Copy(ABoundingBoxString, StartPosition, EndPosition - StartPosition).ToExtended;
+    // ATop
+    StartPosition := EndPosition + 1;
+    EndPosition := Length(ABoundingBoxString) + 1;
+    ATop := Copy(ABoundingBoxString, StartPosition, EndPosition - StartPosition).ToExtended;
   end;
 
   procedure ATildy.DoRun;
@@ -261,6 +287,19 @@ type
       else if LUseArea then
         raise EOpBottom.Create('The "-bottom" option is missing.');
 
+      // -bbox
+      if okBoundingBox in glOptions then
+      begin
+        if LUseArea then
+          raise EOpBoundingBox.Create('Conflicting options are used to define the area.');
+        try
+          ParseBoundingBox(OptionParameter[okBoundingBox], LBottom, LTop, LLeft, LRight);
+        except
+          on E: Exception do
+            raise EOpBoundingBox.Create(E.Message);
+        end;
+      end;
+
       // -show-file-type
       if okShowFileType in glOptions then
         TilesManipulator.ShowFileType := True;
@@ -318,35 +357,36 @@ type
     WriteLn('Donwload tiles from map providers.');
     WriteLn('');
     WriteLn('       Option                   Value                       Description');
-    WriteLn('    -provider, -p              [String]          use prepared provider. prepared providers:');
-    WriteLn('                                                   - osm-standard - OpenStreetMap Standard');
-    WriteLn('                                                   - railway-standard - OpenRailwayMap Standard');
-    WriteLn('                                                   - railway-maxspeed - OpenRailwayMap Maxspeed');
-    WriteLn('                                                   - railway-electrification - OpenRailwayMap Electrification');
-    WriteLn('    -providers,-ps             [String]          import providers from ini file.');
-    WriteLn('    -layers, -ls               [String]          use layers ini file. the following options are');
-    WriteLn('                                                 not taken into account when using:');
-    WriteLn('                                                   - filter');
-    WriteLn('                                                   - provider');
-    WriteLn('    -min-zoom, -z         [Unsigned Integer]     lower zoom limit. the range is specific to each provider.');
-    WriteLn('    -max-zoom, -Z         [Unsigned Integer]     highest zoom limit. the range is specific to each provider.');
-    WriteLn('    -left, -l                  [Double]          left border of the downloaded area (longitude).');
-    WriteLn('    -top, -t                   [Double]          top border of the downloaded area (latitude).');
-    WriteLn('    -right, -r                 [Double]          right border of the downloaded area (longitude).');
-    WriteLn('    -bottom, -b                [Double]          bottom border of the downloaded area (latitude).');
-    WriteLn('    -out, -o                   [String]          out path, default is current path in dir "tiles",');
-    WriteLn('                                                 support a pattern-generated path. keywords:');
-    WriteLn('                                                   - {p} - provider name');
-    WriteLn('                                                   - {x} - x number of tile');
-    WriteLn('                                                   - {y} - y number of tile');
-    WriteLn('                                                   - {z} - zoom number');
-    WriteLn('    -filter, -f                [String]          applying a filter. available filters:');
-    WriteLn('                                                   - grayscale');
-    WriteLn('    -skip-missing, -skip         [x]             show current help.');
-    WriteLn('    -show-file-type, -sft        [x]             show file extension in filename.');
-    WriteLn('    -tile-res, -res       [Unsigned Integer]     resolution of the saved images.');
-    WriteLn('    -version, -v                 [x]             show the version.');
-    WriteLn('    -help, -h                    [x]             show current help.');
+    WriteLn('    -provider, -p              [String]            use prepared provider. prepared providers:');
+    WriteLn('                                                     - osm-standard - OpenStreetMap Standard');
+    WriteLn('                                                     - railway-standard - OpenRailwayMap Standard');
+    WriteLn('                                                     - railway-maxspeed - OpenRailwayMap Maxspeed');
+    WriteLn('                                                     - railway-electrification - OpenRailwayMap Electrification');
+    WriteLn('    -providers,-ps             [String]            import providers from ini file.');
+    WriteLn('    -layers, -ls               [String]            use layers ini file. the following options are');
+    WriteLn('                                                   not taken into account when using:');
+    WriteLn('                                                     - filter');
+    WriteLn('                                                     - provider');
+    WriteLn('    -min-zoom, -z         [Unsigned Integer]       lower zoom limit. the range is specific to each provider.');
+    WriteLn('    -max-zoom, -Z         [Unsigned Integer]       highest zoom limit. the range is specific to each provider.');
+    WriteLn('    -left, -l                  [Double]            left border of the downloaded area (longitude).');
+    WriteLn('    -top, -t                   [Double]            top border of the downloaded area (latitude).');
+    WriteLn('    -right, -r                 [Double]            right border of the downloaded area (longitude).');
+    WriteLn('    -bottom, -b                [Double]            bottom border of the downloaded area (latitude).');
+    WriteLn('    -bbox, -b       [Double,Double,Double,Double]  MinLon,MinLat,MaxLon,MaxLat.');
+    WriteLn('    -out, -o                   [String]            out path, default is current path in dir "tiles",');
+    WriteLn('                                                   support a pattern-generated path. keywords:');
+    WriteLn('                                                     - {p} - provider name');
+    WriteLn('                                                     - {x} - x number of tile');
+    WriteLn('                                                     - {y} - y number of tile');
+    WriteLn('                                                     - {z} - zoom number');
+    WriteLn('    -filter, -f                [String]            applying a filter. available filters:');
+    WriteLn('                                                     - grayscale');
+    WriteLn('    -skip-missing, -skip         [x]               show current help.');
+    WriteLn('    -show-file-type, -sft        [x]               show file extension in filename.');
+    WriteLn('    -tile-res, -res       [Unsigned Integer]       resolution of the saved images.');
+    WriteLn('    -version, -v                 [x]               show the version.');
+    WriteLn('    -help, -h                    [x]               show current help.');
     WriteLn('');
     WriteLn('Examples:');
     WriteLn('    ./tildy -p osm-standard -z 1 -Z 7');
