@@ -104,7 +104,7 @@ begin
     okBottom        : Exit('b');
     okShowFileType  : Exit('sft');
     okTileRes       : Exit('res');
-    okSkipMissing   : Exit('skeep');
+    okSkipMissing   : Exit('skip');
     okFilter        : Exit('f');
     okVersion       : Exit('v');
   else
