@@ -84,7 +84,7 @@ begin
     okFilter        : Exit('filter');
     okVersion       : Exit('version');
   else
-    raise Exception.Create('Unknown option');
+    Exit('unknown');
   end;
 end;
 
@@ -108,7 +108,7 @@ begin
     okFilter        : Exit('f');
     okVersion       : Exit('v');
   else
-    raise Exception.Create('Unknown option');
+    Exit('unknown');
   end;
 end;
 

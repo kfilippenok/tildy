@@ -122,14 +122,14 @@ type
     LUseArea: Boolean = False;
     LProgramVersion: TProgramVersion;
   begin
-    if hasOption(getOptionName(okHelp)) then
+    if hasOption(getOptionName(okHelp)) or hasOption(getOptionIdent(okHelp)) then
     begin
       writeHelp;
       Terminate;
       Exit;
     end;
 
-    if hasOption(getOptionName(okVersion)) then
+    if hasOption(getOptionName(okVersion)) or hasOption(getOptionIdent(okVersion)) then
     begin
       GetProgramVersion(LProgramVersion);
       WriteLn(Format('tildy %d.%d', [LProgramVersion.Major, LProgramVersion.Minor]));
