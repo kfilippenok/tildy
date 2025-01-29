@@ -20,44 +20,7 @@
       <StringTable LegalCopyright="Apache 2.0"/>
     </VersionInfo>
     <BuildModes>
-      <Item Name="Default" Default="True"/>
-      <Item Name="Debug">
-        <CompilerOptions>
-          <Version Value="11"/>
-          <Target>
-            <Filename Value="../tildy"/>
-          </Target>
-          <SearchPaths>
-            <IncludeFiles Value="$(ProjOutDir)"/>
-            <OtherUnitFiles Value="TilesManipulations;Tildy"/>
-            <UnitOutputDirectory Value="../out/$(TargetCPU)-$(TargetOS)"/>
-          </SearchPaths>
-          <Parsing>
-            <SyntaxOptions>
-              <IncludeAssertionCode Value="True"/>
-            </SyntaxOptions>
-          </Parsing>
-          <CodeGeneration>
-            <Checks>
-              <IOChecks Value="True"/>
-              <RangeChecks Value="True"/>
-              <OverflowChecks Value="True"/>
-              <StackChecks Value="True"/>
-            </Checks>
-            <VerifyObjMethodCallValidity Value="True"/>
-          </CodeGeneration>
-          <Linking>
-            <Debugging>
-              <DebugInfoType Value="dsDwarf3"/>
-              <UseHeaptrc Value="True"/>
-              <TrashVariables Value="True"/>
-            </Debugging>
-          </Linking>
-          <Other>
-            <CustomOptions Value="-dDEBUG"/>
-          </Other>
-        </CompilerOptions>
-      </Item>
+      <Item Name="Debug" Default="True"/>
       <Item Name="Release">
         <CompilerOptions>
           <Version Value="11"/>
@@ -83,6 +46,9 @@
             </Debugging>
             <LinkSmart Value="True"/>
           </Linking>
+          <Other>
+            <CustomOptions Value="-dBGRABITMAP_DONT_USE_LCL"/>
+          </Other>
         </CompilerOptions>
       </Item>
     </BuildModes>
@@ -131,11 +97,30 @@
       <OtherUnitFiles Value="TilesManipulations;Tildy"/>
       <UnitOutputDirectory Value="../out/$(TargetCPU)-$(TargetOS)"/>
     </SearchPaths>
+    <Parsing>
+      <SyntaxOptions>
+        <IncludeAssertionCode Value="True"/>
+      </SyntaxOptions>
+    </Parsing>
+    <CodeGeneration>
+      <Checks>
+        <IOChecks Value="True"/>
+        <RangeChecks Value="True"/>
+        <OverflowChecks Value="True"/>
+        <StackChecks Value="True"/>
+      </Checks>
+      <VerifyObjMethodCallValidity Value="True"/>
+    </CodeGeneration>
     <Linking>
       <Debugging>
         <DebugInfoType Value="dsDwarf3"/>
+        <UseHeaptrc Value="True"/>
+        <TrashVariables Value="True"/>
       </Debugging>
     </Linking>
+    <Other>
+      <CustomOptions Value="-dDEBUG -dBGRABITMAP_DONT_USE_LCL"/>
+    </Other>
   </CompilerOptions>
   <Debugging>
     <Exceptions>
