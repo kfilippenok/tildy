@@ -38,7 +38,7 @@ type
   EOpTileRes = class(EOption);
   EOpFilter = class(EOption);
   EOpBoundingBox = class(EOption);
-
+  EOpCache = class(EOption);
 
   TOptionKind = (okHelp,
                  okProvider,
@@ -57,7 +57,9 @@ type
                  okSkipExisting,
                  okFilter,
                  okVersion,
-                 okBoundingBox);
+                 okBoundingBox,
+                 okCache,
+                 okUseCacheOnly);
 
   TOptions = Set of TOptionKind;
 
@@ -87,6 +89,8 @@ begin
     okFilter        : Exit('filter');
     okVersion       : Exit('version');
     okBoundingBox   : Exit('bbox');
+    okCache         : Exit('cache');
+    okUseCacheOnly  : Exit('use-cache-only');
   else
     Exit('unknown');
   end;
@@ -113,6 +117,8 @@ begin
     okFilter        : Exit('f');
     okVersion       : Exit('v');
     okBoundingBox   : Exit('bb');
+    okCache         : Exit('c');
+    okUseCacheOnly  : Exit('uco');
   else
     Exit('unknown');
   end;

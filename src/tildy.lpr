@@ -72,7 +72,7 @@ type
     Filters.Add('grayscale', TFilterGrayscale.Create);
   end;
 
-    procedure ATildy.ParseParameters;
+  procedure ATildy.ParseParameters;
   var
     OptionKind: TOptionKind;
   begin
@@ -197,6 +197,18 @@ type
             raise EOpFilter.Create('The specified filter was not found.');
           TilesManipulator.Layers[0].Filter := Filters[OptionParameter[okFilter]];
         end;
+
+        // -cache
+        if okCache in glOptions then
+        begin
+          if OptionParameter[okCache].IsEmpty then
+            raise EOpCache.Create('Cache path is empty.');
+          TilesManipulator.Layers[0].Provider.CachePath := OptionParameter[okCache];
+        end;
+
+        // -use-cache-only
+        if okUseCacheOnly in glOptions then
+          TilesManipulator.Layers[0].Provider.UseCacheOnly := True;
       end;
 
       // -out
@@ -402,8 +414,9 @@ type
   var
     LIniFile: TMemIniFile = nil;
     LSection: TStringList = nil;
-    LIdent, LName, LURL: String;
+    LIdent, LName, LURL, LCachePath, LUseCacheOnly: String;
     LMemoryStream: TMemoryStream = nil;
+    LLastProvider: Integer;
   begin
     Result := True;
     try
@@ -418,7 +431,15 @@ type
         LIdent := LIniFile.ReadString(_ProviderSectionStr, 'ident', '');
         LName  := LIniFile.ReadString(_ProviderSectionStr, 'name', '');
         LURL   := LIniFile.ReadString(_ProviderSectionStr, 'url', '');
-        Providers.Add(LIdent, LName, LURL, TEPSG3857.Create);
+        LLastProvider := Providers.Add(LIdent, LName, LURL, TEPSG3857.Create);
+        if LIniFile.ValueExists(_ProviderSectionStr, 'cache') then
+          Providers.Data[LLastProvider].CachePath := LIniFile.ReadString(_ProviderSectionStr, 'cache', '');
+        if LIniFile.ValueExists(_ProviderSectionStr, 'use-cache-only') then
+        begin
+          LUseCacheOnly := LIniFile.ReadString(_ProviderSectionStr, 'use-cache-only', 'yes');
+          if LUseCacheOnly = 'yes' then
+            Providers.Data[LLastProvider].UseCacheOnly := True
+        end;
 
         LIniFile.EraseSection(_ProviderSectionStr);
         LIniFile.ReadSection(_ProviderSectionStr, LSection);

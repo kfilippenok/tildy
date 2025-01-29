@@ -79,13 +79,21 @@ type
 
   IProvider = interface
     ['{9DF4214B-DE9F-4882-8E62-C31AB8F51A1C}']
-    function GiveTile(AZoom: Integer; AX, AY: Integer): TBGRABitmap;
-    function GetProjection: IProjection;
-    procedure SetProjection(AValue: IProjection);
-    property Projection: IProjection read GetProjection write SetProjection;
+    function GetCachePath: String;
+    procedure SetCachePath(AValue: String);
+    function GetUseCacheOnly: Boolean;
+    procedure SetUseCacheOnly(AValue: Boolean);
     function GetName: String;
     procedure SetName(AValue: String);
+    function GetProjection: IProjection;
+    procedure SetProjection(AValue: IProjection);
+
+    function GiveTile(AZoom: Integer; AX, AY: Integer): TBGRABitmap;
+
+    property CachePath: String read GetCachePath write SetCachePath;
+    property UseCacheOnly: Boolean read GetUseCacheOnly write SetUseCacheOnly;
     property Name: String read GetName write SetName;
+    property Projection: IProjection read GetProjection write SetProjection;
   end;
 
   EProvider = class(Exception);
@@ -93,24 +101,37 @@ type
   { TProvider }
 
   TProvider = class(TInterfacedObject, IProvider)
+  const
+    defUseCache = False;
+    defUseCacheOnly = False;
   strict private
+    FCachePath: String;
+    FUseCache: Boolean;
+    FUseCacheOnly: Boolean;
     FClient: TProviderClient;
     FName: String;
     FProjection: IProjection;
     FURL: String;
   strict private
+    function  GetCachePath: String;
+    procedure SetCachePath(AValue: String);
+    function GetUseCacheOnly: Boolean;
+    procedure SetUseCacheOnly(AValue: Boolean);
     function  GetName: String;
     procedure SetName(AValue: String);
     function  GetProjection: IProjection;
     procedure SetProjection(AValue: IProjection);
   strict private
     function GetTileLink(AZoom: Integer; AX, AY: Integer): String;
+    function GetTilePath(AZoom: Integer; AX, AY: Integer): String;
   public
     constructor Create(AName, AURL: String; AProjection: IProjection); virtual; reintroduce;
     destructor Destroy; override;
   public
     function GiveTile(AZoom: Integer; AX, AY: Integer): TBGRABitmap;
   public
+    property CachePath: String read GetCachePath write SetCachePath;
+    property UseCacheOnly: Boolean read GetUseCacheOnly write SetUseCacheOnly default defUseCacheOnly;
     property Name: String read GetName write SetName;
     property Projection: IProjection read GetProjection write SetProjection;
     property URL: String read FURL write FURL;
@@ -343,10 +364,45 @@ begin
   Result := StringReplace(Result, '{y}', AY.ToString, [rfReplaceAll]);
 end;
 
+function TProvider.GetTilePath(AZoom: Integer; AX, AY: Integer): String;
+begin
+  Result := CachePath;
+  Result := StringReplace(Result, '{p}', Name, [rfReplaceAll]);
+  Result := StringReplace(Result, '{z}', AZoom.ToString, [rfReplaceAll]);
+  Result := StringReplace(Result, '{x}', AX.ToString, [rfReplaceAll]);
+  Result := StringReplace(Result, '{y}', AY.ToString, [rfReplaceAll]);
+end;
+
+function TProvider.GetCachePath: String;
+begin
+  Result := FCachePath;
+end;
+
+procedure TProvider.SetCachePath(AValue: String);
+begin
+  if FCachePath = AValue then Exit;
+  FUseCache := true;
+  FCachePath := AValue;
+end;
+
+function TProvider.GetUseCacheOnly: Boolean;
+begin
+  Result := FUseCacheOnly;
+end;
+
+procedure TProvider.SetUseCacheOnly(AValue: Boolean);
+begin
+  if FUseCacheOnly = AValue then Exit;
+  FUseCacheOnly := AValue;
+end;
+
 constructor TProvider.Create(AName, AURL: String; AProjection: IProjection);
 begin
   inherited Create;
 
+  FCachePath := '';
+  FUseCache := defUseCache;
+  FUseCacheOnly := defUseCacheOnly;
   FName := AName;
   FProjection := AProjection;
   FUrl := AURL;
@@ -361,14 +417,32 @@ begin
 end;
 
 function TProvider.GiveTile(AZoom: Integer; AX, AY: Integer): TBGRABitmap;
+var
+  LFilePath: String;
 begin
   Write(Name + ': ');
   Result := nil;
   try
+    LFilePath := GetTilePath(AZoom, AX, AY);
+
+    if FUseCache and FileExists(LFilePath) then
+      Result := TBGRABitmap.Create(LFilePath);
+
+    if FUseCacheOnly and Assigned(Result) then
+      Exit
+    else
+      raise Exception.Create('');
+
     Result := FClient.ReceiveTile(GetTileLink(AZoom, AX, AY));
   except
     on E: Exception do
-      raise EProvider.Create('An error occurred while downloading');
+    begin
+      if Assigned(Result) then FreeAndNil(Result);
+      if FUseCacheOnly then
+        raise EProvider.Create('The file corresponding to the tile number is missing from the disk.')
+      else
+        raise EProvider.Create('An error occurred while downloading');
+    end;
   end;
 end;
 
