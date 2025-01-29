@@ -213,6 +213,16 @@ Example:
 
 ****
 
+### bbox, bb
+
+Setting the download area as in osmium. The following order is used:
+
+```
+... -bb MinLon,MinLat,MaxLon,MaxLat
+```
+
+****
+
 ### show-file-type, sft
 
 Enabling the display of the ``.png`` extension in the file name. The extension is always *PNG*.
