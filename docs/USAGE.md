@@ -48,6 +48,8 @@ Fields used:
 * *identifier* - the identifier to be used in layers or in *provider*
 * *name* - the name of the provider, which will then be used when substituting macros in *out*
 * *url* - a link with macros that will be used to get tiles.
+* *cache* - identical to the *cache* option, the path to the folder with cached tiles
+* *use-cache-only* - if ``yes`` is specified, then it will work only with the cache, in other cases it will not. by default, it works not only with the cache
 
 Example of a configuration file *custom_providers.ini*:
 
@@ -56,6 +58,17 @@ Example of a configuration file *custom_providers.ini*:
 ident=osm-standard-local
 name=OpenStreetMap-Mapnik
 url=http://localhost:8080/tile/{z}/{x}/{y}.png
+```
+
+Example of a provider that takes tiles only from the cache:
+```ini
+[Provider]
+ident=osm-standard-cache
+name=OpenStreetMap-Standard
+url=http://localhost:8080/tile/{z}/{x}/{y}.png
+cache=путь/до/папки/с/кешем/
+# by default, "no" is used. use this option only if you need to work with the cache only.
+use-cache-only=yes 
 ```
 
 Example:
@@ -123,6 +136,33 @@ Default:
 ```
 tiles/{p}/{z}/{x}/{y}
 ```
+
+****
+
+### cache, c [String] 
+
+The path to the folder with the provider's tiles that have already been downloaded. When using this option, the utility, upon receiving the tile, will check whether there is a tile in the cache folder: if so, the file from the disk will be used, if not, the server will be contacted for the tile. Macros can be used.
+
+Macros:
+
+* ``{p}`` - provider name
+* ``{z}`` - zoom
+* ``{x}`` - X of tile number
+* ``{y}`` - Y of tile number
+
+Example:
+```
+.. -cache tiles/{p}/{z}/{x}_{y}
+```
+```
+.. -c tiles/{p}/{z}/{x}_{y}
+```
+
+****
+
+### use-cache-only, uco
+
+When using this option, the utility will only work with cached tiles, the path to which is indicated via the *cache* option, without using the Internet.
 
 ****
 
