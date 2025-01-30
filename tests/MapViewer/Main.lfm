@@ -266,7 +266,7 @@ object fMain: TfMain
             Top = 25
             Width = 434
             ShowHidden = False
-            ButtonWidth = 40
+            ButtonWidth = 36
             NumGlyphs = 1
             Anchors = [akTop, akLeft, akRight]
             BorderSpacing.Top = 5
