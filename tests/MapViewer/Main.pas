@@ -26,8 +26,12 @@ type
     AreaCoordFirstLongitude: TLabeledEdit;
     AreaCoordSecondLatitude: TLabeledEdit;
     AreaCoordSecondLongitude: TLabeledEdit;
-    groupConcreteArea: TGroupBox;
-    groupCAreaZoom: TGroupBox;
+    lblConcreteZone: TLabel;
+    lblZoom: TLabel;
+    lblOther: TLabel;
+    lblProviderMap: TLabel;
+    lblCache: TLabel;
+    lblLayers: TLabel;
     lblDebugObjects: TLabel;
     LayersList: TCheckListBox;
     chShowFileType: TCheckBox;
@@ -41,7 +45,6 @@ type
     chkUseThreads: TCheckBox;
     chkZoomToCursor: TCheckBox;
     CoordSecondLatitude: TLabeledEdit;
-    groupLayers: TGroupBox;
     lblCAreaMaxZoom: TLabel;
     lblCAreaMaxZoomValue: TLabel;
     lblCAreaMinZoom: TLabel;
@@ -49,6 +52,11 @@ type
     miCoordinatesHelp: TMenuItem;
     MvBGRADrawingEngine: TMvBGRADrawingEngine;
     panCAreaZoom: TPanel;
+    panConcreteZone: TPanel;
+    panOther: TPanel;
+    panProviderMap: TPanel;
+    panCache: TPanel;
+    panLayers: TPanel;
     PathExecutable: TFileNameEdit;
     groupCoordinates: TGroupBox;
     groupExecutable: TGroupBox;
@@ -78,10 +86,8 @@ type
     edDivider: TEdit;
     groupOutput: TGroupBox;
     groupOther: TGroupBox;
-    groupCache: TGroupBox;
     groupSaveMethod: TGroupBox;
     groupProviderTiles: TGroupBox;
-    groupProviderMap: TGroupBox;
     ProviderName: TLabeledEdit;
     MapView: TMapView;
     ConsoleOutput: TMemo;
@@ -118,7 +124,7 @@ type
     procedure FormCreate(Sender: TObject);
     procedure FormDestroy(Sender: TObject);
     procedure FullyOrPartiallySelect(Sender: TObject);
-    procedure groupConcreteAreaResize(Sender: TObject);
+    procedure panConcreteZoneResize(Sender: TObject);
     procedure groupCoordinatesResize(Sender: TObject);
     procedure LayersListClick(Sender: TObject);
     procedure LayersListClickCheck(Sender: TObject);
@@ -447,10 +453,10 @@ begin
   end;
 end;
 
-procedure TfMain.groupConcreteAreaResize(Sender: TObject);
+procedure TfMain.panConcreteZoneResize(Sender: TObject);
 begin
-  AreaCoordFirstLatitude.Width := Trunc(groupConcreteArea.Width / 2);
-  AreaCoordSecondLatitude.Width := Trunc(groupConcreteArea.Width / 2);
+  AreaCoordFirstLatitude.Width := Trunc(panConcreteZone.Width / 2);
+  AreaCoordSecondLatitude.Width := Trunc(panConcreteZone.Width / 2);
 end;
 
 procedure TfMain.groupCoordinatesResize(Sender: TObject);
