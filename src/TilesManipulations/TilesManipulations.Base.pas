@@ -428,10 +428,8 @@ begin
     if FUseCache and FileExists(LFilePath) then
       Result := TBGRABitmap.Create(LFilePath);
 
-    if FUseCacheOnly and Assigned(Result) then
-      Exit
-    else
-      raise Exception.Create('');
+    if FUseCacheOnly then
+      Exit;
 
     Result := FClient.ReceiveTile(GetTileLink(AZoom, AX, AY));
   except
