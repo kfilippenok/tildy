@@ -113,6 +113,45 @@ Example:
 
 ****
 
+### areas, as [String] 
+
+Using a file with the specified areas for download. Each area starts with ``[Area]``. 
+
+Fields used:
+
+* *left* - left boundary (minimum longitude)
+* *top* - upper boundary (maximum latitude)
+* *right* - right border (maximum longitude)
+* *bottom* - lower border (minimum latitude)
+
+Example of a configuration file *areas.ini*:
+
+```ini
+# Moscow
+[Area]
+left=37.1
+top=56
+right=38
+bottom=55.49
+
+# Yekaterinburg
+[Area]
+left=60
+top=57
+right=61
+bottom=56.6
+```
+
+Example:
+```
+.. -areas areas.ini
+```
+```
+.. -as areas.ini
+```
+
+****
+
 ### out, o [String] 
 
 The absolute or relative path for program output. You can use macros that will be replaced with real values when saved. If there are no folders in the path, they will be created.

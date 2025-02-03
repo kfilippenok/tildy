@@ -37,6 +37,11 @@ type
   { ATildy }
 
   ATildy = class(TCustomApplication)
+  type
+    TArea = record
+      Left, Top, Right, Bottom: Extended;
+    end;
+    TAreaArray = array of TArea;
   strict private
     FProviders: TProviders;
     FFilters  : TFilters;
@@ -54,6 +59,7 @@ type
     procedure WriteHelp;
     function ImportProviders(AFilePath: String): Boolean;
     function ImportLayers(ATilesManipulator: TTilesManipulator; AFilePath: String): Boolean;
+    function ImportAreas(var AAreaArray: TAreaArray; AFilePath: String): Boolean;
   public
     property Providers: TProviders read FProviders write FProviders;
     property Filters  : TFilters   read FFilters   write FFilters;
@@ -146,6 +152,9 @@ type
     LMinZoom, LMaxZoom: Byte;
     LLeft, LTop, LRight, LBottom: Extended;
     LUseArea: Boolean = False;
+    LUseRects: Boolean = False;
+    LAreaArray: TAreaArray;
+    ia, LAreasCount: Integer;
     LProgramVersion: TProgramVersion;
   begin
     if hasOption(getOptionName(okHelp)) or hasOption(getOptionIdent(okHelp)) then
@@ -299,10 +308,21 @@ type
       else if LUseArea then
         raise EOpBottom.Create('The "-bottom" option is missing.');
 
+      // -areas
+      if okAreas in glOptions then
+      begin
+        if LUseArea then
+          raise EOpAreas.Create('Conflicting options are used to define the area.');
+        LUseRects := True;
+        SetLength(LAreaArray, 0);
+        if not ImportAreas(LAreaArray, OptionParameter[okAreas]) then
+          raise EOpAreas.Create('Error when processing rects.');
+      end;
+
       // -bbox
       if okBoundingBox in glOptions then
       begin
-        if LUseArea then
+        if LUseArea or LUseRects then
           raise EOpBoundingBox.Create('Conflicting options are used to define the area.');
         try
           ParseBoundingBox(OptionParameter[okBoundingBox], LBottom, LTop, LLeft, LRight);
@@ -334,6 +354,16 @@ type
 
       if LUseArea then
         TilesManipulator.Download(LMinZoom, LMaxZoom, LBottom, LTop, LLeft, LRight)
+      else if LUseRects then
+      begin
+        LAreasCount := Length(LAreaArray);
+        for ia := 0 to LAreasCount - 1 do
+        begin
+          WriteLn('[Area ' + (ia + 1).ToString + '/' + LAreasCount.ToString + ']');
+          TilesManipulator.Download(LMinZoom, LMaxZoom, LAreaArray[ia].Bottom, LAreaArray[ia].Top, LAreaArray[ia].Left, LAreaArray[ia].Right);
+          WriteLn();
+        end
+      end
       else
         TilesManipulator.Download(LMinZoom, LMaxZoom);
     except
@@ -491,6 +521,59 @@ type
 
         LIniFile.EraseSection(_LayerSectionStr);
         LIniFile.ReadSection(_LayerSectionStr, LSection);
+      end;
+
+      LSection.Free;
+      LIniFile.Free;
+      LMemoryStream.Free;
+    except
+      on E: Exception do
+      begin
+        Result := False;
+        if Assigned(LSection) then FreeAndNil(LSection);
+        if Assigned(LIniFile) then FreeAndNil(LIniFile);
+        if Assigned(LMemoryStream) then FreeAndNil(LMemoryStream);
+        WriteLn(E.ClassName + ': ' + E.Message);
+      end;
+    end;
+  end;
+
+  function ATildy.ImportAreas(var AAreaArray: TAreaArray; AFilePath: String): Boolean;
+  const
+    _SectionStr = 'Area';
+  var
+    LIniFile: TMemIniFile = nil;
+    LSection: TStringList = nil;
+    LMemoryStream: TMemoryStream = nil;
+    LCount: Integer = 0;
+    LAllValuesExists: Boolean = False;
+  begin
+    Result := True;
+    try
+      LMemoryStream := TMemoryStream.Create;
+      LMemoryStream.LoadFromFile(AFilePath);
+      LIniFile := TMemIniFile.Create(LMemoryStream);
+      LSection := TStringList.Create;
+
+      LIniFile.ReadSection(_SectionStr, LSection);
+      while LSection.Count > 0 do
+      begin
+        Inc(LCount);
+        SetLength(AAreaArray, LCount);
+        LAllValuesExists := (LIniFile.ValueExists(_SectionStr, 'left')
+                         and LIniFile.ValueExists(_SectionStr, 'top')
+                         and LIniFile.ValueExists(_SectionStr, 'right')
+                         and LIniFile.ValueExists(_SectionStr, 'bottom'));
+        if not LAllValuesExists then
+          raise Exception.Create(_SectionStr + ' number ' + LCount.ToString + ' has not all values');
+
+        AAreaArray[LCount-1].Left := LIniFile.ReadFloat(_SectionStr, 'left', 0.0);
+        AAreaArray[LCount-1].Top := LIniFile.ReadFloat(_SectionStr, 'top', 0.0);
+        AAreaArray[LCount-1].Right := LIniFile.ReadFloat(_SectionStr, 'right', 0.0);
+        AAreaArray[LCount-1].Bottom := LIniFile.ReadFloat(_SectionStr, 'bottom', 0.0);
+
+        LIniFile.EraseSection(_SectionStr);
+        LIniFile.ReadSection(_SectionStr, LSection);
       end;
 
       LSection.Free;

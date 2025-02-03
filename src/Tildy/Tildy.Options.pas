@@ -39,6 +39,7 @@ type
   EOpFilter = class(EOption);
   EOpBoundingBox = class(EOption);
   EOpCache = class(EOption);
+  EOpAreas = class(EOption);
 
   TOptionKind = (okHelp,
                  okProvider,
@@ -59,7 +60,8 @@ type
                  okVersion,
                  okBoundingBox,
                  okCache,
-                 okUseCacheOnly);
+                 okUseCacheOnly,
+                 okAreas);
 
   TOptions = Set of TOptionKind;
 
@@ -91,6 +93,7 @@ begin
     okBoundingBox   : Exit('bbox');
     okCache         : Exit('cache');
     okUseCacheOnly  : Exit('use-cache-only');
+    okAreas         : Exit('areas');
   else
     Exit('unknown');
   end;
@@ -119,6 +122,7 @@ begin
     okBoundingBox   : Exit('bb');
     okCache         : Exit('c');
     okUseCacheOnly  : Exit('uco');
+    okAreas         : Exit('as');
   else
     Exit('unknown');
   end;
