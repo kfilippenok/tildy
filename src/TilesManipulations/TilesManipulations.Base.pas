@@ -310,7 +310,7 @@ begin
         raise;
     end;
 
-  WriteLn(Format('TileLink: %s', [AURL]));
+  Write(Format('TileLink: %s', [AURL]));
   try
     LMemoryStream := TMemoryStream.Create;
     while True do
@@ -488,13 +488,18 @@ begin
 end;
 
 procedure TLayer.Load(const AZoom: Integer; const AX, AY: Integer);
+var
+  LStartTime, LFinishTime: TDateTime;
 begin
   if Assigned(FBuffer) then
     FreeAndNil(FBuffer);
   try
+    LStartTime := Now;
     FBuffer := Provider.GiveTile(AZoom, AX, AY);
     if Assigned(Filter) then
       Filter.Transform(FBuffer);
+    LFinishTime := Now;
+    WriteLn(' ' + FormatDateTime('hh:mm:ss:zz', LFinishTime - LStartTime));
   except
     on E: Exception do
       raise ELayer.Create(E.Message);
@@ -554,12 +559,13 @@ begin
   OldTileImg.Free;
 end;
 
-procedure TTilesManipulator.SaveTile(const ATileImg: TBGRABitmap;
-  AFilePath: String);
+procedure TTilesManipulator.SaveTile(const ATileImg: TBGRABitmap; AFilePath: String);
 var
   LFileStream: TFileStream = nil;
+  LSaveStartTime, LSaveFinishTime: TDateTime;
 begin
-  WriteLn(Format('FilePath: %s', [AFilePath]));
+  LSaveStartTime := Now;
+  Write(Format('FilePath: %s', [AFilePath]));
   if not ForceDirectories(ExtractFilePath(AFilePath)) then
     raise ETMSave.Create('Failed create dirs.');
   try
@@ -569,11 +575,14 @@ begin
   except
     on E: Exception do
     begin
+      WriteLn('');
       WriteLn(E.Message);
       if Assigned(LFileStream) then FreeAndNil(LFileStream);
       raise ETMSave.Create('Failed save file.');
     end;
   end;
+  LSaveFinishTime := Now;
+  WriteLn(' ' + FormatDateTime('hh:mm:ss:zz', LSaveStartTime - LSaveFinishTime));
 end;
 
 procedure TTilesManipulator.SetTileRes(AValue: Word);
@@ -660,8 +669,11 @@ var
   LMainProjection: IProjection;
   LBuffer: TBGRABitmap = nil;
   LSavePath: String;
+  LBeginTime, LEndTime: TDateTime;
 begin
   if FLayers.Count < 1 then Exit;
+
+  LBeginTime := Now;
 
   LMainProjection := FLayers[0].Provider.Projection;
   LTotalCount := CalcTotalTilesCount(LMainProjection, AMinZoom, AMaxZoom, AMinLatitude, AMaxLatitude, AMinLongitude, AMaxLongitude);
@@ -727,6 +739,8 @@ begin
       end;
     end;
   end;
+  LEndTime := Now;
+  WriteLn('Time: ' + FormatDateTime('hh:mm:ss:zz', LEndTime - LBeginTime));
 end;
 
 end.
