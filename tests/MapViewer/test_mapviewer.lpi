@@ -95,12 +95,6 @@
     </RunParams>
     <RequiredPackages>
       <Item>
-        <PackageName Value="bgracontrols"/>
-      </Item>
-      <Item>
-        <PackageName Value="lazmapviewer_rgbgraphics"/>
-      </Item>
-      <Item>
         <PackageName Value="lazmapviewer_bgra"/>
       </Item>
       <Item>
