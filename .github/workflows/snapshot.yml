@@ -1,5 +1,9 @@
 name: Build Snapshot
-on: [push]
+on:
+  push:
+    paths:
+      - 'tests/**'
+      - 'src/**'
 
 env:
   release_tag: snapshot
