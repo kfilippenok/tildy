@@ -47,7 +47,8 @@
             <LinkSmart Value="True"/>
           </Linking>
           <Other>
-            <CustomOptions Value="-dBGRABITMAP_DONT_USE_LCL"/>
+            <CustomOptions Value="-B
+-dBGRABITMAP_DONT_USE_LCL"/>
           </Other>
         </CompilerOptions>
       </Item>
@@ -61,7 +62,7 @@
     </RunParams>
     <RequiredPackages>
       <Item>
-        <PackageName Value="BGRABitmapPack"/>
+        <PackageName Value="BGRABitmapPack4NoGUI"/>
       </Item>
     </RequiredPackages>
     <Units>
@@ -119,7 +120,9 @@
       </Debugging>
     </Linking>
     <Other>
-      <CustomOptions Value="-dDEBUG -dBGRABITMAP_DONT_USE_LCL"/>
+      <CustomOptions Value="-dDEBUG
+-B
+-dBGRABITMAP_DONT_USE_LCL"/>
     </Other>
   </CompilerOptions>
   <Debugging>

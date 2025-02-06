@@ -55,8 +55,16 @@ To display the work on the project, a [Kanban board](https://github.com/users/ti
 
 ### Packages
 
-- BGRABitmapPack (avialable in OPM)
+- BGRABitmapPack4NoGUI (часть BGRABitmapPack)
  
 ### Libraries
  
- - OpenSSL library
+ #### Windows
+ 
+ - OpenSSL
+ 
+ #### Linux:
+ 
+ - linux-vdso.so.1
+ - libc.so.6
+ - ld-linux-x86-64.so.2

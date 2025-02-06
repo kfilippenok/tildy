@@ -55,8 +55,16 @@
 
 ### Пакеты
 
-- BGRABitmapPack (avialable in OPM)
+- BGRABitmapPack4NoGUI (часть BGRABitmapPack)
  
 ### Библиотеки
  
- - OpenSSL library
+ #### Windows
+ 
+ - OpenSSL
+ 
+ #### Linux:
+ 
+ - linux-vdso.so.1
+ - libc.so.6
+ - ld-linux-x86-64.so.2
