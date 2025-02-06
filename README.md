@@ -17,7 +17,7 @@
 - Download tiles:
 	- Completely the entire map
 	- By the specified zoom levels
-	- By the selected area
+	- By the selected area(-s)
 - Add Custom Providers
 - Save tiles name and structuring according to the specified template
 - Combining tiles from multiple providers into one common one
