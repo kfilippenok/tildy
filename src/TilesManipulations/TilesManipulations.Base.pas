@@ -20,7 +20,7 @@ unit TilesManipulations.Base;
 interface
 
 uses
-  SysUtils, Classes, StrUtils, Math, FGL,
+  SysUtils, Classes, StrUtils, Math, FGL, Nullable,
   fphttpclient, openssl, opensslsockets, BGRABitmap;
 
 const
@@ -32,6 +32,11 @@ const
   defOtherTileRes = False;
 
 type
+
+  TArea = record
+    Left, Top, Right, Bottom: Extended;
+  end;
+  TAreaArray = array of TArea;
 
   IFilter = interface
     ['{5DBCB3D5-A14F-48CD-9E72-1F38448C717E}']
@@ -188,7 +193,9 @@ type
 
   { TTilesManipulator }
 
-  TTilesManipulator = class
+  TTilesManipulator = class(TInterfacedPersistent)
+  type
+    TNullableWord = specialize TNullable<Word>;
   const
     defPath = 'tiles/{p}/{z}/{x}/{y}';
     defSkipExisting = False;
@@ -201,14 +208,17 @@ type
     FShowFileType: Boolean;
     FSkipExisting: Boolean;
     FSkipMissing: Boolean;
-    FTileRes: Word;
-    FUseOtherTileRes: Boolean;
+    FTileRes: TNullableWord;
   strict private // Getters and Setters
+    function  GetTileRes: Word;
     procedure SetTileRes(AValue: Word);
   strict private
     function ProcessPath(const AProviderName: String; const AZoom: Integer; const AX, AY: Integer): String;
     procedure ResizeIfNeeded(var ATileImg: TBGRABitmap);
     procedure SaveTile(const ATileImg: TBGRABitmap; AFilePath: String);
+  protected
+    FUseOtherTileRes: Boolean;
+    procedure AssignTo(Dest: TPersistent); override;
   public // Calculations
     class function CalcRowTilesCount(const AMinX, AMaxX: QWord): QWord; overload; static;
     class function CalcColumnTilesCount(const AMinY, AMaxY: QWord): QWord; static;
@@ -219,7 +229,8 @@ type
     destructor Destroy; override;
   public
     procedure Download(const AZoom: Integer); virtual;
-    procedure Download(const AMinZoom, AMaxZoom: Integer); virtual;
+    procedure Download(const AMinZoom, AMaxZoom: Integer); virtual; overload;
+    procedure Download(const AMinZoom, AMaxZoom: Integer; const AArea: TArea); virtual; overload;
     procedure Download(const AMinZoom, AMaxZoom: Integer; const AMinLatitude, AMaxLatitude, AMinLongitude, AMaxLongitude: Float); virtual; overload;
   public
     property Layers      : TLayers read FLayers       write FLayers;
@@ -227,7 +238,7 @@ type
     property ShowFileType: Boolean read FShowFileType write FShowFileType default defShowFileType;
     property SkipExisting: Boolean read FSkipExisting write FSkipExisting default defSkipExisting;
     property SkipMissing : Boolean read FSkipMissing  write FSkipMissing  default defSkipMissing;
-    property TileRes     : Word    read FTileRes      write SetTileRes;
+    property TileRes     : Word    read GetTileRes    write SetTileRes;
   end;
 
 implementation
@@ -585,11 +596,41 @@ begin
   WriteLn(' ' + FormatDateTime('hh:mm:ss:zz', LSaveStartTime - LSaveFinishTime));
 end;
 
+procedure TTilesManipulator.AssignTo(Dest: TPersistent);
+var
+  LDest: TTilesManipulator;
+  i: Integer;
+begin
+  if not (Dest is TTilesManipulator) then inherited AssignTo(Dest);
+
+  LDest := Dest as TTilesManipulator;
+
+  // Copy Layers
+  for i := 0 to LDest.Layers.Count - 1 do
+  begin
+    Self.FLayers.Add(LDest.Layers[i].Provider);
+    Self.FLayers[i].Filter := LDest.Layers[i].Filter;
+    Self.FLayers[i].Opacity := LDest.Layers[i].Opacity;
+  end;
+
+  Self.Path := LDest.Path;
+  Self.ShowFileType := LDest.ShowFileType;
+  Self.SkipExisting := LDest.SkipExisting;
+  Self.SkipMissing := LDest.SkipMissing;
+  Self.TileRes := LDest.TileRes;
+end;
+
 procedure TTilesManipulator.SetTileRes(AValue: Word);
 begin
   FUseOtherTileRes := True;
-  if FTileRes = AValue then Exit;
+  if FTileRes.Value = AValue then Exit;
   FTileRes := AValue;
+end;
+
+function TTilesManipulator.GetTileRes: Word;
+begin
+  Result := 0;
+  if FTileRes.HasValue then Result := Word(FTileRes.Value)
 end;
 
 class function TTilesManipulator.CalcRowTilesCount(const AMinX, AMaxX: QWord): QWord;
@@ -658,6 +699,11 @@ begin
 
   LMainProjection := FLayers[0].Provider.Projection;
   Download(AMinZoom, AMaxZoom, LMainProjection.MinLat, LMainProjection.MaxLat, LMainProjection.MinLon, LMainProjection.MaxLon);
+end;
+
+procedure TTilesManipulator.Download(const AMinZoom, AMaxZoom: Integer; const AArea: TArea);
+begin
+  Download(AMinZoom, AMaxZoom, AArea.Bottom, AArea.Top, AArea.Right, AArea.Left);
 end;
 
 procedure TTilesManipulator.Download(const AMinZoom, AMaxZoom: Integer; const AMinLatitude, AMaxLatitude, AMinLongitude, AMaxLongitude: Float);

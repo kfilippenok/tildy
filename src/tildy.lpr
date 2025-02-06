@@ -25,7 +25,7 @@ uses
   Interfaces, // For BGRABitmap
   {$ENDIF}
   SysUtils, Classes, CustApp, IniFiles, fileinfo,
-  Tildy.Options,
+  Tildy.Options, Tildy.Threads,
   TilesManipulations.Base, TilesManipulations.Projections, TilesManipulations.Filters;
 
 var
@@ -37,11 +37,6 @@ type
   { ATildy }
 
   ATildy = class(TCustomApplication)
-  type
-    TArea = record
-      Left, Top, Right, Bottom: Extended;
-    end;
-    TAreaArray = array of TArea;
   strict private
     FProviders: TProviders;
     FFilters  : TFilters;

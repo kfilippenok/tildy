@@ -85,6 +85,10 @@
         <Filename Value="Tildy/Tildy.Options.pas"/>
         <IsPartOfProject Value="True"/>
       </Unit>
+      <Unit>
+        <Filename Value="Tildy/Tildy.Threads.pas"/>
+        <IsPartOfProject Value="True"/>
+      </Unit>
     </Units>
   </ProjectOptions>
   <CompilerOptions>
