@@ -4,6 +4,7 @@ on:
     paths:
       - 'tests/**'
       - 'src/**'
+      - '.github/**'
 
 env:
   release_tag: snapshot
@@ -38,8 +39,8 @@ jobs:
         if: ${{ matrix.operating-system == 'ubuntu-latest' }} 
         run: unzip BGRABitmap.zip
 
-      - name: Build BGRABitmapPack
-        run: lazbuild BGRABitmap/bgrabitmap/bgrabitmappack.lpk
+      - name: Build BGRABitmapPack4NoGUI
+        run: lazbuild BGRABitmap/bgrabitmap/bgrabitmappack4nogui.lpk
         
       - name: Build tildy
         run: lazbuild -B --bm="Release" src/tildy.lpi

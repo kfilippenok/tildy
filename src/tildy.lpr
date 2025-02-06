@@ -21,9 +21,6 @@ uses
   {$IFDEF UNIX}
   cthreads,
   {$ENDIF}
-  {$IFDEF WINDOWS}
-  Interfaces, // For BGRABitmap
-  {$ENDIF}
   SysUtils, Classes, CustApp, IniFiles, fileinfo,
   Tildy.Options,
   TilesManipulations.Base, TilesManipulations.Projections, TilesManipulations.Filters;
