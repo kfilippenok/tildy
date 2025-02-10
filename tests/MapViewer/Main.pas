@@ -139,8 +139,6 @@ type
     procedure btnDeleteAreaClick(Sender: TObject);
     procedure btnDeleteLayerClick(Sender: TObject);
     procedure btnEditAreaClick(Sender: TObject);
-    procedure btnExportAreasClick(Sender: TObject);
-    procedure btnImportAreasClick(Sender: TObject);
     procedure btnStartDownloadClick(Sender: TObject);
     procedure chkActiveChange(Sender: TObject);
     procedure chkCacheChange(Sender: TObject);
@@ -187,6 +185,7 @@ type
     procedure ProviderVariationsMapSelect(Sender: TObject);
     procedure ZoomRangePositionChange(Sender: TObject; AKind: TThumbKind;
       AValue: Integer);
+    procedure OnSelectedAreaBeginChange(Sender: TObject);
   private
     BMP_FC, BMP_SC: TPicture;
     FirstCoordinate, SecondCoordinate: TGpsPoint;
@@ -296,7 +295,8 @@ begin
         begin
           LAreaSelectionPlugin := TAreaSelectionPlugin.Create(MvPluginManager);
           LAreaSelectionPlugin.MapView := MapView;
-          LAreaSelectionPlugin.SelectedArea.Init(LRealAreaArray[i].TopLeft, LRealAreaArray[i].BottomRight);
+          LAreaSelectionPlugin.OnSelectedAreaBeginChange := @OnSelectedAreaBeginChange;
+          LAreaSelectionPlugin.SelectedArea.Area := LRealAreaArray[i];
           AreasList.AddItem(LStringList[i], LAreaSelectionPlugin);
         end;
       end;
@@ -330,10 +330,10 @@ begin
     begin
       LStringList.Add(_SectionStr);
       LAreaSelectionPlugin := AreasList.Items.Objects[i] as TAreaSelectionPlugin;
-      LStringList.Add('left=' + LAreaSelectionPlugin.SelectedArea.TopLeft.Lon.ToString);
-      LStringList.Add('top=' + LAreaSelectionPlugin.SelectedArea.TopLeft.Lat.ToString);
-      LStringList.Add('right=' + LAreaSelectionPlugin.SelectedArea.BottomRight.Lon.ToString);
-      LStringList.Add('bottom=' + LAreaSelectionPlugin.SelectedArea.BottomRight.Lat.ToString);
+      LStringList.Add('left=' + LAreaSelectionPlugin.SelectedArea.West.ToString);
+      LStringList.Add('top=' + LAreaSelectionPlugin.SelectedArea.North.ToString);
+      LStringList.Add('right=' + LAreaSelectionPlugin.SelectedArea.East.ToString);
+      LStringList.Add('bottom=' + LAreaSelectionPlugin.SelectedArea.North.ToString);
       LStringList.Add('');
     end;
     LStringList.SaveToFile(SaveDialog.FileName);
@@ -348,6 +348,7 @@ var
 begin
   LAreaSelectPlugin := TAreaSelectionPlugin.Create(MvPluginManager);
   LAreaSelectPlugin.MapView := MapView;
+  LAreaSelectPlugin.OnSelectedAreaBeginChange := @OnSelectedAreaBeginChange;
   Inc(FPluginCount);
   AreasList.AddItem(FPluginCount.ToString, LAreaSelectPlugin);
 end;
@@ -446,108 +447,6 @@ begin
 
   MapView.Refresh;
   SetEnableAreaConrols;
-end;
-
-procedure TfMain.btnExportAreasClick(Sender: TObject);
-const
-  _SectionStr = '[Area]';
-var
-  LStringList: TStringList = nil;
-  LAreaSelectionPlugin: TAreaSelectionPlugin;
-  i: Integer;
-begin
-  if not SaveDialog.Execute then Exit;
-
-  try
-    LStringList := TStringList.Create;
-    for i := 0 to AreasList.Count-1 do
-    begin
-      LStringList.Add(_SectionStr);
-      LAreaSelectionPlugin := AreasList.Items.Objects[i] as TAreaSelectionPlugin;
-      LStringList.Add('left=' + LAreaSelectionPlugin.SelectedArea.TopLeft.Lon.ToString);
-      LStringList.Add('top=' + LAreaSelectionPlugin.SelectedArea.TopLeft.Lat.ToString);
-      LStringList.Add('right=' + LAreaSelectionPlugin.SelectedArea.BottomRight.Lon.ToString);
-      LStringList.Add('bottom=' + LAreaSelectionPlugin.SelectedArea.BottomRight.Lat.ToString);
-      LStringList.Add('');
-    end;
-    LStringList.SaveToFile(SaveDialog.FileName);
-  finally
-    if Assigned(LStringList) then FreeAndNil(LStringList);
-  end;
-end;
-
-procedure TfMain.btnImportAreasClick(Sender: TObject);
-const
-    _SectionStr = 'Area';
-var
-  LIniFile: TMemIniFile = nil;
-  LSection: TStringList = nil;
-  LMemoryStream: TMemoryStream = nil;
-  LCount: Integer = 0;
-  LAllValuesExists: Boolean = False;
-  LStringList: TStringList = nil;
-  LRealAreaArray: array of TRealArea;
-  LAreaSelectionPlugin: TAreaSelectionPlugin;
-  i: Integer;
-begin
-  if not OpenDialog.Execute then Exit;
-
-  try
-    LStringList := TStringList.Create;
-    LMemoryStream := TMemoryStream.Create;
-    LMemoryStream.LoadFromFile(OpenDialog.FileName);
-    LIniFile := TMemIniFile.Create(LMemoryStream);
-    LSection := TStringList.Create;
-    SetLength(LRealAreaArray, LCount);
-
-    LIniFile.ReadSection(_SectionStr, LSection);
-    while LSection.Count > 0 do
-    begin
-      Inc(LCount);
-      LStringList.Add(LCount.ToString);
-      SetLength(LRealAreaArray, LCount);
-      LAllValuesExists := (LIniFile.ValueExists(_SectionStr, 'left')
-                       and LIniFile.ValueExists(_SectionStr, 'top')
-                       and LIniFile.ValueExists(_SectionStr, 'right')
-                       and LIniFile.ValueExists(_SectionStr, 'bottom'));
-      if not LAllValuesExists then
-        raise Exception.Create(_SectionStr + ' number ' + LCount.ToString + ' has not all values');
-
-      LRealAreaArray[LCount-1].TopLeft.Lon := LIniFile.ReadFloat(_SectionStr, 'left', 0.0);
-      LRealAreaArray[LCount-1].TopLeft.Lat := LIniFile.ReadFloat(_SectionStr, 'top', 0.0);
-      LRealAreaArray[LCount-1].BottomRight.Lon := LIniFile.ReadFloat(_SectionStr, 'right', 0.0);
-      LRealAreaArray[LCount-1].BottomRight.Lat := LIniFile.ReadFloat(_SectionStr, 'bottom', 0.0);
-
-      LIniFile.EraseSection(_SectionStr);
-      LIniFile.ReadSection(_SectionStr, LSection);
-    end;
-
-    if LStringList.Count > 0 then
-    begin
-      AreasList.Clear;
-      for i := 0 to LStringList.Count-1 do
-      begin
-        LAreaSelectionPlugin := TAreaSelectionPlugin.Create(MvPluginManager);
-        LAreaSelectionPlugin.MapView := MapView;
-        LAreaSelectionPlugin.SelectedArea.Init(LRealAreaArray[i].TopLeft, LRealAreaArray[i].BottomRight);
-        AreasList.AddItem(LStringList[i], LAreaSelectionPlugin);
-      end;
-    end;
-
-    LStringList.Free;
-    LSection.Free;
-    LIniFile.Free;
-    LMemoryStream.Free;
-  except
-    on E: Exception do
-    begin
-      if Assigned(LStringList) then FreeAndNil(LStringList);
-      if Assigned(LSection) then FreeAndNil(LSection);
-      if Assigned(LIniFile) then FreeAndNil(LIniFile);
-      if Assigned(LMemoryStream) then FreeAndNil(LMemoryStream);
-      WriteLn(E.ClassName + ': ' + E.Message);
-    end;
-  end;
 end;
 
 procedure TfMain.btnStartDownloadClick(Sender: TObject);
@@ -1037,6 +936,16 @@ begin
     tkMax: lblCAreaMaxZoomValue.Caption := AValue.ToString;
   else
   end;
+end;
+
+procedure TfMain.OnSelectedAreaBeginChange(Sender: TObject);
+var
+  LAreaSelectPlugin: TAreaSelectionPlugin;
+  LIndex: Integer;
+begin
+  LAreaSelectPlugin := Sender as TAreaSelectionPlugin;
+  LIndex := AreasList.Items.IndexOfObject(LAreaSelectPlugin);
+  AreasList.ItemIndex := LIndex;
 end;
 
 procedure TfMain.ReloadLayersList;

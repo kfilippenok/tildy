@@ -8,7 +8,6 @@ object fMain: TfMain
   ClientWidth = 1119
   Color = clForm
   Position = poDesktopCenter
-  LCLVersion = '4.99.0.0'
   OnActivate = FormActivate
   OnCreate = FormCreate
   OnDestroy = FormDestroy
@@ -33,7 +32,7 @@ object fMain: TfMain
       Caption = 'MapView'
       ChildSizing.VerticalSpacing = 10
       ChildSizing.ControlsPerLine = 1
-      ClientHeight = 713
+      ClientHeight = 716
       ClientWidth = 469
       object mvScrollBox: TScrollBox
         Left = 0
@@ -883,7 +882,6 @@ object fMain: TfMain
             Min = 0
             Position = 0
             TabOrder = 0
-            OnClick = LayersUpDownClick
           end
           object btnAddArea: TSpeedButton
             AnchorSideTop.Control = AreasList
@@ -1007,7 +1005,6 @@ object fMain: TfMain
             Anchors = [akTop, akRight]
             BorderSpacing.Top = 5
             Enabled = False
-            OnClick = btnExportAreasClick
           end
           object btnImportAreas: TSpeedButton
             AnchorSideLeft.Control = AreasList
@@ -1045,7 +1042,7 @@ object fMain: TfMain
     end
     object pageTilesDownloader: TTabSheet
       Caption = 'TilesDownloader'
-      ClientHeight = 713
+      ClientHeight = 716
       ClientWidth = 469
       TabVisible = False
       object ConsoleOutput: TMemo
@@ -1056,8 +1053,8 @@ object fMain: TfMain
         AnchorSideRight.Side = asrBottom
         AnchorSideBottom.Control = btnStartDownload
         Left = 10
-        Height = 171
-        Top = 481
+        Height = 169
+        Top = 483
         Width = 449
         Anchors = [akTop, akLeft, akRight, akBottom]
         BorderSpacing.Left = 10
@@ -1089,17 +1086,17 @@ object fMain: TfMain
         AnchorSideRight.Side = asrBottom
         AnchorSideBottom.Control = optionsSoutlog
         Left = 0
-        Height = 451
+        Height = 453
         Top = 0
         Width = 469
         HorzScrollBar.Page = 328
         VertScrollBar.Increment = 44
-        VertScrollBar.Page = 447
+        VertScrollBar.Page = 449
         VertScrollBar.Smooth = True
         VertScrollBar.Tracking = True
         Anchors = [akTop, akLeft, akRight, akBottom]
         BorderSpacing.Bottom = 10
-        ClientHeight = 447
+        ClientHeight = 449
         ClientWidth = 462
         ParentBackground = False
         TabOrder = 2
@@ -1572,7 +1569,7 @@ object fMain: TfMain
         Cursor = crVSplit
         Left = 0
         Height = 10
-        Top = 461
+        Top = 463
         Width = 469
         Align = alCustom
         Anchors = [akLeft, akRight]
