@@ -4,15 +4,14 @@
     <Targets>
       <Target FileName="src/tildy.lpi">
         <BuildModes>
-          <Mode Name="Default"/>
           <Mode Name="Debug" Compile="True"/>
           <Mode Name="Release"/>
         </BuildModes>
       </Target>
-      <Target FileName="tests/MapViewer/test_mapviewer.lpi">
+      <Target FileName="src/Assistent/tildy_assistant.lpi">
         <BuildModes>
-          <Mode Name="Default"/>
-          <Mode Name="Debug" Compile="True"/>
+          <Mode Name="Default" Compile="True"/>
+          <Mode Name="Debug"/>
           <Mode Name="Release"/>
         </BuildModes>
       </Target>

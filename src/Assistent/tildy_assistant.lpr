@@ -1,4 +1,4 @@
-program test_mapviewer;
+program tildy_assistent;
 
 {$mode objfpc}{$H+}
 
