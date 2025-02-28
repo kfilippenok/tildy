@@ -496,6 +496,8 @@ begin
   try
     LStartTime := Now;
     FBuffer := Provider.GiveTile(AZoom, AX, AY);
+    if not Assigned(FBuffer) then
+      raise ELayer.Create('Layer of ' + Provider.Name + ' did not load.');
     if Assigned(Filter) then
       Filter.Transform(FBuffer);
     LFinishTime := Now;
@@ -699,13 +701,14 @@ begin
             for il := 0 to Layers.Count-1 do
             begin
               Layers[il].Load(iz, ix, iy);
-              if il = 0 then
+              if not Assigned(LBuffer) then
               begin
                 LBuffer := Layers[il].Buffer.Duplicate(True);
                 ResizeIfNeeded(LBuffer);
                 Continue;
-              end;
-              Layers[il].ResampleAndPaintTo(LBuffer);
+              end
+              else
+                Layers[il].ResampleAndPaintTo(LBuffer);
             end;
             SaveTile(LBuffer, LSavePath);
             FreeAndNil(LBuffer);
