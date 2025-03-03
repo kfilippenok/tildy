@@ -232,7 +232,8 @@ type
 
 implementation
 
-uses ssockets, BGRABitmapTypes;
+uses
+  ssockets, BGRABitmapTypes, TilesManipulations.Utilities;
 
 { TProviderClient }
 
@@ -489,19 +490,19 @@ end;
 
 procedure TLayer.Load(const AZoom: Integer; const AX, AY: Integer);
 var
-  LStartTime, LFinishTime: TDateTime;
+  LStartTime, LFinishTime: Int64;
 begin
   if Assigned(FBuffer) then
     FreeAndNil(FBuffer);
   try
-    LStartTime := Now;
+    LStartTime := GetTickCountMCS;
     FBuffer := Provider.GiveTile(AZoom, AX, AY);
     if not Assigned(FBuffer) then
       raise ELayer.Create('Layer of ' + Provider.Name + ' did not load.');
     if Assigned(Filter) then
       Filter.Transform(FBuffer);
-    LFinishTime := Now;
-    WriteLn(' ' + FormatDateTime('hh:mm:ss:zz', LFinishTime - LStartTime));
+    LFinishTime := GetTickCountMCS;
+    WriteLn(' ' + Format('%d', [LFinishTime - LStartTime]));
   except
     on E: Exception do
       raise ELayer.Create(E.Message);
@@ -564,9 +565,9 @@ end;
 procedure TTilesManipulator.SaveTile(const ATileImg: TBGRABitmap; AFilePath: String);
 var
   LFileStream: TFileStream = nil;
-  LSaveStartTime, LSaveFinishTime: TDateTime;
+  LSaveStartTime, LSaveFinishTime: Int64;
 begin
-  LSaveStartTime := Now;
+  LSaveStartTime := GetTickCountMCS;
   Write(Format('FilePath: %s', [AFilePath]));
   if not ForceDirectories(ExtractFilePath(AFilePath)) then
     raise ETMSave.Create('Failed create dirs.');
@@ -583,8 +584,8 @@ begin
       raise ETMSave.Create('Failed save file.');
     end;
   end;
-  LSaveFinishTime := Now;
-  WriteLn(' ' + FormatDateTime('hh:mm:ss:zz', LSaveStartTime - LSaveFinishTime));
+  LSaveFinishTime := GetTickCountMCS;
+  WriteLn(' ' + Format('%d', [LSaveFinishTime - LSaveStartTime]));
 end;
 
 procedure TTilesManipulator.SetTileRes(AValue: Word);
@@ -671,11 +672,11 @@ var
   LMainProjection: IProjection;
   LBuffer: TBGRABitmap = nil;
   LSavePath: String;
-  LBeginTime, LEndTime: TDateTime;
+  LBeginTime, LEndTime: Int64;
 begin
   if FLayers.Count < 1 then Exit;
 
-  LBeginTime := Now;
+  LBeginTime := GetTickCountMCS;
 
   LMainProjection := FLayers[0].Provider.Projection;
   LTotalCount := CalcTotalTilesCount(LMainProjection, AMinZoom, AMaxZoom, AMinLatitude, AMaxLatitude, AMinLongitude, AMaxLongitude);
@@ -742,8 +743,8 @@ begin
       end;
     end;
   end;
-  LEndTime := Now;
-  WriteLn('Time: ' + FormatDateTime('hh:mm:ss:zz', LEndTime - LBeginTime));
+  LEndTime := GetTickCountMCS;
+  WriteLn('Time: ' + Format('%d', [LEndTime - LBeginTime]));
 end;
 
 end.

@@ -86,6 +86,10 @@
         <Filename Value="Tildy/Tildy.Options.pas"/>
         <IsPartOfProject Value="True"/>
       </Unit>
+      <Unit>
+        <Filename Value="TilesManipulations/TilesManipulations.Utilities.pas"/>
+        <IsPartOfProject Value="True"/>
+      </Unit>
     </Units>
   </ProjectOptions>
   <CompilerOptions>
