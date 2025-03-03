@@ -33,5 +33,47 @@ begin
 end;
 {$ENDIF}
 
+{$IFDEF WINDOWS}
+uses
+  Windows, DateUtils;
+
+var
+  QueryPerformanceSupported: Boolean;
+  PerformanceCounter: int64;
+  PerformanceFrequency: int64; // ticks in second
+
+function GetTickCountMS: Int64;
+var
+  LTime: TTime;
+begin
+  if QueryPerformanceSupported then
+  begin
+    QueryPerformanceCounter(Result);
+    Result := Trunc(Result * (1000 / PerformanceFrequency));
+  end
+  else
+    Result := DateTimeToDosDateTime(Now());
+end;
+
+function GetTickCountMCS: Int64;
+var
+  LTime: TTime;
+begin
+  if QueryPerformanceSupported then
+  begin
+    QueryPerformanceCounter(Result);
+    Result := Trunc(Result * (1000000 / PerformanceFrequency));
+  end
+  else
+    Result := DateTimeToDosDateTime(Now());
+end;
+{$ENDIF}
+
+initialization
+
+{$IFDEF WINDOWS}
+  QueryPerformanceSupported := QueryPerformanceFrequency(PerformanceFrequency) and QueryPerformanceCounter(PerformanceCounter);
+{$ENDIF}
+
 end.
 
