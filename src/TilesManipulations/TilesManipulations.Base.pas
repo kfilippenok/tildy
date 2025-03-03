@@ -495,13 +495,13 @@ begin
   if Assigned(FBuffer) then
     FreeAndNil(FBuffer);
   try
-    LStartTime := GetTickCountMCS;
+    LStartTime := GetTickCountMS;
     FBuffer := Provider.GiveTile(AZoom, AX, AY);
     if not Assigned(FBuffer) then
       raise ELayer.Create('Layer of ' + Provider.Name + ' did not load.');
     if Assigned(Filter) then
       Filter.Transform(FBuffer);
-    LFinishTime := GetTickCountMCS;
+    LFinishTime := GetTickCountMS;
     WriteLn(' ' + Format('%d', [LFinishTime - LStartTime]));
   except
     on E: Exception do
@@ -567,7 +567,7 @@ var
   LFileStream: TFileStream = nil;
   LSaveStartTime, LSaveFinishTime: Int64;
 begin
-  LSaveStartTime := GetTickCountMCS;
+  LSaveStartTime := GetTickCountMS;
   Write(Format('FilePath: %s', [AFilePath]));
   if not ForceDirectories(ExtractFilePath(AFilePath)) then
     raise ETMSave.Create('Failed create dirs.');
@@ -584,7 +584,7 @@ begin
       raise ETMSave.Create('Failed save file.');
     end;
   end;
-  LSaveFinishTime := GetTickCountMCS;
+  LSaveFinishTime := GetTickCountMS;
   WriteLn(' ' + Format('%d', [LSaveFinishTime - LSaveStartTime]));
 end;
 
@@ -676,7 +676,7 @@ var
 begin
   if FLayers.Count < 1 then Exit;
 
-  LBeginTime := GetTickCountMCS;
+  LBeginTime := GetTickCountMS;
 
   LMainProjection := FLayers[0].Provider.Projection;
   LTotalCount := CalcTotalTilesCount(LMainProjection, AMinZoom, AMaxZoom, AMinLatitude, AMaxLatitude, AMinLongitude, AMaxLongitude);
@@ -743,7 +743,7 @@ begin
       end;
     end;
   end;
-  LEndTime := GetTickCountMCS;
+  LEndTime := GetTickCountMS;
   WriteLn('Time: ' + Format('%d', [LEndTime - LBeginTime]));
 end;
 
