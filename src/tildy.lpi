@@ -71,11 +71,11 @@
         <IsPartOfProject Value="True"/>
       </Unit>
       <Unit>
-        <Filename Value="TilesManipulations/TilesManipulations.Base.pas"/>
+        <Filename Value="Tildy/Tildy.Options.pas"/>
         <IsPartOfProject Value="True"/>
       </Unit>
       <Unit>
-        <Filename Value="TilesManipulations/TilesManipulations.Projections.pas"/>
+        <Filename Value="TilesManipulations/TilesManipulations.Base.pas"/>
         <IsPartOfProject Value="True"/>
       </Unit>
       <Unit>
@@ -83,11 +83,11 @@
         <IsPartOfProject Value="True"/>
       </Unit>
       <Unit>
-        <Filename Value="Tildy/Tildy.Options.pas"/>
+        <Filename Value="TilesManipulations/TilesManipulations.Projections.pas"/>
         <IsPartOfProject Value="True"/>
       </Unit>
       <Unit>
-        <Filename Value="TilesManipulations/TilesManipulations.Utilities.pas"/>
+        <Filename Value="TilesManipulations/TilesManipulations.Utilities.Time.pas"/>
         <IsPartOfProject Value="True"/>
       </Unit>
     </Units>

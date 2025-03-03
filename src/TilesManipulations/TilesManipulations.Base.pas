@@ -233,7 +233,7 @@ type
 implementation
 
 uses
-  ssockets, BGRABitmapTypes, TilesManipulations.Utilities;
+  ssockets, BGRABitmapTypes, TilesManipulations.Utilities.Time;
 
 { TProviderClient }
 

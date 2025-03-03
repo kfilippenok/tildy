@@ -21,9 +21,9 @@ uses
   {$IFDEF UNIX}
   cthreads,
   {$ENDIF}
-  SysUtils, Classes, CustApp, IniFiles, fileinfo,
-  Tildy.Options,
-  TilesManipulations.Base, TilesManipulations.Projections, TilesManipulations.Filters;
+  SysUtils, Classes, CustApp, IniFiles, fileinfo, Tildy.Options,
+  TilesManipulations.Base, TilesManipulations.Projections,
+  TilesManipulations.Filters;
 
 var
   OptionParameter: array[TOptionKind] of String;

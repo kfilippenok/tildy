@@ -1,4 +1,4 @@
-unit TilesManipulations.Utilities;
+unit TilesManipulations.Utilities.Time;
 
 {$mode ObjFPC}{$H+}
 
@@ -49,7 +49,7 @@ begin
   if QueryPerformanceSupported then
   begin
     QueryPerformanceCounter(Result);
-    Result := Trunc(Result * (1000 / PerformanceFrequency));
+    Result := Round(Result * (1000 / PerformanceFrequency));
   end
   else
     Result := DateTimeToDosDateTime(Now());
@@ -62,7 +62,7 @@ begin
   if QueryPerformanceSupported then
   begin
     QueryPerformanceCounter(Result);
-    Result := Trunc(Result * (1000000 / PerformanceFrequency));
+    Result := Round(Result * (1000000 / PerformanceFrequency));
   end
   else
     Result := DateTimeToDosDateTime(Now());
