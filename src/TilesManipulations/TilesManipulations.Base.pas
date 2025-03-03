@@ -21,7 +21,8 @@ interface
 
 uses
   SysUtils, Classes, StrUtils, Math, FGL,
-  fphttpclient, openssl, opensslsockets, BGRABitmap;
+  fphttpclient, openssl, opensslsockets,
+  BGRABitmap, BGRABitmapTypes;
 
 const
   defOutPath = 'tiles';
@@ -182,9 +183,34 @@ type
     procedure Load(const AZoom: Integer; const AX, AY: Integer); virtual;
   end;
 
+  { TMonochromes }
+
+  TMonochromes = class
+  private
+    FItems: array of TBGRAPixel;
+    function GetCount: Integer;
+    function GetItem(Index: Integer): TBGRAPixel;
+    procedure PutItem(Index: Integer; AValue: TBGRAPixel);
+  public
+    constructor Create; virtual;
+    destructor Destroy; override;
+  public
+    function Add(BGRAPixel: TBGRAPixel): Integer; virtual; overload;
+    {
+      Supported variations:
+        #FFFFFF
+        rgb(255, 255, 255)
+        rgba(255, 255, 255, 255)
+    }
+    function Add(AColorString: String): Integer; virtual; overload;
+    property Count: Integer read GetCount;
+    property Items[Index: Integer]: TBGRAPixel read GetItem write PutItem; default;
+  end;
+
   ETilesManipulator = class(Exception);
   ETMSave = class(ETilesManipulator);
   ETMDownload = class(ETilesManipulator);
+  ETMMonochrome = class(ETilesManipulator);
 
   { TTilesManipulator }
 
@@ -193,20 +219,25 @@ type
     defPath = 'tiles/{p}/{z}/{x}/{y}';
     defSkipExisting = False;
     defSkipMissing = False;
+    defSkipMonochrome = False;
     defShowFileType = False;
     defUseOtherTileRes = False;
   strict private
     FLayers: TLayers;
+    FMonochromes: TMonochromes;
     FPath: String;
     FShowFileType: Boolean;
     FSkipExisting: Boolean;
     FSkipMissing: Boolean;
+    FSkipMonochrome: Boolean;
     FTileRes: Word;
     FUseOtherTileRes: Boolean;
   strict private // Getters and Setters
     procedure SetTileRes(AValue: Word);
-  strict private
+  protected
     function ProcessPath(const AProviderName: String; const AZoom: Integer; const AX, AY: Integer): String;
+    function IsMonochrome(var ATileImg: TBGRABitmap): Boolean;
+    function InMonochromes(var ATileImg: TBGRABitmap): Boolean;
     procedure ResizeIfNeeded(var ATileImg: TBGRABitmap);
     procedure SaveTile(const ATileImg: TBGRABitmap; AFilePath: String);
   public // Calculations
@@ -222,18 +253,20 @@ type
     procedure Download(const AMinZoom, AMaxZoom: Integer); virtual;
     procedure Download(const AMinZoom, AMaxZoom: Integer; const AMinLatitude, AMaxLatitude, AMinLongitude, AMaxLongitude: Float); virtual; overload;
   public
-    property Layers      : TLayers read FLayers       write FLayers;
-    property Path        : String  read FPath         write FPath;
-    property ShowFileType: Boolean read FShowFileType write FShowFileType default defShowFileType;
-    property SkipExisting: Boolean read FSkipExisting write FSkipExisting default defSkipExisting;
-    property SkipMissing : Boolean read FSkipMissing  write FSkipMissing  default defSkipMissing;
-    property TileRes     : Word    read FTileRes      write SetTileRes;
+    property Layers         : TLayers      read FLayers          write FLayers;
+    property Monochromes    : TMonochromes read FMonochromes     write FMonochromes;
+    property Path           : String       read FPath            write FPath;
+    property ShowFileType   : Boolean      read FShowFileType    write FShowFileType    default defShowFileType;
+    property SkipExisting   : Boolean      read FSkipExisting    write FSkipExisting    default defSkipExisting;
+    property SkipMissing    : Boolean      read FSkipMissing     write FSkipMissing     default defSkipMissing;
+    property SkipMonochrome : Boolean      read FSkipMonochrome  write FSkipMonochrome  default defSkipMonochrome;
+    property TileRes        : Word         read FTileRes         write SetTileRes;
   end;
 
 implementation
 
 uses
-  ssockets, BGRABitmapTypes, TilesManipulations.Utilities.Time;
+  ssockets, TilesManipulations.Utilities.Time;
 
 { TProviderClient }
 
@@ -536,6 +569,53 @@ begin
     Layer.Load(AZoom, AX, AY);
 end;
 
+{ TMonochromes }
+
+function TMonochromes.GetItem(Index: Integer): TBGRAPixel;
+begin
+  Result := FItems[Index];
+end;
+
+function TMonochromes.GetCount: Integer;
+begin
+  Result := Length(FItems);
+end;
+
+procedure TMonochromes.PutItem(Index: Integer; AValue: TBGRAPixel);
+begin
+  FItems[Index] := AValue;
+end;
+
+constructor TMonochromes.Create;
+begin
+  SetLength(FItems, 0);
+end;
+
+destructor TMonochromes.Destroy;
+begin
+  inherited Destroy;
+
+  SetLength(FItems, 0);
+end;
+
+function TMonochromes.Add(BGRAPixel: TBGRAPixel): Integer;
+begin
+  SetLength(FItems, Succ(Count));
+  FItems[Pred(Count)] := BGRAPixel;
+end;
+
+function TMonochromes.Add(AColorString: String): Integer;
+var
+  LBGRAPixel: TBGRAPixel;
+begin
+  LBGRAPixel.FromString(AColorString);
+
+  if LBGRAPixel = BGRAPixelTransparent then
+    raise Exception.Create('Incorrect color string');
+
+  Result := Add(LBGRAPixel);
+end;
+
 { TTilesManipulator }
 
 function TTilesManipulator.ProcessPath(const AProviderName: String;
@@ -547,6 +627,43 @@ begin
   Result := StringReplace(Result, '{x}', AX.ToString, [rfReplaceAll]);
   Result := StringReplace(Result, '{y}', AY.ToString, [rfReplaceAll]);
   Result := Result + IfThen(ShowFileType, '.png');
+end;
+
+function TTilesManipulator.IsMonochrome(var ATileImg: TBGRABitmap): Boolean;
+var
+  ix, iy: Integer;
+  LPrevPixel, LCurrentPixel: TBGRAPixel;
+begin
+  Result := True;
+  for ix := 0 to Pred(ATileImg.Width) do
+  for iy := 0 to Pred(ATileImg.Height) do
+  begin
+    LCurrentPixel := ATileImg.GetPixel(ix, iy);;
+    if (ix = 0) and (iy = 0) then
+      LPrevPixel := LCurrentPixel;
+    if LPrevPixel <> LCurrentPixel then
+      Exit(False);
+    LPrevPixel := LCurrentPixel;
+  end;
+end;
+
+function TTilesManipulator.InMonochromes(var ATileImg: TBGRABitmap): Boolean;
+var
+  i: Integer;
+  LFirstTilePixel, LMonochromePixel: TBGRAPixel;
+begin
+  Result := False;
+
+  if (ATileImg.Width = 0) or (ATileImg.Height = 0) then
+    Exit;
+
+  LFirstTilePixel := ATileImg.GetPixel(0, 0);
+  for i := 0 to Pred(FMonochromes.Count) do
+  begin
+    LMonochromePixel := FMonochromes.Items[i];
+    if LMonochromePixel = LFirstTilePixel then
+      Exit(True);
+  end;
 end;
 
 procedure TTilesManipulator.ResizeIfNeeded(var ATileImg: TBGRABitmap);
@@ -632,11 +749,13 @@ begin
   inherited Create;
 
   FLayers := TLayers.Create(True);
+  FMonochromes := TMonochromes.Create;
   FUseOtherTileRes := defUseOtherTileRes;
   FPath := defPath;
   FShowFileType := defShowFileType;
   FSkipExisting := defSkipExisting;
   FSkipMissing := defSkipMissing;
+  FSkipMonochrome := defSkipMonochrome;
 end;
 
 destructor TTilesManipulator.Destroy;
@@ -644,6 +763,7 @@ begin
   inherited Destroy;
 
   FreeAndNil(FLayers);
+  FreeAndNil(FMonochromes);
 end;
 
 procedure TTilesManipulator.Download(const AZoom: Integer);
@@ -711,6 +831,11 @@ begin
               else
                 Layers[il].ResampleAndPaintTo(LBuffer);
             end;
+
+            if (SkipMonochrome) and (Monochromes.Count > 0) then
+              if IsMonochrome(LBuffer) and InMonochromes(LBuffer) then
+                raise ETMMonochrome.Create('');
+
             SaveTile(LBuffer, LSavePath);
             FreeAndNil(LBuffer);
           except
@@ -733,6 +858,12 @@ begin
                 WriteLn;
                 WriteLn('Error: ', E.Message);
                 Exit;
+              end;
+            on E: ETMMonochrome do
+              begin
+                if Assigned(LBuffer) then FreeAndNil(LBuffer);
+                WriteLn('! Skip monochrome tile');
+                Continue;
               end;
           end
         else

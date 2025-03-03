@@ -54,9 +54,10 @@ type
     destructor Destroy; override;
   public
     procedure WriteHelp;
-    function ImportProviders(AFilePath: String): Boolean;
-    function ImportLayers(ATilesManipulator: TTilesManipulator; AFilePath: String): Boolean;
     function ImportAreas(var AAreaArray: TAreaArray; AFilePath: String): Boolean;
+    function ImportLayers(ATilesManipulator: TTilesManipulator; AFilePath: String): Boolean;
+    function ImportMonochromes(ATilesManipulator: TTilesManipulator; AFilePath: String): Boolean;
+    function ImportProviders(AFilePath: String): Boolean;
   public
     property Providers: TProviders read FProviders write FProviders;
     property Filters  : TFilters   read FFilters   write FFilters;
@@ -337,6 +338,7 @@ type
       if okSkipMissing in glOptions then
         TilesManipulator.SkipMissing := True;
 
+      // skip-existing
       if okSkipExisting in glOptions then
         TilesManipulator.SkipExisting := True;
 
@@ -348,6 +350,17 @@ type
           on E: Exception do
             raise EOpTileRes.Create(E.Message);
         end;
+
+      // skip-monochrome
+      if okSkipMonochrome in glOptions then
+        TilesManipulator.SkipMonochrome := True;
+
+      // monochromes
+      if okMonochromes in glOptions then
+      begin
+        if not ImportMonochromes(TilesManipulator, OptionParameter[okMonochromes]) then
+          raise EOpMonochromes.Create('Error when processing monochromes.');
+      end;
 
       if LUseArea then
         TilesManipulator.Download(LMinZoom, LMaxZoom, LBottom, LTop, LLeft, LRight)
@@ -518,6 +531,48 @@ type
 
         LIniFile.EraseSection(_LayerSectionStr);
         LIniFile.ReadSection(_LayerSectionStr, LSection);
+      end;
+
+      LSection.Free;
+      LIniFile.Free;
+      LMemoryStream.Free;
+    except
+      on E: Exception do
+      begin
+        Result := False;
+        if Assigned(LSection) then FreeAndNil(LSection);
+        if Assigned(LIniFile) then FreeAndNil(LIniFile);
+        if Assigned(LMemoryStream) then FreeAndNil(LMemoryStream);
+        WriteLn(E.ClassName + ': ' + E.Message);
+      end;
+    end;
+  end;
+
+  function ATildy.ImportMonochromes(ATilesManipulator: TTilesManipulator;
+    AFilePath: String): Boolean;
+  const
+    _MonochromeSectionStr = 'Monochrome';
+  var
+    LIniFile: TMemIniFile = nil;
+    LSection: TStringList = nil;
+    LString: String;
+    LMemoryStream: TMemoryStream = nil;
+  begin
+    Result := True;
+    try
+      LMemoryStream := TMemoryStream.Create;
+      LMemoryStream.LoadFromFile(AFilePath);
+      LIniFile := TMemIniFile.Create(LMemoryStream);
+      LSection := TStringList.Create;
+
+      LIniFile.ReadSection(_MonochromeSectionStr, LSection);
+      while LSection.Count > 0 do
+      begin
+        LString := LIniFile.ReadString(_MonochromeSectionStr, 'Color', '');
+        ATilesManipulator.Monochromes.Add(LString);
+
+        LIniFile.EraseSection(_MonochromeSectionStr);
+        LIniFile.ReadSection(_MonochromeSectionStr, LSection);
       end;
 
       LSection.Free;
