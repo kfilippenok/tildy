@@ -25,10 +25,10 @@
 
 Choosing the provider that will provide the tiles. List of prepared providers: 
 
-* *osm-standard* - OpenStreetMap Standard
-* *railway-standard* - OpenRailwayMap Standard
-* *railway-maxspeed* - OpenRailwayMap Maxspeed
-* *railway-electrification* - OpenRailwayMap Electrification
+* `osm-standard` - OpenStreetMap Standard
+* `railway-standard` - OpenRailwayMap Standard
+* `railway-maxspeed` - OpenRailwayMap Maxspeed
+* `railway-electrification` - OpenRailwayMap Electrification
 
 Example:
 
@@ -41,17 +41,17 @@ Example:
 
 ### providers, ps [String]
 
-You can import your providers via the configuration file. Each provider starts with ``[Provider]``. 
+You can import your providers via the configuration file. Each provider starts with `[Provider]`. 
 
 Fields used:
 
-* *identifier* - the identifier to be used in layers or in *provider*
-* *name* - the name of the provider, which will then be used when substituting macros in *out*
-* *url* - a link with macros that will be used to get tiles.
-* *cache* - identical to the *cache* option, the path to the folder with cached tiles
-* *use-cache-only* - if ``yes`` is specified, then it will work only with the cache, in other cases it will not. by default, it works not only with the cache
+* `identifier` - the identifier to be used in layers or in *provider*
+* `name` - the name of the provider, which will then be used when substituting macros in *out*
+* `url` - a link with macros that will be used to get tiles.
+* `cache` - identical to the *cache* option, the path to the folder with cached tiles
+* `use-cache-only` - if ``yes`` is specified, then it will work only with the cache, in other cases it will not. by default, it works not only with the cache
 
-Example of a configuration file *custom_providers.ini*:
+Example of a configuration file `custom_providers.ini`:
 
 ```ini
 [Provider]
@@ -84,15 +84,15 @@ Example:
 
 ### layers, ls [String] 
 
-Using a configuration file with layers. The layers are tiles from selected providers. All the layers are superimposed on each other, eventually forming one single one. The layers are described in order from the bottom to the top. Each layer starts with ``[Layer]``. 
+Using a configuration file with layers. The layers are tiles from selected providers. All the layers are superimposed on each other, eventually forming one single one. The layers are described in order from the bottom to the top. Each layer starts with `[Layer]`. 
 
 Fields used:
 
-* *provider* - the provider used
-* *filter* - the filter used
-* *opacity* - opacity from 0 to 255, maximum by default
+* `provider` - the provider used
+* `filter` - the filter used
+* `opacity` - opacity from 0 to 255, maximum by default
 
-Example of a configuration file *layers.ini*:
+Example of a configuration file `layers.ini`:
 
 ```ini
 [Layer]
@@ -115,16 +115,16 @@ Example:
 
 ### areas, as [String] 
 
-Using a file with the specified areas for download. Each area starts with ``[Area]``. 
+Using a file with the specified areas for download. Each area starts with `[Area]`. 
 
 Fields used:
 
-* *left* - left boundary (minimum longitude)
-* *top* - upper boundary (maximum latitude)
-* *right* - right border (maximum longitude)
-* *bottom* - lower border (minimum latitude)
+* `left` - left boundary (minimum longitude)
+* `top` - upper boundary (maximum latitude)
+* `right` - right border (maximum longitude)
+* `bottom` - lower border (minimum latitude)
 
-Example of a configuration file *areas.ini*:
+Example of a configuration file `areas.ini`:
 
 ```ini
 # Moscow
@@ -172,16 +172,16 @@ Example:
 
 ### monochromes, ms [String] 
 
-Using a file with specified colors of monotonous tiles that should not be saved. Each color starts with ``[Monochrome]``. 
+Using a file with specified colors of monotonous tiles that should not be saved. Each color starts with `[Monochrome]`. 
 
 Fields used:
 
-* *color* - color in the following variations:
-	- #FFFFFF
-	- rgb(255, 255, 255)
-	- rgba(255, 255, 255, 255)
+* `color` - color in the following variations:
+	- `#FFFFFF`
+	- `rgb(255, 255, 255)`
+	- `rgba(255, 255, 255, 255)`
 
-Example of a configuration file *monochromes.ini*:
+Example of a configuration file `monochromes.ini`:
 
 ```ini
 [Monochrome]
@@ -210,10 +210,10 @@ The absolute or relative path for program output. You can use macros that will b
 
 Macros:
 
-* ``{p}`` - provider name
-* ``{z}`` - zoom
-* ``{x}`` - X of tile number
-* ``{y}`` - Y of tile number
+* `{p}` - provider name
+* `{z}` - zoom
+* `{x}` - X of tile number
+* `{y}` - Y of tile number
 
 Example:
 ```
@@ -236,10 +236,10 @@ The path to the folder with the provider's tiles that have already been download
 
 Macros:
 
-* ``{p}`` - provider name
-* ``{z}`` - zoom
-* ``{x}`` - X of tile number
-* ``{y}`` - Y of tile number
+* `{p}` - provider name
+* `{z}` - zoom
+* `{x}` - X of tile number
+* `{y}` - Y of tile number
 
 Example:
 ```
@@ -356,7 +356,7 @@ Setting the download area as in osmium. The following order is used:
 
 ### show-file-type, sft
 
-Enabling the display of the ``.png`` extension in the file name. The extension is always *PNG*.
+Enabling the display of the `.png` extension in the file name. The extension is always *PNG*.
 
 ****
 
@@ -368,9 +368,9 @@ Skipping missing tiles when received from the server.
 
 ### filter, f [String]
 
-Applying a filter to tiles from the ``provider``. List of prepared filters:
+Applying a filter to tiles from the *provider*. List of prepared filters:
 
-* *grayscale* - grayscale
+* `grayscale` - grayscale
 
 Example:
 ```
