@@ -152,6 +152,40 @@ Example:
 
 ****
 
+### monochromes, ms [String] 
+
+Using a file with specified colors of monotonous tiles that should not be saved. Each color starts with ``[Monochrome]``. 
+
+Fields used:
+
+* *color* - color in the following variations:
+	- #FFFFFF
+	- rgb(255, 255, 255)
+	- rgba(255, 255, 255, 255)
+
+Example of a configuration file *monochromes.ini*:
+
+```ini
+[Monochrome]
+color=#C9C9C9
+
+[Monochrome]
+color=rgb(255, 255, 255)
+
+[Monochrome]
+color=rgba(0, 0, 0, 255)
+```
+
+Example:
+```
+.. -monochromes monochromes.ini
+```
+```
+.. -ms monochromes.ini
+```
+
+****
+
 ### out, o [String] 
 
 The absolute or relative path for program output. You can use macros that will be replaced with real values when saved. If there are no folders in the path, they will be created.
