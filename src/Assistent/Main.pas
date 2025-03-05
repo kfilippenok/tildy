@@ -333,7 +333,7 @@ begin
       LStringList.Add('left=' + LAreaSelectionPlugin.SelectedArea.West.ToString);
       LStringList.Add('top=' + LAreaSelectionPlugin.SelectedArea.North.ToString);
       LStringList.Add('right=' + LAreaSelectionPlugin.SelectedArea.East.ToString);
-      LStringList.Add('bottom=' + LAreaSelectionPlugin.SelectedArea.North.ToString);
+      LStringList.Add('bottom=' + LAreaSelectionPlugin.SelectedArea.South.ToString);
       LStringList.Add('');
     end;
     LStringList.SaveToFile(SaveDialog.FileName);
