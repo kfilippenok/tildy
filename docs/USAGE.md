@@ -152,6 +152,24 @@ Example:
 
 ****
 
+### monochrome, m [String] 
+
+The color of monochroms tiles that should not be saved. Available variations:
+
+* `#FFFFFF`
+* `rgb(255, 255, 255)`
+* `rgba(255, 255, 255, 255)`
+
+Example:
+```
+.. -monochrome #FFFFFF
+```
+```
+.. -m #FFFFFF
+```
+
+****
+
 ### monochromes, ms [String] 
 
 Using a file with specified colors of monotonous tiles that should not be saved. Each color starts with ``[Monochrome]``. 

@@ -259,7 +259,6 @@ type
     property ShowFileType   : Boolean      read FShowFileType    write FShowFileType    default defShowFileType;
     property SkipExisting   : Boolean      read FSkipExisting    write FSkipExisting    default defSkipExisting;
     property SkipMissing    : Boolean      read FSkipMissing     write FSkipMissing     default defSkipMissing;
-    property SkipMonochrome : Boolean      read FSkipMonochrome  write FSkipMonochrome  default defSkipMonochrome;
     property TileRes        : Word         read FTileRes         write SetTileRes;
   end;
 
@@ -802,6 +801,8 @@ begin
   LTotalCount := CalcTotalTilesCount(LMainProjection, AMinZoom, AMaxZoom, AMinLatitude, AMaxLatitude, AMinLongitude, AMaxLongitude);
   LCurrentCount := 0;
 
+  FSkipMonochrome := Monochromes.Count > 0;
+
   for iz := AMinZoom to AMaxZoom do
   begin
     LZoomTotalCount := CalcZoomTilesCount(LMainProjection, iz, AMinLatitude, AMaxLatitude, AMinLongitude, AMaxLongitude);
@@ -832,9 +833,8 @@ begin
                 Layers[il].ResampleAndPaintTo(LBuffer);
             end;
 
-            if (SkipMonochrome) and (Monochromes.Count > 0) then
-              if IsMonochrome(LBuffer) and InMonochromes(LBuffer) then
-                raise ETMMonochrome.Create('');
+            if FSkipMonochrome and IsMonochrome(LBuffer) and InMonochromes(LBuffer) then
+              raise ETMMonochrome.Create('');
 
             SaveTile(LBuffer, LSavePath);
             FreeAndNil(LBuffer);

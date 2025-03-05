@@ -151,6 +151,7 @@ type
     LLeft, LTop, LRight, LBottom: Extended;
     LUseArea: Boolean = False;
     LUseRects: Boolean = False;
+    LUseMonochromes: Boolean = False;
     LAreaArray: TAreaArray;
     ia, LAreasCount: Integer;
     LProgramVersion: TProgramVersion;
@@ -311,6 +312,7 @@ type
       begin
         if LUseArea then
           raise EOpAreas.Create('Conflicting options are used to define the area.');
+        { #todo : Rename LUseRects to LUseAreas }
         LUseRects := True;
         SetLength(LAreaArray, 0);
         if not ImportAreas(LAreaArray, OptionParameter[okAreas]) then
@@ -351,15 +353,25 @@ type
             raise EOpTileRes.Create(E.Message);
         end;
 
-      // skip-monochrome
-      if okSkipMonochrome in glOptions then
-        TilesManipulator.SkipMonochrome := True;
-
-      // monochromes
+      // -monochromes
       if okMonochromes in glOptions then
       begin
+        LUseMonochromes := True;
         if not ImportMonochromes(TilesManipulator, OptionParameter[okMonochromes]) then
           raise EOpMonochromes.Create('Error when processing monochromes.');
+      end;
+
+      // -monochrome
+      if okMonochrome in glOptions then
+      begin
+        if LUseMonochromes then
+          raise EOpMonochrome.Create('Conflicting options (-monochromes) are used to define the area.');
+        try
+          TilesManipulator.Monochromes.Add(OptionParameter[okMonochrome]);
+        except
+          on E: Exception do
+            raise EOpMonochrome.Create(E.Message);
+        end;
       end;
 
       if LUseArea then

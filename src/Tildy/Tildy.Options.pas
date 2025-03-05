@@ -40,6 +40,7 @@ type
   EOpBoundingBox = class(EOption);
   EOpCache = class(EOption);
   EOpAreas = class(EOption);
+  EOpMonochrome = class(EOption);
   EOpMonochromes = class(EOption);
 
   TOptionKind = (okHelp,
@@ -63,7 +64,7 @@ type
                  okCache,
                  okUseCacheOnly,
                  okAreas,
-                 okSkipMonochrome,
+                 okMonochrome,
                  okMonochromes);
 
   TOptions = Set of TOptionKind;
@@ -97,7 +98,7 @@ begin
     okCache         : Exit('cache');
     okUseCacheOnly  : Exit('use-cache-only');
     okAreas         : Exit('areas');
-    okSkipMonochrome: Exit('skip-monochrome');
+    okMonochrome    : Exit('monochrome');
     okMonochromes   : Exit('monochromes');
   else
     Exit('unknown');
@@ -128,7 +129,7 @@ begin
     okCache         : Exit('c');
     okUseCacheOnly  : Exit('uco');
     okAreas         : Exit('as');
-    okSkipMonochrome: Exit('skmono');
+    okMonochrome    : Exit('m');
     okMonochromes   : Exit('ms');
   else
     Exit('unknown');
