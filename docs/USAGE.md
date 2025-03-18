@@ -360,7 +360,13 @@ Enabling the display of the `.png` extension in the file name. The extension is 
 
 ****
 
-### skip-missing, skeep
+### skip-existing, ske
+
+Skipping tiles that already exist on the disk when received from the server.
+
+****
+
+### skip-missing, skm
 
 Skipping missing tiles when received from the server.
 

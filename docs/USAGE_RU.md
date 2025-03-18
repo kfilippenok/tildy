@@ -360,7 +360,7 @@ tiles/{p}/{z}/{x}/{y}
 
 ### skip-existing, ske
 
-Skipping tiles that already exist on the disk when received from the server.
+Пропуск плиток, которые уже присутствуют в директории на диске.
 
 ****
 
