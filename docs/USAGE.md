@@ -407,3 +407,15 @@ Print program version in format:
 ``` 
 tildy [major].[minor]
 ```
+
+### help, h
+
+Show help.
+
+Example:
+```
+... -h
+```
+```
+... -help
+```

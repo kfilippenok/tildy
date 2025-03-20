@@ -429,11 +429,23 @@ type
     WriteLn('                                                     - railway-standard - OpenRailwayMap Standard');
     WriteLn('                                                     - railway-maxspeed - OpenRailwayMap Maxspeed');
     WriteLn('                                                     - railway-electrification - OpenRailwayMap Electrification');
-    WriteLn('    -providers,-ps             [String]            import providers from ini file.');
-    WriteLn('    -layers, -ls               [String]            use layers ini file. the following options are');
-    WriteLn('                                                   not taken into account when using:');
-    WriteLn('                                                     - filter');
-    WriteLn('                                                     - provider');
+    WriteLn('    -providers,-ps             [String]            import providers from ini file. read usage instructions.');
+    WriteLn('    -layers, -ls               [String]            use layers ini file. read usage instructions.');
+    WriteLn('    -areas, -as                [String]            use areas ini file. read usage instructions.');
+    WriteLn('    -monochrome, -m            [String]            color of monochrome tiles that should not be saved.');
+    WriteLn('    -monochromes, -ms          [String]            use monochromes ini file. read usage instructions.');
+    WriteLn('    -out, -o                   [String]            out path, default is current path in dir "tiles",');
+    WriteLn('                                                   support a pattern-generated path. keywords:');
+    WriteLn('                                                     - {p} - provider name');
+    WriteLn('                                                     - {x} - x number of tile');
+    WriteLn('                                                     - {y} - y number of tile');
+    WriteLn('                                                     - {z} - zoom number');
+    WriteLn('    -cache, -c                 [String]            path to the folder with the provider''s tiles that have already been downloaded. keywords:');
+    WriteLn('                                                     - {p} - provider name');
+    WriteLn('                                                     - {x} - x number of tile');
+    WriteLn('                                                     - {y} - y number of tile');
+    WriteLn('                                                     - {z} - zoom number');
+    WriteLn('    -use-cache-only, -uco        [x]               utility will only work with cached tiles.');
     WriteLn('    -min-zoom, -z         [Unsigned Integer]       lower zoom limit. the range is specific to each provider.');
     WriteLn('    -max-zoom, -Z         [Unsigned Integer]       highest zoom limit. the range is specific to each provider.');
     WriteLn('    -left, -l                  [Double]            left border of the downloaded area (longitude).');
@@ -441,16 +453,11 @@ type
     WriteLn('    -right, -r                 [Double]            right border of the downloaded area (longitude).');
     WriteLn('    -bottom, -b                [Double]            bottom border of the downloaded area (latitude).');
     WriteLn('    -bbox, -b       [Double,Double,Double,Double]  MinLon,MinLat,MaxLon,MaxLat.');
-    WriteLn('    -out, -o                   [String]            out path, default is current path in dir "tiles",');
-    WriteLn('                                                   support a pattern-generated path. keywords:');
-    WriteLn('                                                     - {p} - provider name');
-    WriteLn('                                                     - {x} - x number of tile');
-    WriteLn('                                                     - {y} - y number of tile');
-    WriteLn('                                                     - {z} - zoom number');
+    WriteLn('    -show-file-type, -sft        [x]               show file extension in filename.');
+    WriteLn('    -skip-existing, -ske         [x]               skipping tiles that already exist on the disk when received from the server');
+    WriteLn('    -skip-missing, -skm          [x]               skim missing tiles from provider.');
     WriteLn('    -filter, -f                [String]            applying a filter. available filters:');
     WriteLn('                                                     - grayscale');
-    WriteLn('    -skip-missing, -skip         [x]               show current help.');
-    WriteLn('    -show-file-type, -sft        [x]               show file extension in filename.');
     WriteLn('    -tile-res, -res       [Unsigned Integer]       resolution of the saved images.');
     WriteLn('    -version, -v                 [x]               show the version.');
     WriteLn('    -help, -h                    [x]               show current help.');
@@ -466,7 +473,7 @@ type
   var
     LIniFile: TMemIniFile = nil;
     LSection: TStringList = nil;
-    LIdent, LName, LURL, LCachePath, LUseCacheOnly: String;
+    LIdent, LName, LURL, LUseCacheOnly: String;
     LMemoryStream: TMemoryStream = nil;
     LLastProvider: Integer;
   begin
