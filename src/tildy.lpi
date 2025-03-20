@@ -63,6 +63,7 @@
     <RequiredPackages>
       <Item>
         <PackageName Value="BGRABitmapPack4NoGUI"/>
+        <MinVersion Major="11" Minor="6" Release="2" Valid="True"/>
       </Item>
     </RequiredPackages>
     <Units>
