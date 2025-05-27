@@ -576,8 +576,8 @@ object fMain: TfMain
             BorderSpacing.Top = 8
             BorderSpacing.Right = 8
             ItemHeight = 0
+            MultiSelect = True
             TabOrder = 1
-            OnClick = AreasListClick
             OnSelectionChange = AreasListSelectionChange
           end
           object btnEditArea: TSpeedButton

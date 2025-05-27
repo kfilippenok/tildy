@@ -110,10 +110,8 @@ type
     procedure actAreasImportExecute(Sender: TObject);
     procedure ActionsAreasUpdate(AAction: TBasicAction; var Handled: Boolean);
     procedure actStartStopExecute(Sender: TObject);
-    procedure AreasListClick(Sender: TObject);
     procedure AreasListSelectionChange(Sender: TObject; User: boolean);
     procedure btnAddLayerClick(Sender: TObject);
-    procedure btnDeleteAreaClick(Sender: TObject);
     procedure btnDeleteLayerClick(Sender: TObject);
     procedure btnEditAreaClick(Sender: TObject);
     procedure btnStartDownloadClick(Sender: TObject);
@@ -195,8 +193,13 @@ begin
 end;
 
 procedure TfMain.ActionsAreasUpdate(AAction: TBasicAction; var Handled: Boolean);
+var
+  LItemSelected: Boolean;
 begin
-  btnDeleteArea.Enabled := (AreasList.ItemIndex <> -1);
+  LItemSelected := (AreasList.ItemIndex <> -1);
+
+  btnDeleteArea.Enabled := LItemSelected;
+  btnEditArea.Enabled   := LItemSelected;
   AreasUpDown.Enabled := btnDeleteArea.Enabled and (AreasList.Count > 1);
   if AreasList.Count > 0 then
   begin
@@ -345,20 +348,21 @@ end;
 procedure TfMain.actAreasDeleteExecute(Sender: TObject);
 var
   LMvCustomPlugin: TMvCustomPlugin;
+  i: Integer;
 begin
   if AreasList.ItemIndex = FPrevAreaIndex.Value then
     FPrevAreaIndex.Clear;
 
-  LMvCustomPlugin := AreasList.Items.Objects[AreasList.ItemIndex] as TMvCustomPlugin;
-  MvPluginManager.PluginList.Delete(MvPluginManager.PluginList.IndexOf(LMvCustomPlugin));
-  AreasList.Items.Delete(AreasList.ItemIndex);
+  for i := AreasList.Count - 1 downto 0 do
+  begin
+    if not AreasList.Selected[i] then Continue;
+
+    LMvCustomPlugin := AreasList.Items.Objects[i] as TMvCustomPlugin;
+    MvPluginManager.PluginList.Delete(MvPluginManager.PluginList.IndexOf(LMvCustomPlugin));
+    AreasList.Items.Delete(i);
+  end;
 
   MapView.Refresh;
-end;
-
-procedure TfMain.AreasListClick(Sender: TObject);
-begin
-  SetEnableAreaConrols;
 end;
 
 procedure TfMain.AreasListSelectionChange(Sender: TObject; User: boolean);
@@ -386,21 +390,6 @@ begin
     ReloadLayersList;
   end;
   FreeAndNil(fAddLayers);
-end;
-
-procedure TfMain.btnDeleteAreaClick(Sender: TObject);
-var
-  LMvCustomPlugin: TMvCustomPlugin;
-begin
-  if AreasList.ItemIndex = FPrevAreaIndex.Value then
-    FPrevAreaIndex.Clear;
-
-  LMvCustomPlugin := AreasList.Items.Objects[AreasList.ItemIndex] as TMvCustomPlugin;
-  MvPluginManager.PluginList.Delete(MvPluginManager.PluginList.IndexOf(LMvCustomPlugin));
-  AreasList.Items.Delete(AreasList.ItemIndex);
-
-  MapView.Refresh;
-  SetEnableAreaConrols;
 end;
 
 procedure TfMain.btnDeleteLayerClick(Sender: TObject);

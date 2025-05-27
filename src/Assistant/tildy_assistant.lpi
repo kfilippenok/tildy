@@ -96,6 +96,7 @@
         <Filename Value="src/gui/dlgeditareaname.pas"/>
         <IsPartOfProject Value="True"/>
         <ComponentName Value="fEditAreaName"/>
+        <HasResources Value="True"/>
         <ResourceBaseClass Value="Form"/>
         <UnitName Value="DlgEditAreaName"/>
       </Unit>
