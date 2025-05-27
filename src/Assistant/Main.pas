@@ -34,37 +34,18 @@ type
     btnImportAreas: TSpeedButton;
     btnStartDownload: TButton;
     chkCache: TCheckBox;
-    chkShowCoordinates: TCheckBox;
-    chkConcreteZone: TCheckBox;
-    AreaCoordFirstLatitude: TLabeledEdit;
-    AreaCoordFirstLongitude: TLabeledEdit;
-    AreaCoordSecondLatitude: TLabeledEdit;
-    AreaCoordSecondLongitude: TLabeledEdit;
     AreasUpDown: TUpDown;
-    lblConcreteZone: TLabel;
+    ImagesDark: TImageList;
+    ImagesLight: TImageList;
     lblAreas: TLabel;
-    lblZoom: TLabel;
-    lblOther: TLabel;
     lblProviderMap: TLabel;
     lblCache: TLabel;
     lblLayers: TLabel;
-    lblDebugObjects: TLabel;
     LayersList: TCheckListBox;
     chShowFileType: TCheckBox;
     chkOutput: TCheckBox;
     chkProviderName: TCheckBox;
-    chkActive: TCheckBox;
-    chkCyclic: TCheckBox;
-    chkDoubleBuff: TCheckBox;
-    chkDebugTiles: TCheckBox;
-    chkPreviewTiles: TCheckBox;
-    chkUseThreads: TCheckBox;
-    chkZoomToCursor: TCheckBox;
     CoordSecondLatitude: TLabeledEdit;
-    lblCAreaMaxZoom: TLabel;
-    lblCAreaMaxZoomValue: TLabel;
-    lblCAreaMinZoom: TLabel;
-    lblCAreaMinZoomValue: TLabel;
     AreasList: TListBox;
     MapView: TMapView;
     miCoordinatesHelp: TMenuItem;
@@ -72,10 +53,8 @@ type
     MVDEFPC: TMVDEFPC;
     MvPluginManager: TMvPluginManager;
     OpenDialog: TOpenDialog;
-    panConcreteZone: TPanel;
     panAreas: TPanel;
-    panZoom: TPanel;
-    panOther: TPanel;
+    panOffsetBottom: TPanel;
     panProviderMap: TPanel;
     panCache: TPanel;
     panLayers: TPanel;
@@ -99,11 +78,11 @@ type
     ProcessTilesdownloader: TProcess;
     LayersUpDown: TUpDown;
     btnAddLayer: TSpeedButton;
-    btnCoordinateHelp: TSpeedButton;
     btnExportAreas: TSpeedButton;
     SaveDialog: TSaveDialog;
-    ZoomRange: TMultiSlider;
     panZoom2: TPanel;
+    btnEditArea: TSpeedButton;
+    ZoomRange: TMultiSlider;
     SaveMethodVariations: TComboBox;
     DirectoryCache: TDirectoryEdit;
     DirectoryOutput: TDirectoryEdit;
@@ -121,11 +100,10 @@ type
     mvScrollBox: TScrollBox;
     tdScrollBox: TScrollBox;
     Settings: TPageControl;
-    pageMapView: TTabSheet;
+    pageSettings: TTabSheet;
     pageTilesDownloader: TTabSheet;
     mvSsettings: TSplitter;
     optionsSoutlog: TSplitter;
-    ZoomCAreaRange: TMultiSlider;
     procedure actAreasAddExecute(Sender: TObject);
     procedure actAreasDeleteExecute(Sender: TObject);
     procedure actAreasExportExecute(Sender: TObject);
@@ -134,31 +112,18 @@ type
     procedure actStartStopExecute(Sender: TObject);
     procedure AreasListClick(Sender: TObject);
     procedure AreasListSelectionChange(Sender: TObject; User: boolean);
-    procedure btnAddAreaClick(Sender: TObject);
     procedure btnAddLayerClick(Sender: TObject);
     procedure btnDeleteAreaClick(Sender: TObject);
     procedure btnDeleteLayerClick(Sender: TObject);
     procedure btnEditAreaClick(Sender: TObject);
     procedure btnStartDownloadClick(Sender: TObject);
-    procedure chkActiveChange(Sender: TObject);
     procedure chkCacheChange(Sender: TObject);
-    procedure chkConcreteZoneChange(Sender: TObject);
-    procedure chkCyclicChange(Sender: TObject);
-    procedure chkDebugTilesChange(Sender: TObject);
-    procedure chkDoubleBuffChange(Sender: TObject);
     procedure chkOutputChange(Sender: TObject);
-    procedure chkPreviewTilesChange(Sender: TObject);
     procedure chkProviderNameChange(Sender: TObject);
-    procedure chkShowCoordinatesChange(Sender: TObject);
-    procedure chkUseThreadsChange(Sender: TObject);
-    procedure chkZoomToCursorChange(Sender: TObject);
-    procedure CoordChange(Sender: TObject);
     procedure DirectoryCacheChange(Sender: TObject);
     procedure FormActivate(Sender: TObject);
     procedure FormCreate(Sender: TObject);
-    procedure FormDestroy(Sender: TObject);
     procedure FullyOrPartiallySelect(Sender: TObject);
-    procedure panConcreteZoneResize(Sender: TObject);
     procedure groupCoordinatesResize(Sender: TObject);
     procedure LayersListClick(Sender: TObject);
     procedure LayersListClickCheck(Sender: TObject);
@@ -167,15 +132,9 @@ type
       State: TDragState; var Accept: Boolean);
     procedure MapViewCenterMoving(Sender: TObject; var NewCenter: TRealPoint;
       var Allow: Boolean);
-    procedure MapViewDrawGpsPoint(Sender: TObject;
-      ADrawer: TMvCustomDrawingEngine; APoint: TGpsPoint);
     procedure MapViewMouseMove(Sender: TObject; Shift: TShiftState; X,
       Y: Integer);
-    procedure MapViewMouseUp(Sender: TObject; Button: TMouseButton;
-      Shift: TShiftState; X, Y: Integer);
     procedure MapViewZoomChange(Sender: TObject);
-    procedure MapViewZoomChanging(Sender: TObject; NewZoom: Integer;
-      var Allow: Boolean);
     procedure miCoordinatesHelpClick(Sender: TObject);
     procedure PathExecutableChange(Sender: TObject);
     procedure PopupMapViewPopup(Sender: TObject);
@@ -183,25 +142,35 @@ type
     procedure LayersUpDownClick(Sender: TObject; Button: TUDBtnType);
     procedure btnCoordinateHelpClick(Sender: TObject);
     procedure ProviderVariationsMapSelect(Sender: TObject);
-    procedure ZoomRangePositionChange(Sender: TObject; AKind: TThumbKind;
-      AValue: Integer);
     procedure OnSelectedAreaBeginChange(Sender: TObject);
-  private
-    BMP_FC, BMP_SC: TPicture;
-    FirstCoordinate, SecondCoordinate: TGpsPoint;
-    ShowCoordinates: Boolean;
+  strict private
     SelectedCoordinates: TGPSObjarray;
     FConcreteArea: TRealArea;
     FPluginCount: Integer;
     FPrevAreaIndex: TNullableInt;
+    function GetImagesCurrent: TImageList;
     procedure ReloadLayersList;
     procedure SetEnableAreaConrols;
-  public
-
+    function IsDarkTheme: Boolean;
+  published
+    property ImagesCurrent: TImageList read GetImagesCurrent;
   end;
 
 const
+  { MapView groups }
   _CLICKED_POINTS_ = 10;
+
+  { Image indexes of buttons }
+  ImgIndAdd         = 0;
+  ImgIndRemove      = 1;
+  ImgIndEdit        = 2;
+  ImgIndEditOff     = 3;
+  ImgIndFileOpen    = 4;
+  ImgIndFileSave    = 5;
+  ImgIndFileSaveOff = 6;
+  ImgIndFolderOpen  = 7;
+  ImgIndApply       = 8;
+  ImgIndClose       = 9;
 
 var
   fMain: TfMain;
@@ -211,7 +180,7 @@ implementation
 {$R *.lfm}
 
 uses
-  IniFiles;
+  IniFiles, DlgEditAreaName;
 
 { TfMain }
 
@@ -229,7 +198,16 @@ procedure TfMain.ActionsAreasUpdate(AAction: TBasicAction; var Handled: Boolean)
 begin
   btnDeleteArea.Enabled := (AreasList.ItemIndex <> -1);
   AreasUpDown.Enabled := btnDeleteArea.Enabled and (AreasList.Count > 1);
-  btnExportAreas.Enabled := AreasList.Count > 0;
+  if AreasList.Count > 0 then
+  begin
+    btnExportAreas.Enabled := True;
+    btnExportAreas.ImageIndex := ImgIndFileSave;
+  end
+  else
+  begin
+    btnExportAreas.Enabled := False;
+    btnExportAreas.ImageIndex := ImgIndFileSaveOff;
+  end;
 
   Handled := True;
 end;
@@ -245,6 +223,7 @@ var
   LAllValuesExists: Boolean = False;
   LStringList: TStringList = nil;
   LRealAreaArray: array of TRealArea;
+  LNameArray: array of String;
   LAreaSelectionPlugin: TAreaSelectionPlugin;
   i: Integer;
 begin
@@ -263,15 +242,19 @@ begin
       while LSection.Count > 0 do
       begin
         Inc(LCount);
-        LStringList.Add(LCount.ToString);
         SetLength(LRealAreaArray, LCount);
-        LAllValuesExists := (LIniFile.ValueExists(_SectionStr, 'left')
+        SetLength(LNameArray    , LCount);
+        LAllValuesExists :=  LIniFile.ValueExists(_SectionStr, 'left')
                          and LIniFile.ValueExists(_SectionStr, 'top')
                          and LIniFile.ValueExists(_SectionStr, 'right')
-                         and LIniFile.ValueExists(_SectionStr, 'bottom'));
+                         and LIniFile.ValueExists(_SectionStr, 'bottom');
         if not LAllValuesExists then
           raise Exception.Create(_SectionStr + ' number ' + LCount.ToString + ' has not all values');
 
+        if LIniFile.ValueExists(_SectionStr, 'name') then
+          LStringList.Add(LIniFile.ReadString(_SectionStr, 'name', ''))
+        else
+          LStringList.Add(String.Empty);
         LRealAreaArray[LCount-1].TopLeft.Lon := LIniFile.ReadFloat(_SectionStr, 'left', 0.0);
         LRealAreaArray[LCount-1].TopLeft.Lat := LIniFile.ReadFloat(_SectionStr, 'top', 0.0);
         LRealAreaArray[LCount-1].BottomRight.Lon := LIniFile.ReadFloat(_SectionStr, 'right', 0.0);
@@ -297,7 +280,11 @@ begin
           LAreaSelectionPlugin.MapView := MapView;
           LAreaSelectionPlugin.OnSelectedAreaBeginChange := @OnSelectedAreaBeginChange;
           LAreaSelectionPlugin.SelectedArea.Area := LRealAreaArray[i];
-          AreasList.AddItem(LStringList[i], LAreaSelectionPlugin);
+          if LStringList[i].IsEmpty then
+            LAreaSelectionPlugin.Caption := 'Area' + i.ToString
+          else
+            LAreaSelectionPlugin.Caption := LStringList[i];
+          AreasList.AddItem(LAreaSelectionPlugin.Caption, LAreaSelectionPlugin);
         end;
       end;
     except
@@ -330,6 +317,7 @@ begin
     begin
       LStringList.Add(_SectionStr);
       LAreaSelectionPlugin := AreasList.Items.Objects[i] as TAreaSelectionPlugin;
+      LStringList.Add('name=' + LAreaSelectionPlugin.Caption);
       LStringList.Add('left=' + LAreaSelectionPlugin.SelectedArea.West.ToString);
       LStringList.Add('top=' + LAreaSelectionPlugin.SelectedArea.North.ToString);
       LStringList.Add('right=' + LAreaSelectionPlugin.SelectedArea.East.ToString);
@@ -350,7 +338,8 @@ begin
   LAreaSelectPlugin.MapView := MapView;
   LAreaSelectPlugin.OnSelectedAreaBeginChange := @OnSelectedAreaBeginChange;
   Inc(FPluginCount);
-  AreasList.AddItem(FPluginCount.ToString, LAreaSelectPlugin);
+  LAreaSelectPlugin.Caption := 'Area' + FPluginCount.ToString;
+  AreasList.AddItem(LAreaSelectPlugin.Caption, LAreaSelectPlugin);
 end;
 
 procedure TfMain.actAreasDeleteExecute(Sender: TObject);
@@ -389,18 +378,6 @@ begin
   FPrevAreaIndex := AreasList.ItemIndex;
 end;
 
-procedure TfMain.btnAddAreaClick(Sender: TObject);
-var
-  LAreaSelectPlugin: TAreaSelectionPlugin;
-begin
-  LAreaSelectPlugin := TAreaSelectionPlugin.Create(MvPluginManager);
-  LAreaSelectPlugin.MapView := MapView;
-  Inc(FPluginCount);
-  AreasList.AddItem(FPluginCount.ToString, LAreaSelectPlugin);
-
-  SetEnableAreaConrols;
-end;
-
 procedure TfMain.btnAddLayerClick(Sender: TObject);
 begin
   fAddLayers := TfAddLayers.CreateEx(MapView);
@@ -435,18 +412,16 @@ begin
 end;
 
 procedure TfMain.btnEditAreaClick(Sender: TObject);
-var
-  LMvCustomPlugin: TMvCustomPlugin;
 begin
-  if AreasList.ItemIndex = FPrevAreaIndex.Value then
-    FPrevAreaIndex.Clear;
-
-  LMvCustomPlugin := AreasList.Items.Objects[AreasList.ItemIndex] as TMvCustomPlugin;
-  MvPluginManager.PluginList.Delete(MvPluginManager.PluginList.IndexOf(LMvCustomPlugin));
-  AreasList.Items.Delete(AreasList.ItemIndex);
-
-  MapView.Refresh;
-  SetEnableAreaConrols;
+  fEditAreaName.AreaName := AreasList.Items[AreasList.ItemIndex];
+  fEditAreaName.ShowModal;
+  if fEditAreaName.ModalResult = mrOK then
+  begin
+    AreasList.Items[AreasList.ItemIndex] := fEditAreaName.AreaName;
+    try
+      (AreasList.Items.Objects[AreasList.ItemIndex] as TAreaSelectionPlugin).Caption := fEditAreaName.AreaName;
+    finally end;
+  end;
 end;
 
 procedure TfMain.btnStartDownloadClick(Sender: TObject);
@@ -480,11 +455,6 @@ begin
     'pattern': ProcessTilesdownloader.Parameters.Add('-save-method pattern ' + '-divider ' + edDivider.Text);
   end;
 
-  // -min-zoom
-  ProcessTilesdownloader.Parameters.Add('-min-zoom ' + ZoomRange.MinPosition.ToString);
-  // max zoom
-  ProcessTilesdownloader.Parameters.Add('-max-zoom ' + ZoomRange.MaxPosition.ToString);
-
   // coordinates or full-map
   StrVariation := FullyOrPartially.Items[FullyOrPartially.ItemIndex];
   case StrVariation of
@@ -495,11 +465,6 @@ begin
   ProcessTilesdownloader.Execute;
 
   ConsoleOutput.Lines.LoadFromStream(ProcessTilesdownloader.Output);
-end;
-
-procedure TfMain.chkActiveChange(Sender: TObject);
-begin
-  MapView.Active := chkActive.Checked;
 end;
 
 procedure TfMain.chkCacheChange(Sender: TObject);
@@ -519,131 +484,14 @@ begin
   MapView.Invalidate;
 end;
 
-procedure TfMain.chkConcreteZoneChange(Sender: TObject);
-var
-  FirstLat, FirstLon, SecondLat, SecondLon: Extended;
-begin
-  if chkConcreteZone.Checked then
-  begin
-    FirstLat  := StrToFloat(AreaCoordFirstLatitude.Text);
-    FirstLon  := StrToFloat(AreaCoordFirstLongitude.Text);
-    SecondLat := StrToFloat(AreaCoordSecondLatitude.Text);
-    SecondLon := StrToFloat(AreaCoordSecondLongitude.Text);
-    FConcreteArea.Init(FirstLon, FirstLat, SecondLon, SecondLat);
-    MapView.Zoom := ZoomCAreaRange.MinPosition;
-    MapView.MapCenter.Latitude := (FirstLat + SecondLat) / 2;
-    MapView.MapCenter.Longitude := (FirstLon + SecondLon) / 2;
-  end
-  else
-  begin
-    MapView.OnZoomChanging := nil;
-    MapView.OnCenterMoving := nil;
-  end;
-end;
-
-procedure TfMain.chkCyclicChange(Sender: TObject);
-begin
-  MapView.Cyclic := chkCyclic.Checked;
-end;
-
-procedure TfMain.chkDebugTilesChange(Sender: TObject);
-begin
-  MapView.DebugTiles := chkDebugTiles.Checked;
-end;
-
-procedure TfMain.chkDoubleBuffChange(Sender: TObject);
-begin
-  MapView.DoubleBuffered := chkDoubleBuff.Checked;
-end;
-
 procedure TfMain.chkOutputChange(Sender: TObject);
 begin
   DirectoryOutput.Enabled := chkOutput.Checked;
 end;
 
-procedure TfMain.chkPreviewTilesChange(Sender: TObject);
-begin
-  MapView.DrawPreviewTiles := chkPreviewTiles.Checked;
-end;
-
 procedure TfMain.chkProviderNameChange(Sender: TObject);
 begin
   ProviderName.Enabled := chkProviderName.Checked;
-end;
-
-procedure TfMain.chkShowCoordinatesChange(Sender: TObject);
-begin
-  ShowCoordinates := chkShowCoordinates.Checked;
-  FirstCoordinate.Visible := ShowCoordinates;
-  SecondCoordinate.Visible := ShowCoordinates;
-  MapView.Refresh;
-end;
-
-procedure TfMain.chkUseThreadsChange(Sender: TObject);
-begin
-  MapView.UseThreads := chkUseThreads.Checked;
-end;
-
-procedure TfMain.chkZoomToCursorChange(Sender: TObject);
-begin
-  MapView.ZoomToCursor := chkZoomToCursor.Checked;
-end;
-
-procedure TfMain.CoordChange(Sender: TObject);
-
-  function _TryTextToDouble(var DoubleVar: Extended; Text: String): Boolean;
-  begin
-    try
-      DoubleVar := StrToFloat(Text);
-      Result := True;
-    except
-      on E: EConvertError do
-      begin
-        Result := False;
-      end;
-    end;
-  end;
-
-var
-  FirstLat, FirstLon, SecondLat, SecondLon: Extended;
-
-  function _FieldsConverts: Boolean;
-  begin
-    Result := True;
-    try
-      FirstLat  := StrToFloat(AreaCoordFirstLatitude.Text);
-      FirstLon  := StrToFloat(AreaCoordFirstLongitude.Text);
-      SecondLat := StrToFloat(AreaCoordSecondLatitude.Text);
-      SecondLon := StrToFloat(AreaCoordSecondLongitude.Text);
-    except
-      on E: EConvertError do
-      begin
-        Exit(False);
-      end;
-    end;
-  end;
-
-  function _ValuesCorrect: Boolean;
-  begin
-    Result := (FirstLat > SecondLat) and (FirstLon < SecondLon)
-  end;
-
-begin
-  if not _FieldsConverts then
-  begin
-    chkShowCoordinates.Enabled := False;
-    chkConcreteZone.Enabled := False;
-    Exit;
-  end;
-  chkConcreteZone.Enabled := _ValuesCorrect;
-  chkShowCoordinates.Enabled := chkConcreteZone.Enabled;
-  if chkConcreteZone.Enabled then
-  begin
-    FirstCoordinate.Lon := FirstLon;
-    FirstCoordinate.Lat := FirstLat;
-    SecondCoordinate.Lon := SecondLon;
-    SecondCoordinate.Lat := SecondLat;
-  end;
 end;
 
 procedure TfMain.DirectoryCacheChange(Sender: TObject);
@@ -654,50 +502,28 @@ end;
 
 procedure TfMain.FormActivate(Sender: TObject);
 begin
-  chkActiveChange(nil);
-  chkCyclicChange(nil);
-  chkDebugTilesChange(nil);
-  chkDoubleBuffChange(nil);
-  chkPreviewTilesChange(nil);
-  chkUseThreadsChange(nil);
-  chkZoomToCursorChange(nil);
-
-  if (MapView.GPSItems.IndexOf(FirstCoordinate) = -1) and (MapView.GPSItems.IndexOf(SecondCoordinate) = -1) then
-  begin
-    SetLength(SelectedCoordinates, 0);
-    FirstCoordinate  := TGpsPoint.Create(StrToFloat(AreaCoordFirstLongitude.Text), StrToFloat(AreaCoordFirstLatitude.Text));
-    SecondCoordinate := TGpsPoint.Create(StrToFloat(AreaCoordSecondLongitude.Text), StrToFloat(AreaCoordSecondLatitude.Text));
-    CoordChange(nil);
-    ShowCoordinates := chkShowCoordinates.Checked;
-    FirstCoordinate.Visible := ShowCoordinates;
-    SecondCoordinate.Visible := ShowCoordinates;
-    MapView.GPSItems.Add(FirstCoordinate, _CLICKED_POINTS_);
-    MapView.GPSItems.Add(SecondCoordinate, _CLICKED_POINTS_);
-  end;
-
-
   MapView.GetMapProviders(ProviderVariationsMap.Items);
   MapView.GetMapProviders(ProviderVariationsTiles.Items);
   ReloadLayersList;
-
-  // This is necessary so that the slider does not run away to the side.
-  // The problem is in the component, but at the moment it's like a temporary solution.
-  ZoomCAreaRange.MinPosition := 6;
-  ZoomCAreaRange.MaxPosition := 13;
 end;
 
 procedure TfMain.FormCreate(Sender: TObject);
+var
+  LImages: TImageList;
 begin
-  BMP_FC := TPicture.Create; BMP_FC.LoadFromFile('img' + PathDelim + 'first_coordinate.png');
-  BMP_SC := TPicture.Create; BMP_SC.LoadFromFile('img' + PathDelim + 'second_coordinate.png');
+  FormatSettings.DecimalSeparator := '.';
   FPluginCount := 0;
   FPrevAreaIndex.Clear;
-end;
 
-procedure TfMain.FormDestroy(Sender: TObject);
-begin
-  if Assigned(BMP_FC) then BMP_FC.Free;
-  if Assigned(BMP_SC) then BMP_SC.Free;
+  { Setting Imagages depend on system theme }
+  LImages := ImagesCurrent;
+  btnAddLayer.Images    := LImages;
+  btnDeleteLayer.Images := LImages;
+  btnAddArea.Images     := LImages;
+  btnDeleteArea.Images  := LImages;
+  btnExportAreas.Images := LImages;
+  btnImportAreas.Images := LImages;
+  btnEditArea.Images    := LImages;
 end;
 
 procedure TfMain.FullyOrPartiallySelect(Sender: TObject);
@@ -718,12 +544,6 @@ begin
         CoordSecondLongtitude.Enabled := True;
       end;
   end;
-end;
-
-procedure TfMain.panConcreteZoneResize(Sender: TObject);
-begin
-  AreaCoordFirstLatitude.Width := Trunc(panConcreteZone.Width / 2) - 3;
-  AreaCoordSecondLatitude.Width := Trunc(panConcreteZone.Width / 2) - 2;
 end;
 
 procedure TfMain.groupCoordinatesResize(Sender: TObject);
@@ -783,30 +603,6 @@ begin
   Allow := True;
 end;
 
-procedure TfMain.MapViewDrawGpsPoint(Sender: TObject;
-  ADrawer: TMvCustomDrawingEngine; APoint: TGpsPoint);
-var
-  P: TPoint;
-  LeftShift, TopShift: Integer;
-begin
-  P := TMapView(Sender).LatLonToScreen(APoint.RealPoint);
-
-  if APoint = FirstCoordinate then
-  begin
-    if not Assigned(BMP_FC) then Exit;
-    LeftShift := Trunc(BMP_FC.Bitmap.Width / 2);
-    TopShift := Trunc(BMP_FC.Bitmap.Height / 2);
-    ADrawer.DrawBitmap(P.X - LeftShift, P.Y - TopShift, BMP_FC.Bitmap, True);
-  end
-  else if APoint = SecondCoordinate then
-  begin
-    if not Assigned(BMP_SC) then Exit;
-    LeftShift := Trunc(BMP_SC.Bitmap.Width / 2);
-    TopShift := Trunc(BMP_SC.Bitmap.Height / 2);
-    ADrawer.DrawBitmap(P.X - LeftShift, P.Y - TopShift, BMP_SC.Bitmap, True);
-  end;
-end;
-
 procedure TfMain.MapViewMouseMove(Sender: TObject; Shift: TShiftState; X,
   Y: Integer);
 var
@@ -818,48 +614,11 @@ begin
   LRealPoint := MapView.Engine.ScreenToLatLon(LPoint);
   lblDebugLat.Caption := 'Lat: ' + Format('%13.10f', [LRealPoint.Lat]);
   lblDebugLon.Caption := 'Lon: ' + Format('%14.10f', [LRealPoint.Lon]);
-
-  lblDebugObjects.Caption := 'GpsObjs: ' + MapView.GPSItems.Count.ToString;
-
-  SelectedCoordinates := MapView.ObjsAtScreenPt(X, Y, 10);
-
-  lblDebugObjects.Caption := lblDebugObjects.Caption + ' CursorObjs: ' + (Length(SelectedCoordinates)).ToString;
-  if Length(SelectedCoordinates) > 0 then
-  begin
-    lblDebugObjects.Caption := lblDebugObjects.Caption + ' = ';
-    for i := 0 to Length(SelectedCoordinates)-1 do
-    begin
-      if SelectedCoordinates[i] = FirstCoordinate then
-        lblDebugObjects.Caption := lblDebugObjects.Caption + 'FirstCoordinate '
-      else
-      if SelectedCoordinates[i] = SecondCoordinate then
-        lblDebugObjects.Caption := lblDebugObjects.Caption + 'SecondCoordinate'
-    end;
-  end;
-end;
-
-procedure TfMain.MapViewMouseUp(Sender: TObject; Button: TMouseButton;
-  Shift: TShiftState; X, Y: Integer);
-begin
-  if Length(SelectedCoordinates) > 0 then
-  if (SelectedCoordinates[0] = FirstCoordinate) or (SelectedCoordinates[0] = SecondCoordinate) then
-     fCoordinatesHelp.ShowModal;
 end;
 
 procedure TfMain.MapViewZoomChange(Sender: TObject);
 begin
   lblDebugZoom.Caption := 'Zoom: ' + MapView.Zoom.ToString;
-end;
-
-procedure TfMain.MapViewZoomChanging(Sender: TObject; NewZoom: Integer;
-  var Allow: Boolean);
-begin
-
-
-  if chkConcreteZone.Checked then
-    Allow := (NewZoom >= ZoomCAreaRange.MinPosition) and (NewZoom <= ZoomCAreaRange.MaxPosition)
-  else
-    Allow := True;
 end;
 
 procedure TfMain.miCoordinatesHelpClick(Sender: TObject);
@@ -889,7 +648,8 @@ procedure TfMain.ProviderVariationsMapChange(Sender: TObject);
 begin
   with ProviderVariationsMap do
     MapView.MapProvider := Items[ItemIndex];
-  chkActive.Enabled := True;
+  MapView.OnMouseMove := @MapViewMouseMove;
+  MapView.Active := True;
 end;
 
 procedure TfMain.LayersUpDownClick(Sender: TObject; Button: TUDBtnType);
@@ -928,16 +688,6 @@ begin
   MapView.Active := True;
 end;
 
-procedure TfMain.ZoomRangePositionChange(Sender: TObject; AKind: TThumbKind;
-  AValue: Integer);
-begin
-  case AKind of
-    tkMin: lblCAreaMinZoomValue.Caption := AValue.ToString;
-    tkMax: lblCAreaMaxZoomValue.Caption := AValue.ToString;
-  else
-  end;
-end;
-
 procedure TfMain.OnSelectedAreaBeginChange(Sender: TObject);
 var
   LAreaSelectPlugin: TAreaSelectionPlugin;
@@ -963,11 +713,34 @@ begin
   end;
 end;
 
-procedure TfMain.SetEnableAreaConrols;
+function TfMain.GetImagesCurrent: TImageList;
 begin
-  btnDeleteArea.Enabled := (AreasList.ItemIndex <> -1);
+  if IsDarkTheme then
+    Result := ImagesDark
+  else
+    Result := ImagesLight;
+end;
+
+procedure TfMain.SetEnableAreaConrols;
+var
+  LItemSelected: Boolean;
+begin
+  LItemSelected := (AreasList.ItemIndex <> -1);
+
+  btnDeleteArea.Enabled := LItemSelected;
+  btnEditArea.Enabled   := LItemSelected;
   AreasUpDown.Enabled := btnDeleteArea.Enabled and (AreasList.Count > 1);
-  btnExportAreas.Enabled := AreasList.Count > 0;
+end;
+
+// by "Hansaplast" & "Alextp" from Lazarus forum
+// source: https://wiki.freepascal.org/Dark_theme#:~:text=%3B%0Aend%3B-,Example%202,-//%20by%20%22Hansaplast%22%20%26%20%22Alextp
+function TfMain.IsDarkTheme: Boolean;
+  function _Level(C: TColor): double;
+  begin
+    Result:= Red(C)*0.3 + Green(C)*0.59 + Blue(C)*0.11;
+  end;
+begin
+  Result:= _Level(ColorToRGB(clWindow)) < _Level(ColorToRGB(clWindowText));
 end;
 
 end.

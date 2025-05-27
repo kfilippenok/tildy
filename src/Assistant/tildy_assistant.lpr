@@ -10,7 +10,7 @@ uses
   athreads,
   {$ENDIF}
   Interfaces, // this includes the LCL widgetset
-  Forms, Main, DlgAddLayers, DlgCoordinatesHelp;
+  Forms, Main, DlgAddLayers, DlgEditAreaName;
 
 {$R *.res}
 
@@ -20,7 +20,7 @@ begin
   Application.{%H-}MainFormOnTaskbar:=True;
   Application.Initialize;
   Application.CreateForm(TfMain, fMain);
-  Application.CreateForm(TfCoordinatesHelp, fCoordinatesHelp);
+  Application.CreateForm(TfEditAreaName, fEditAreaName);
   Application.Run;
 end.
 
