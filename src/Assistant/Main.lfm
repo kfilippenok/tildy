@@ -7,7 +7,6 @@ object fMain: TfMain
   ClientHeight = 1148
   ClientWidth = 1678
   Color = clForm
-  DesignTimePPI = 144
   Position = poDesktopCenter
   OnActivate = FormActivate
   OnCreate = FormCreate
@@ -101,7 +100,6 @@ object fMain: TfMain
             Anchors = [akTop, akLeft, akRight, akBottom]
             BorderSpacing.Top = 8
             BorderSpacing.Right = 8
-            BorderStyle = bsNone
             DragMode = dmAutomatic
             ItemHeight = 0
             ParentFont = False
@@ -406,6 +404,7 @@ object fMain: TfMain
             Min = 0
             Position = 0
             TabOrder = 0
+            OnClick = AreasUpDownClick
           end
           object btnAddArea: TSpeedButton
             AnchorSideTop.Control = AreasList

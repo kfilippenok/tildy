@@ -13,10 +13,10 @@ type
   { TfAddLayers }
 
   TfAddLayers = class(TForm)
-    btnAdd: TBitBtn;
-    btnCancel: TBitBtn;
     ProvidersList: TListBox;
     panControl: TPanel;
+    btnAdd: TSpeedButton;
+    btnCancel: TSpeedButton;
     procedure btnAddClick(Sender: TObject);
     procedure btnCancelClick(Sender: TObject);
   private
@@ -39,14 +39,6 @@ begin
   Self.Close;
 end;
 
-constructor TfAddLayers.CreateEx(AMapView: TMapView);
-begin
-  inherited Create(Application);
-
-  MapView := AMapView;
-  MapView.GetMapProviders(ProvidersList.Items);
-end;
-
 procedure TfAddLayers.btnAddClick(Sender: TObject);
 var
   i: Integer;
@@ -63,6 +55,15 @@ begin
       LMapLayer.Visible := True;
     end;
   end;
+  Self.ModalResult := mrOK;
+end;
+
+constructor TfAddLayers.CreateEx(AMapView: TMapView);
+begin
+  inherited Create(Application);
+
+  MapView := AMapView;
+  MapView.GetMapProviders(ProvidersList.Items);
 end;
 
 end.

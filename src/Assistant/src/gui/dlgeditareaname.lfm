@@ -7,8 +7,8 @@ object fEditAreaName: TfEditAreaName
   Caption = 'Edit Area name'
   ClientHeight = 196
   ClientWidth = 527
-  DesignTimePPI = 144
   Position = poOwnerFormCenter
+  LCLVersion = '4.99.0.0'
   OnCreate = FormCreate
   object edAreaName: TEdit
     AnchorSideLeft.Control = Owner

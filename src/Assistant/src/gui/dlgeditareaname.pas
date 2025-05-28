@@ -54,13 +54,12 @@ end;
 
 procedure TfEditAreaName.btnCloseClick(Sender: TObject);
 begin
-  fEditAreaName.Close;
+  Self.Close;
 end;
 
 procedure TfEditAreaName.btnApplyClick(Sender: TObject);
 begin
-  fEditAreaName.Close;
-  ModalResult := mrOK;
+  Self.ModalResult := mrOK;
 end;
 
 procedure TfEditAreaName.SetAreaName(AAreaName: String);

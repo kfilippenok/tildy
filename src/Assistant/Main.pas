@@ -111,6 +111,7 @@ type
     procedure ActionsAreasUpdate(AAction: TBasicAction; var Handled: Boolean);
     procedure actStartStopExecute(Sender: TObject);
     procedure AreasListSelectionChange(Sender: TObject; User: boolean);
+    procedure AreasUpDownClick(Sender: TObject; Button: TUDBtnType);
     procedure btnAddLayerClick(Sender: TObject);
     procedure btnDeleteLayerClick(Sender: TObject);
     procedure btnEditAreaClick(Sender: TObject);
@@ -382,10 +383,78 @@ begin
   FPrevAreaIndex := AreasList.ItemIndex;
 end;
 
+procedure TfMain.AreasUpDownClick(Sender: TObject; Button: TUDBtnType);
+
+  procedure _MoveNextAreaSelectionPlugin(AAreaSelectionPlugin: TAreaSelectionPlugin);
+  var
+    LCurPluginPos: Integer;
+    i: Integer;
+    NextAreaSelectionPlugin: TAreaSelectionPlugin = nil;
+  begin
+    LCurPluginPos := MvPluginManager.PluginList.IndexOf(AAreaSelectionPlugin);
+    for i := LCurPluginPos to MvPluginManager.PluginList.Count - 1 do
+    if MvPluginManager.PluginList[i] is TAreaSelectionPlugin then
+    begin
+      NextAreaSelectionPlugin := MvPluginManager.PluginList[i] as TAreaSelectionPlugin;
+      break;
+    end;
+    if not Assigned(NextAreaSelectionPlugin) then Exit;
+    MvPluginManager.PluginList.Move(LCurPluginPos, i);
+  end;
+
+  procedure _MovePrevAreaSelectionPlugin(AAreaSelectionPlugin: TAreaSelectionPlugin);
+  var
+    LCurPluginPos: Integer;
+    i: Integer;
+    PrevAreaSelectionPlugin: TAreaSelectionPlugin = nil;
+  begin
+    LCurPluginPos := MvPluginManager.PluginList.IndexOf(AAreaSelectionPlugin);
+    for i := LCurPluginPos downto 0 do
+    if MvPluginManager.PluginList[i] is TAreaSelectionPlugin then
+    begin
+      PrevAreaSelectionPlugin := MvPluginManager.PluginList[i] as TAreaSelectionPlugin;
+      break;
+    end;
+    if not Assigned(PrevAreaSelectionPlugin) then Exit;
+    MvPluginManager.PluginList.Move(LCurPluginPos, i);
+  end;
+
+var
+  LNewStringPos: Integer;
+  LAreaSelectionPlugin: TAreaSelectionPlugin;
+begin
+  if AreasList.ItemIndex = -1 then Exit;
+
+  case Button of
+    btPrev:
+      begin
+        if (AreasList.ItemIndex = (AreasList.Count - 1)) then Exit;
+        { Move plugin first }
+        LAreaSelectionPlugin := AreasList.Items.Objects[AreasList.ItemIndex] as TAreaSelectionPlugin;
+        _MoveNextAreaSelectionPlugin(LAreaSelectionPlugin);
+        { Move item in AreasList then }
+        LNewStringPos := AreasList.ItemIndex + 1;
+        AreasList.Items.Move(AreasList.ItemIndex, LNewStringPos);
+        AreasList.ItemIndex := LNewStringPos;
+      end;
+    btNext:
+      begin
+        if (AreasList.ItemIndex = 0) then Exit;
+        { Move plugin first }
+        LAreaSelectionPlugin := AreasList.Items.Objects[AreasList.ItemIndex] as TAreaSelectionPlugin;
+        _MovePrevAreaSelectionPlugin(LAreaSelectionPlugin);
+        { Move item in AreasList then }
+        LNewStringPos := AreasList.ItemIndex - 1;
+        AreasList.Items.Move(AreasList.ItemIndex, LNewStringPos);
+        AreasList.ItemIndex := LNewStringPos;
+      end;
+  end;
+end;
+
 procedure TfMain.btnAddLayerClick(Sender: TObject);
 begin
   fAddLayers := TfAddLayers.CreateEx(MapView);
-  if fAddLayers.ShowModal = mrAll then
+  if fAddLayers.ShowModal = mrOK then
   begin
     ReloadLayersList;
   end;
