@@ -19,6 +19,7 @@ object fAddLayers: TfAddLayers
     ItemHeight = 0
     MultiSelect = True
     TabOrder = 0
+    OnDblClick = ProvidersListDblClick
     OnSelectionChange = ProvidersListSelectionChange
   end
   object panControl: TPanel
