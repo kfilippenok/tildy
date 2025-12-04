@@ -10,7 +10,8 @@ uses
   indSliders, LazFileUtils, IniFiles, Types,
   // MapView
   mvMapViewer, mvDLECache, mvEngine, mvTypes, mvDE_BGRA, mvDrawingEngine,
-  mvGpsObj, mvDLEFpc, mvPluginCommon, mvAreaSelectionPlugin, mvMapProvider,
+  mvGpsObj, mvDLEFpc, mvPluginCommon, mvAreaSelectionPlugin, mvPlugins,
+  mvMapProvider,
   // Dialogs
   GUI.Dialogs.AddLayers, GUI.Dialogs.EditAreaName;
 
@@ -46,6 +47,7 @@ type
     MvBGRADrawingEngine: TMvBGRADrawingEngine;
     MVDEFPC: TMVDEFPC;
     MvPluginManager: TMvPluginManager;
+    TileInfoPlugin: TTileInfoPlugin;
     OpenDialog: TOpenDialog;
     panAreas: TPanel;
     panOffsetBottom: TPanel;
@@ -539,11 +541,16 @@ begin
 end;
 
 procedure TfMain.ProviderVariationsMapChange(Sender: TObject);
+var
+  LMinZoom, LMaxZoom: Integer;
 begin
   with ProviderVariationsMap do
     MapView.MapProvider := Items[ItemIndex];
+  MapProviderByName(MapView.MapProvider).GetZoomInfos(LMinZoom, LMaxZoom);
+  MapView.ZoomMin     := LMinZoom;
+  MapView.ZoomMax     := LMaxZoom;
   MapView.OnMouseMove := @MapViewMouseMove;
-  MapView.Active := True;
+  MapView.Active      := True;
 end;
 
 procedure TfMain.LayersUpDownClick(Sender: TObject; Button: TUDBtnType);
