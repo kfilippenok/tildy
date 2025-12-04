@@ -5,8 +5,8 @@ unit Main;
 interface
 
 uses
-  Classes, SysUtils, Forms, Controls, Graphics, Dialogs, ExtCtrls,
-  StdCtrls, ComCtrls, ActnList, EditBtn, CheckLst, Buttons, Menus, nullable,
+  Classes, SysUtils, Forms, Controls, Graphics, Dialogs, ExtCtrls, StdCtrls,
+  ComCtrls, ActnList, EditBtn, CheckLst, Buttons, Menus, ButtonPanel, nullable,
   indSliders, LazFileUtils, IniFiles, Types,
   // MapView
   mvMapViewer, mvDLECache, mvEngine, mvTypes, mvDE_BGRA, mvDrawingEngine,
@@ -29,6 +29,8 @@ type
     actAreasExport: TAction;
     actAreasUp: TAction;
     actAreasDown: TAction;
+    actZoomIn: TAction;
+    actZoomOut: TAction;
     actSelectAll: TAction;
     ActionsCommon: TActionList;
     actLayersAdd: TAction;
@@ -43,6 +45,7 @@ type
     btnDeleteArea: TSpeedButton;
     btnAreasImport: TSpeedButton;
     btnLayersDown: TSpeedButton;
+    btnZoomOut: TSpeedButton;
     chkCache: TCheckBox;
     ImagesCommon: TImageList;
     lblAreas: TLabel;
@@ -57,6 +60,7 @@ type
     MvPluginManager: TMvPluginManager;
     btnAreasUp: TSpeedButton;
     btnLayersUp: TSpeedButton;
+    btnZoomIn: TSpeedButton;
     TileInfoPlugin: TTileInfoPlugin;
     OpenDialog: TOpenDialog;
     panAreas: TPanel;
@@ -88,12 +92,15 @@ type
     procedure actAreasUpExecute(Sender: TObject);
     procedure actEditAreaNameExecute(Sender: TObject);
     procedure ActionsAreasUpdate(AAction: TBasicAction; var Handled: Boolean);
+    procedure ActionsCommonUpdate(AAction: TBasicAction; var Handled: Boolean);
     procedure ActionsLayersUpdate(AAction: TBasicAction; var Handled: Boolean);
     procedure actLayersAddExecute(Sender: TObject);
     procedure actLayersDeleteExecute(Sender: TObject);
     procedure actLayersDownExecute(Sender: TObject);
     procedure actLayersUpExecute(Sender: TObject);
     procedure actSelectAllExecute(Sender: TObject);
+    procedure actZoomInExecute(Sender: TObject);
+    procedure actZoomOutExecute(Sender: TObject);
     procedure AreasListDblClick(Sender: TObject);
     procedure AreasListSelectionChange(Sender: TObject; User: boolean);
     procedure AreasUpDownClick(Sender: TObject; Button: TUDBtnType);
@@ -109,6 +116,7 @@ type
       var Allow: Boolean);
     procedure MapViewMouseMove(Sender: TObject; Shift: TShiftState; X,
       Y: Integer);
+    procedure MapViewResize(Sender: TObject);
     procedure MapViewZoomChange(Sender: TObject);
     procedure ProviderVariationsMapChange(Sender: TObject);
     procedure LayersUpDownClick(Sender: TObject; Button: TUDBtnType);
@@ -145,6 +153,15 @@ begin
   actAreasUp.Enabled       := IsItemSelected and (AreasList.ItemIndex > 0);
   actAreasDown.Enabled     := IsItemSelected and (AreasList.ItemIndex < (AreasList.Count - 1));
   actAreasExport.Enabled   := AreasList.Count > 0;
+
+  Handled := True;
+end;
+
+procedure TfMain.ActionsCommonUpdate(AAction: TBasicAction; var Handled: Boolean
+  );
+begin
+  actZoomIn.Enabled  := MapView.Zoom <> MapView.ZoomMax;
+  actZoomOut.Enabled := MapView.Zoom <> MapView.ZoomMin;
 
   Handled := True;
 end;
@@ -208,6 +225,16 @@ begin
   if not AreasList.Focused then Exit;
 
   AreasList.SelectAll;
+end;
+
+procedure TfMain.actZoomInExecute(Sender: TObject);
+begin
+  MapView.Zoom := MapView.Zoom + 1;
+end;
+
+procedure TfMain.actZoomOutExecute(Sender: TObject);
+begin
+  MapView.Zoom := MapView.Zoom - 1;
 end;
 
 procedure TfMain.actAreasImportExecute(Sender: TObject);
@@ -632,6 +659,19 @@ begin
   LRealPoint := MapView.Engine.ScreenToLatLon(LPoint);
   lblDebugLat.Caption := 'Lat: ' + Format('%13.10f', [LRealPoint.Lat]);
   lblDebugLon.Caption := 'Lon: ' + Format('%14.10f', [LRealPoint.Lon]);
+end;
+
+procedure TfMain.MapViewResize(Sender: TObject);
+var
+  LDistance: Integer;
+begin
+  LDistance := ScaleX(20, 144); // 144 - my work design time
+  btnZoomIn.Anchors  := [];
+  btnZoomOut.Anchors := [];
+  btnZoomIn.Left  := MapView.Width - btnZoomIn.Width - LDistance;
+  btnZoomOut.Left := btnZoomIn.Left;
+  btnZoomIn.Top   := Round(MapView.Height / 2) - Round(LDistance / 2) - btnZoomIn.Height;
+  btnZoomOut.Top  := btnZoomIn.Top + LDistance + btnZoomOut.Height;
 end;
 
 procedure TfMain.MapViewZoomChange(Sender: TObject);
