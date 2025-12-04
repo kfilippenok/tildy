@@ -27,15 +27,16 @@ type
     actAreasEditName: TAction;
     actAreasImport: TAction;
     actAreasExport: TAction;
-    Action1: TAction;
+    actAreasUp: TAction;
+    actAreasDown: TAction;
     ActionsAreas: TActionList;
     ActionList: TActionList;
     btnAddArea: TSpeedButton;
+    btnAreasDown: TSpeedButton;
     btnDeleteLayer: TSpeedButton;
     btnDeleteArea: TSpeedButton;
     btnImportAreas: TSpeedButton;
     chkCache: TCheckBox;
-    AreasUpDown: TUpDown;
     ImagesCommon: TImageList;
     lblAreas: TLabel;
     lblProviderMap: TLabel;
@@ -47,6 +48,7 @@ type
     MvBGRADrawingEngine: TMvBGRADrawingEngine;
     MVDEFPC: TMVDEFPC;
     MvPluginManager: TMvPluginManager;
+    btnAreasUp: TSpeedButton;
     TileInfoPlugin: TTileInfoPlugin;
     OpenDialog: TOpenDialog;
     panAreas: TPanel;
@@ -63,7 +65,7 @@ type
     btnAddLayer: TSpeedButton;
     btnExportAreas: TSpeedButton;
     SaveDialog: TSaveDialog;
-    btnEditArea: TSpeedButton;
+    btnAreasEdit: TSpeedButton;
     DirectoryCache: TDirectoryEdit;
     groupOther: TGroupBox;
     MVDECache: TMVDECache;
@@ -73,9 +75,11 @@ type
     mvSsettings: TSplitter;
     procedure actAreasAddExecute(Sender: TObject);
     procedure actAreasDeleteExecute(Sender: TObject);
+    procedure actAreasDownExecute(Sender: TObject);
     procedure actAreasEditNameExecute(Sender: TObject);
     procedure actAreasExportExecute(Sender: TObject);
     procedure actAreasImportExecute(Sender: TObject);
+    procedure actAreasUpExecute(Sender: TObject);
     procedure actEditAreaNameExecute(Sender: TObject);
     procedure ActionsAreasUpdate(AAction: TBasicAction; var Handled: Boolean);
     procedure AreasListDblClick(Sender: TObject);
@@ -107,7 +111,6 @@ type
     FPluginCount: Integer;
     FPrevAreaIndex: TNullableInt;
     procedure ReloadLayersList;
-    procedure SetEnableAreaConrols;
   end;
 
 const
@@ -148,7 +151,8 @@ begin
 
   actAreasDelete.Enabled   := IsItemSelected;
   actAreasEditName.Enabled := IsItemSelected;
-  AreasUpDown.Enabled      := IsItemSelected and (AreasList.Count > 1);
+  actAreasUp.Enabled       := IsItemSelected and (AreasList.ItemIndex > 0);
+  actAreasDown.Enabled     := IsItemSelected and (AreasList.ItemIndex < (AreasList.Count - 1));
   actAreasExport.Enabled   := AreasList.Count > 0;
 
   Handled := True;
@@ -243,6 +247,40 @@ begin
   end;
 end;
 
+procedure TfMain.actAreasUpExecute(Sender: TObject);
+
+  procedure _MovePrevAreaSelectionPlugin(AAreaSelectionPlugin: TAreaSelectionPlugin);
+  var
+    LCurPluginPos: Integer;
+    i: Integer;
+    PrevAreaSelectionPlugin: TAreaSelectionPlugin = nil;
+  begin
+    LCurPluginPos := MvPluginManager.PluginList.IndexOf(AAreaSelectionPlugin);
+    for i := LCurPluginPos downto 0 do
+    if MvPluginManager.PluginList[i] is TAreaSelectionPlugin then
+    begin
+      PrevAreaSelectionPlugin := MvPluginManager.PluginList[i] as TAreaSelectionPlugin;
+      break;
+    end;
+    if not Assigned(PrevAreaSelectionPlugin) then Exit;
+    MvPluginManager.PluginList.Move(LCurPluginPos, i);
+  end;
+
+var
+  LNewStringPos: Integer;
+  LAreaSelectionPlugin: TAreaSelectionPlugin;
+begin
+  if AreasList.ItemIndex < 1 then Exit;
+
+  { Move plugin first }
+  LAreaSelectionPlugin := AreasList.Items.Objects[AreasList.ItemIndex] as TAreaSelectionPlugin;
+  _MovePrevAreaSelectionPlugin(LAreaSelectionPlugin);
+  { Move item in AreasList then }
+  LNewStringPos := AreasList.ItemIndex - 1;
+  AreasList.Items.Move(AreasList.ItemIndex, LNewStringPos);
+  AreasList.ItemIndex := LNewStringPos;
+end;
+
 procedure TfMain.actEditAreaNameExecute(Sender: TObject);
 begin
   fEditAreaName.AreaName := AreasList.Items[AreasList.ItemIndex];
@@ -315,6 +353,41 @@ begin
   end;
 
   MapView.Refresh;
+end;
+
+procedure TfMain.actAreasDownExecute(Sender: TObject);
+
+  procedure _MoveNextAreaSelectionPlugin(AAreaSelectionPlugin: TAreaSelectionPlugin);
+  var
+    LCurPluginPos: Integer;
+    i: Integer;
+    NextAreaSelectionPlugin: TAreaSelectionPlugin = nil;
+  begin
+    LCurPluginPos := MvPluginManager.PluginList.IndexOf(AAreaSelectionPlugin);
+    for i := LCurPluginPos to MvPluginManager.PluginList.Count - 1 do
+    if MvPluginManager.PluginList[i] is TAreaSelectionPlugin then
+    begin
+      NextAreaSelectionPlugin := MvPluginManager.PluginList[i] as TAreaSelectionPlugin;
+      break;
+    end;
+    if not Assigned(NextAreaSelectionPlugin) then Exit;
+    MvPluginManager.PluginList.Move(LCurPluginPos, i);
+  end;
+
+var
+  LNewStringPos: Integer;
+  LAreaSelectionPlugin: TAreaSelectionPlugin;
+begin
+  if AreasList.ItemIndex = -1 then Exit;
+
+  if (AreasList.ItemIndex = (AreasList.Count - 1)) then Exit;
+  { Move plugin first }
+  LAreaSelectionPlugin := AreasList.Items.Objects[AreasList.ItemIndex] as TAreaSelectionPlugin;
+  _MoveNextAreaSelectionPlugin(LAreaSelectionPlugin);
+  { Move item in AreasList then }
+  LNewStringPos := AreasList.ItemIndex + 1;
+  AreasList.Items.Move(AreasList.ItemIndex, LNewStringPos);
+  AreasList.ItemIndex := LNewStringPos;
 end;
 
 procedure TfMain.actAreasEditNameExecute(Sender: TObject);
@@ -607,17 +680,6 @@ begin
     if MapLayer.Visible then
       LayersList.Checked[il] := True;
   end;
-end;
-
-procedure TfMain.SetEnableAreaConrols;
-var
-  LItemSelected: Boolean;
-begin
-  LItemSelected := (AreasList.ItemIndex <> -1);
-
-  btnDeleteArea.Enabled := LItemSelected;
-  btnEditArea.Enabled   := LItemSelected;
-  AreasUpDown.Enabled := btnDeleteArea.Enabled and (AreasList.Count > 1);
 end;
 
 end.
