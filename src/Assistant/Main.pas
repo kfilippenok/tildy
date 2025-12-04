@@ -5,12 +5,12 @@ unit Main;
 interface
 
 uses
-  Classes, SysUtils, process, Forms, Controls, Graphics, Dialogs, ExtCtrls,
+  Classes, SysUtils, Forms, Controls, Graphics, Dialogs, ExtCtrls,
   StdCtrls, ComCtrls, ActnList, EditBtn, CheckLst, Buttons, Menus, nullable,
   indSliders, LazFileUtils, IniFiles, Types,
   // MapView
   mvMapViewer, mvDLECache, mvEngine, mvTypes, mvDE_BGRA, mvDrawingEngine,
-  mvGpsObj, mvDLEFpc, mvPluginCommon, mvAreaSelectionPlugin, mvPlugins,
+  mvDLEFpc, mvPluginCommon, mvAreaSelectionPlugin, mvPlugins,
   mvMapProvider,
   // Dialogs
   GUI.Dialogs.AddLayers, GUI.Dialogs.EditAreaName;
@@ -29,13 +29,20 @@ type
     actAreasExport: TAction;
     actAreasUp: TAction;
     actAreasDown: TAction;
+    actSelectAll: TAction;
+    ActionsCommon: TActionList;
+    actLayersAdd: TAction;
+    actLayersDelete: TAction;
+    actLayersDown: TAction;
+    actLayersUp: TAction;
     ActionsAreas: TActionList;
-    ActionList: TActionList;
+    ActionsLayers: TActionList;
     btnAddArea: TSpeedButton;
     btnAreasDown: TSpeedButton;
-    btnDeleteLayer: TSpeedButton;
+    btnLayersDelete: TSpeedButton;
     btnDeleteArea: TSpeedButton;
-    btnImportAreas: TSpeedButton;
+    btnAreasImport: TSpeedButton;
+    btnLayersDown: TSpeedButton;
     chkCache: TCheckBox;
     ImagesCommon: TImageList;
     lblAreas: TLabel;
@@ -49,6 +56,7 @@ type
     MVDEFPC: TMVDEFPC;
     MvPluginManager: TMvPluginManager;
     btnAreasUp: TSpeedButton;
+    btnLayersUp: TSpeedButton;
     TileInfoPlugin: TTileInfoPlugin;
     OpenDialog: TOpenDialog;
     panAreas: TPanel;
@@ -61,13 +69,11 @@ type
     lblDebugLat: TLabel;
     panDebug: TPanel;
     PopupMapView: TPopupMenu;
-    LayersUpDown: TUpDown;
-    btnAddLayer: TSpeedButton;
-    btnExportAreas: TSpeedButton;
+    btnLayersAdd: TSpeedButton;
+    btnAreasExport: TSpeedButton;
     SaveDialog: TSaveDialog;
     btnAreasEdit: TSpeedButton;
     DirectoryCache: TDirectoryEdit;
-    groupOther: TGroupBox;
     MVDECache: TMVDECache;
     panMV: TPanel;
     ProviderVariationsMap: TComboBox;
@@ -82,16 +88,19 @@ type
     procedure actAreasUpExecute(Sender: TObject);
     procedure actEditAreaNameExecute(Sender: TObject);
     procedure ActionsAreasUpdate(AAction: TBasicAction; var Handled: Boolean);
+    procedure ActionsLayersUpdate(AAction: TBasicAction; var Handled: Boolean);
+    procedure actLayersAddExecute(Sender: TObject);
+    procedure actLayersDeleteExecute(Sender: TObject);
+    procedure actLayersDownExecute(Sender: TObject);
+    procedure actLayersUpExecute(Sender: TObject);
+    procedure actSelectAllExecute(Sender: TObject);
     procedure AreasListDblClick(Sender: TObject);
     procedure AreasListSelectionChange(Sender: TObject; User: boolean);
     procedure AreasUpDownClick(Sender: TObject; Button: TUDBtnType);
-    procedure btnAddLayerClick(Sender: TObject);
-    procedure btnDeleteLayerClick(Sender: TObject);
     procedure chkCacheChange(Sender: TObject);
     procedure DirectoryCacheChange(Sender: TObject);
     procedure FormActivate(Sender: TObject);
     procedure FormCreate(Sender: TObject);
-    procedure LayersListClick(Sender: TObject);
     procedure LayersListClickCheck(Sender: TObject);
     procedure LayersListDragDrop(Sender, Source: TObject; X, Y: Integer);
     procedure LayersListDragOver(Sender, Source: TObject; X, Y: Integer;
@@ -106,28 +115,10 @@ type
     procedure ProviderVariationsMapSelect(Sender: TObject);
     procedure OnSelectedAreaBeginChange(Sender: TObject);
   strict private
-    SelectedCoordinates: TGPSObjarray;
-    FConcreteArea: TRealArea;
     FPluginCount: Integer;
     FPrevAreaIndex: TNullableInt;
     procedure ReloadLayersList;
   end;
-
-const
-  { MapView groups }
-  _CLICKED_POINTS_ = 10;
-
-  { Image indexes of buttons }
-  ImgIndAdd         = 0;
-  ImgIndRemove      = 1;
-  ImgIndEdit        = 2;
-  ImgIndEditOff     = 3;
-  ImgIndFileOpen    = 4;
-  ImgIndFileSave    = 5;
-  ImgIndFileSaveOff = 6;
-  ImgIndFolderOpen  = 7;
-  ImgIndApply       = 8;
-  ImgIndClose       = 9;
 
 var
   fMain: TfMain;
@@ -147,7 +138,7 @@ procedure TfMain.ActionsAreasUpdate(AAction: TBasicAction; var Handled: Boolean)
 var
   IsItemSelected: Boolean;
 begin
-  IsItemSelected := (AreasList.ItemIndex <> -1);
+  IsItemSelected := (AreasList.ItemIndex <> -1) and AreasList.Selected[AreasList.ItemIndex];
 
   actAreasDelete.Enabled   := IsItemSelected;
   actAreasEditName.Enabled := IsItemSelected;
@@ -156,6 +147,67 @@ begin
   actAreasExport.Enabled   := AreasList.Count > 0;
 
   Handled := True;
+end;
+
+procedure TfMain.ActionsLayersUpdate(AAction: TBasicAction; var Handled: Boolean
+  );
+var
+  IsItemSelected: Boolean;
+begin
+  IsItemSelected := (LayersList.ItemIndex <> -1) and LayersList.Selected[LayersList.ItemIndex];
+
+  actLayersDelete.Enabled := IsItemSelected;
+  actLayersUp.Enabled     := IsItemSelected and (LayersList.ItemIndex > 0);
+  actLayersDown.Enabled   := IsItemSelected and (LayersList.ItemIndex < (LayersList.Count - 1));
+
+  Handled := True;
+end;
+
+procedure TfMain.actLayersAddExecute(Sender: TObject);
+begin
+  fAddLayers := TfAddLayers.CreateEx(MapView);
+  if fAddLayers.ShowModal = mrOK then
+  begin
+    ReloadLayersList;
+  end;
+  FreeAndNil(fAddLayers);
+end;
+
+procedure TfMain.actLayersDeleteExecute(Sender: TObject);
+begin
+  MapView.Layers.Delete(LayersList.ItemIndex);
+  LayersList.Items.Delete(LayersList.ItemIndex);
+end;
+
+procedure TfMain.actLayersDownExecute(Sender: TObject);
+var
+  NewIndex: Integer;
+begin
+  if (LayersList.ItemIndex = -1) or (LayersList.ItemIndex = LayersList.Count-1) then Exit;
+
+  NewIndex := LayersList.ItemIndex + 1;
+  MapView.Layers.Move(LayersList.ItemIndex, NewIndex);
+  LayersList.Items.Move(LayersList.ItemIndex, NewIndex);
+  LayersList.Selected[NewIndex] := True;
+end;
+
+procedure TfMain.actLayersUpExecute(Sender: TObject);
+var
+  NewIndex: Integer;
+begin
+  if LayersList.ItemIndex < 1 then Exit;
+
+  NewIndex := LayersList.ItemIndex - 1;
+  MapView.Layers.Move(LayersList.ItemIndex, NewIndex);
+  LayersList.Items.Move(LayersList.ItemIndex, NewIndex);
+  LayersList.Selected[NewIndex] := True;
+end;
+
+procedure TfMain.actSelectAllExecute(Sender: TObject);
+begin
+  if not AreasList.Focused then Exit;
+
+  AreasList.SelectAll;
 end;
 
 procedure TfMain.actAreasImportExecute(Sender: TObject);
@@ -279,6 +331,7 @@ begin
   LNewStringPos := AreasList.ItemIndex - 1;
   AreasList.Items.Move(AreasList.ItemIndex, LNewStringPos);
   AreasList.ItemIndex := LNewStringPos;
+  AreasList.Selected[LNewStringPos] := True;
 end;
 
 procedure TfMain.actEditAreaNameExecute(Sender: TObject);
@@ -488,24 +541,6 @@ begin
   end;
 end;
 
-procedure TfMain.btnAddLayerClick(Sender: TObject);
-begin
-  fAddLayers := TfAddLayers.CreateEx(MapView);
-  if fAddLayers.ShowModal = mrOK then
-  begin
-    ReloadLayersList;
-  end;
-  FreeAndNil(fAddLayers);
-end;
-
-procedure TfMain.btnDeleteLayerClick(Sender: TObject);
-begin
-  MapView.Layers.Delete(LayersList.ItemIndex);
-  LayersList.Items.Delete(LayersList.ItemIndex);
-  btnDeleteLayer.Enabled := (LayersList.ItemIndex <> -1) and (LayersList.Count > 0);
-  LayersUpDown.Enabled := btnDeleteLayer.Enabled;
-end;
-
 procedure TfMain.chkCacheChange(Sender: TObject);
 begin
   MapView.Engine.ClearCache;
@@ -544,18 +579,9 @@ begin
   FPrevAreaIndex.Clear;
 end;
 
-procedure TfMain.LayersListClick(Sender: TObject);
-begin
-  btnDeleteLayer.Enabled := (LayersList.ItemIndex <> -1) and (LayersList.Count > 0);
-  LayersUpDown.Enabled := btnDeleteLayer.Enabled;
-end;
-
 procedure TfMain.LayersListClickCheck(Sender: TObject);
-var
-  i: Integer;
 begin
-  for i := 0 to MapView.Layers.Count-1 do
-    (MapView.Layers.Items[i] as TMapLayer).Visible := LayersList.Checked[i];
+  (MapView.Layers.Items[LayersList.ItemIndex] as TMapLayer).Visible := LayersList.Checked[LayersList.ItemIndex];
 end;
 
 procedure TfMain.LayersListDragDrop(Sender, Source: TObject; X, Y: Integer);

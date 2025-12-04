@@ -1,14 +1,15 @@
 object fMain: TfMain
   Left = 2810
-  Height = 813
+  Height = 1220
   Top = 32
-  Width = 1270
+  Width = 1916
   Caption = 'Tildy Assistant'
-  ClientHeight = 813
-  ClientWidth = 1270
+  ClientHeight = 1220
+  ClientWidth = 1916
   Color = clForm
+  DesignTimePPI = 144
   Position = poDesktopCenter
-  LCLVersion = '4.99.0.0'
+  LCLVersion = '4.5.0.0'
   OnActivate = FormActivate
   OnCreate = FormCreate
   object mvSsettings: TSplitter
@@ -16,10 +17,10 @@ object fMain: TfMain
     AnchorSideRight.Side = asrBottom
     AnchorSideBottom.Control = Owner
     AnchorSideBottom.Side = asrBottom
-    Left = 781
-    Height = 813
+    Left = 1203
+    Height = 1220
     Top = 0
-    Width = 15
+    Width = 22
     Align = alNone
     Anchors = [akTop, akRight, akBottom]
     Color = clForm
@@ -33,27 +34,27 @@ object fMain: TfMain
     AnchorSideBottom.Control = Owner
     AnchorSideBottom.Side = asrBottom
     Left = 0
-    Height = 813
+    Height = 1220
     Top = 0
-    Width = 781
+    Width = 1203
     Align = alCustom
     Anchors = [akTop, akLeft, akRight, akBottom]
     Caption = 'panMV'
-    ClientHeight = 813
-    ClientWidth = 781
+    ClientHeight = 1220
+    ClientWidth = 1203
     ParentBackground = False
     TabOrder = 1
     object panDebug: TPanel
       Left = 1
-      Height = 34
-      Top = 778
-      Width = 779
+      Height = 52
+      Top = 1167
+      Width = 1201
       Align = alBottom
       Anchors = [akLeft, akRight]
       AutoSize = True
       BevelOuter = bvLowered
-      ClientHeight = 34
-      ClientWidth = 779
+      ClientHeight = 52
+      ClientWidth = 1201
       Color = clForm
       ParentBackground = False
       ParentColor = False
@@ -64,12 +65,12 @@ object fMain: TfMain
         AnchorSideTop.Control = panDebug
         AnchorSideTop.Side = asrCenter
         AnchorSideRight.Control = lblDebugLon
-        Left = 694
-        Height = 15
-        Top = 10
-        Width = 33
+        Left = 1090
+        Height = 25
+        Top = 14
+        Width = 40
         Anchors = [akTop, akRight]
-        BorderSpacing.Around = 8
+        BorderSpacing.Around = 12
         Caption = 'Lat: ?'
         ParentFont = False
       end
@@ -79,12 +80,12 @@ object fMain: TfMain
         AnchorSideTop.Side = asrCenter
         AnchorSideRight.Control = panDebug
         AnchorSideRight.Side = asrBottom
-        Left = 735
-        Height = 15
-        Top = 10
-        Width = 35
+        Left = 1142
+        Height = 25
+        Top = 14
+        Width = 46
         Anchors = [akTop, akRight]
-        BorderSpacing.Around = 8
+        BorderSpacing.Around = 12
         Caption = 'Lon: ?'
         ParentFont = False
       end
@@ -92,19 +93,19 @@ object fMain: TfMain
         AnchorSideLeft.Control = panDebug
         AnchorSideTop.Control = panDebug
         AnchorSideTop.Side = asrCenter
-        Left = 9
-        Height = 15
-        Top = 10
-        Width = 50
-        BorderSpacing.Around = 8
+        Left = 13
+        Height = 25
+        Top = 14
+        Width = 67
+        BorderSpacing.Around = 12
         Caption = 'Zoom: 1'
       end
     end
     object MapView: TMapView
       Left = 1
-      Height = 777
+      Height = 1166
       Top = 1
-      Width = 779
+      Width = 1201
       Align = alClient
       CacheOnDisk = False
       CacheLocation = clTemp
@@ -128,217 +129,141 @@ object fMain: TfMain
     AnchorSideRight.Side = asrBottom
     AnchorSideBottom.Control = Owner
     AnchorSideBottom.Side = asrBottom
-    Left = 796
-    Height = 813
+    Left = 1225
+    Height = 1220
     Top = 0
-    Width = 474
-    HorzScrollBar.Page = 130
-    VertScrollBar.Increment = 81
-    VertScrollBar.Page = 813
+    Width = 691
+    HorzScrollBar.Page = 194
+    VertScrollBar.Increment = 99
+    VertScrollBar.Page = 997
     VertScrollBar.Smooth = True
     VertScrollBar.Tracking = True
     Align = alCustom
     Anchors = [akTop, akLeft, akRight, akBottom]
     AutoSize = True
     BorderStyle = bsNone
-    ClientHeight = 813
-    ClientWidth = 454
+    ClientHeight = 1220
+    ClientWidth = 691
     Color = clWindow
     ParentBackground = False
     ParentColor = False
     TabOrder = 2
-    object groupOther: TGroupBox
-      AnchorSideLeft.Control = panProviderMap
-      AnchorSideTop.Control = panProviderMap
-      AnchorSideTop.Side = asrBottom
-      AnchorSideRight.Control = panProviderMap
-      AnchorSideRight.Side = asrBottom
-      Left = 15
-      Height = 16
-      Top = 94
-      Width = 424
-      Anchors = [akTop, akLeft, akRight]
-      AutoSize = True
-      BorderSpacing.Top = 15
-      Caption = 'Other'
-      ParentBackground = False
-      TabOrder = 0
-    end
     object panLayers: TPanel
       AnchorSideLeft.Control = panCache
       AnchorSideTop.Control = panCache
       AnchorSideTop.Side = asrBottom
       AnchorSideRight.Control = panCache
       AnchorSideRight.Side = asrBottom
-      Left = 15
-      Height = 312
-      Top = 529
-      Width = 424
+      Left = 22
+      Height = 296
+      Top = 686
+      Width = 647
       Anchors = [akTop, akLeft, akRight]
-      BorderSpacing.Top = 15
+      AutoSize = True
+      BorderSpacing.Top = 22
       BevelOuter = bvNone
-      ClientHeight = 312
-      ClientWidth = 424
+      ClientHeight = 296
+      ClientWidth = 647
       ParentBackground = False
-      TabOrder = 1
-      object LayersList: TCheckListBox
-        AnchorSideLeft.Control = panLayers
-        AnchorSideTop.Control = lblLayers
-        AnchorSideTop.Side = asrBottom
-        AnchorSideRight.Control = LayersUpDown
-        AnchorSideBottom.Control = LayersUpDown
-        AnchorSideBottom.Side = asrBottom
-        Left = 0
-        Height = 214
-        Top = 37
-        Width = 374
-        Align = alCustom
-        Anchors = [akTop, akLeft, akRight, akBottom]
-        BorderSpacing.Top = 8
-        BorderSpacing.Right = 8
-        DragMode = dmAutomatic
-        ItemHeight = 0
-        ParentFont = False
-        TabOrder = 0
-        TopIndex = -1
-        OnClick = LayersListClick
-        OnClickCheck = LayersListClickCheck
-        OnDragDrop = LayersListDragDrop
-        OnDragOver = LayersListDragOver
-      end
-      object LayersUpDown: TUpDown
-        AnchorSideLeft.Control = btnAddLayer
-        AnchorSideRight.Control = panLayers
-        AnchorSideRight.Side = asrBottom
-        AnchorSideBottom.Control = panLayers
-        AnchorSideBottom.Side = asrBottom
-        Left = 382
-        Height = 98
-        Top = 153
-        Width = 42
-        Anchors = [akLeft, akRight]
-        Enabled = False
-        Min = 0
-        Position = 0
-        TabOrder = 1
-        OnClick = LayersUpDownClick
-      end
-      object btnAddLayer: TSpeedButton
-        AnchorSideTop.Control = LayersList
-        AnchorSideRight.Control = panLayers
-        AnchorSideRight.Side = asrBottom
-        Left = 382
-        Height = 42
-        Top = 37
-        Width = 42
-        Anchors = [akTop, akRight]
-        AutoSize = True
-        Glyph.Data = {
-          36040000424D3604000000000000360000002800000010000000100000000100
-          2000000000000004000000000000000000000000000000000000FFFFFF00FFFF
-          FF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFF
-          FF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFF
-          FF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFF
-          FF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFF
-          FF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FF77220FFE7E2AD4FE7E2AD4FF77
-          220FFFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFF
-          FF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FF80293EFE7E2AFFFE7E2AFFFF80
-          293EFFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFF
-          FF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FF802C40FE7E2AFFFE7E2AFFFF80
-          2C40FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFF
-          FF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FF802C40FE7E2AFFFE7E2AFFFF80
-          2C40FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFF
-          FF00FF77220FFF7E2B41FF802944FF802944FF7E2A73FE7E2AFFFE7E2AFFFF7E
-          2A73FF802944FF802944FF7E2B41FF77220FFFFFFF00FFFFFF00FFFFFF00FFFF
-          FF00FE7E2AD4FE7E2AFFFE7E2AFFFE7E2AFFFE7E2AFFFE7E2AFFFE7E2AFFFE7E
-          2AFFFE7E2AFFFE7E2AFFFE7E2AFFFE7E2AD4FFFFFF00FFFFFF00FFFFFF00FFFF
-          FF00FE7E2AD4FE7E2AFFFE7E2AFFFE7E2AFFFE7E2AFFFE7E2AFFFE7E2AFFFE7E
-          2AFFFE7E2AFFFE7E2AFFFE7E2AFFFE7E2AD4FFFFFF00FFFFFF00FFFFFF00FFFF
-          FF00FF77220FFF7E2B41FF802944FF802944FF7E2A73FE7E2AFFFE7E2AFFFF7E
-          2A73FF802944FF802944FF7E2B41FF77220FFFFFFF00FFFFFF00FFFFFF00FFFF
-          FF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FF802C40FE7E2AFFFE7E2AFFFF80
-          2C40FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFF
-          FF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FF802C40FE7E2AFFFE7E2AFFFF80
-          2C40FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFF
-          FF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FF80293EFE7E2AFFFE7E2AFFFF80
-          293EFFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFF
-          FF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FF77220FFE7E2AD4FE7E2AD4FF77
-          220FFFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFF
-          FF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFF
-          FF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFF
-          FF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFF
-          FF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00
-        }
-        Images = ImagesCommon
-        ImageIndex = 0
-        Margin = 10
-        OnClick = btnAddLayerClick
-      end
-      object btnDeleteLayer: TSpeedButton
-        AnchorSideLeft.Control = btnAddLayer
-        AnchorSideTop.Control = btnAddLayer
-        AnchorSideTop.Side = asrBottom
-        AnchorSideRight.Control = btnAddLayer
-        AnchorSideRight.Side = asrBottom
-        Left = 382
-        Height = 42
-        Top = 81
-        Width = 42
-        Anchors = [akTop, akLeft, akRight]
-        AutoSize = True
-        BorderSpacing.Top = 2
-        Enabled = False
-        Glyph.Data = {
-          36040000424D3604000000000000360000002800000010000000100000000100
-          2000000000000004000000000000000000000000000000000000FFFFFF00FFFF
-          FF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFF
-          FF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFF
-          FF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFF
-          FF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFF
-          FF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFF
-          FF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFF
-          FF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFF
-          FF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFF
-          FF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFF
-          FF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFF
-          FF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFF
-          FF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFF
-          FF000000FF0F0404FB410404FB440404FB440404FB440404FB440404FB440404
-          FB440404FB440404FB440404FB410000FF0FFFFFFF00FFFFFF00FFFFFF00FFFF
-          FF000202FAD40203FAFF0203FAFF0203FAFF0203FAFF0203FAFF0203FAFF0203
-          FAFF0203FAFF0203FAFF0203FAFF0202FAD4FFFFFF00FFFFFF00FFFFFF00FFFF
-          FF000202FAD40203FAFF0203FAFF0203FAFF0203FAFF0203FAFF0203FAFF0203
-          FAFF0203FAFF0203FAFF0203FAFF0202FAD4FFFFFF00FFFFFF00FFFFFF00FFFF
-          FF000000FF0F0404FB410404FB440404FB440404FB440404FB440404FB440404
-          FB440404FB440404FB440404FB410000FF0FFFFFFF00FFFFFF00FFFFFF00FFFF
-          FF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFF
-          FF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFF
-          FF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFF
-          FF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFF
-          FF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFF
-          FF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFF
-          FF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFF
-          FF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFF
-          FF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFF
-          FF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFF
-          FF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFF
-          FF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00
-        }
-        Images = ImagesCommon
-        ImageIndex = 1
-        Margin = 10
-        OnClick = btnDeleteLayerClick
-      end
+      TabOrder = 0
       object lblLayers: TLabel
         AnchorSideLeft.Control = panLayers
         AnchorSideTop.Control = panLayers
         Left = 0
-        Height = 29
+        Height = 48
         Top = 0
-        Width = 80
+        Width = 99
         Caption = 'Layers'
-        Font.Height = -24
+        Font.Height = -36
         ParentFont = False
+      end
+      object LayersList: TCheckListBox
+        AnchorSideLeft.Control = panLayers
+        AnchorSideTop.Control = btnLayersAdd
+        AnchorSideRight.Control = btnLayersAdd
+        AnchorSideBottom.Control = btnLayersDown
+        AnchorSideBottom.Side = asrBottom
+        Left = 0
+        Height = 236
+        Top = 60
+        Width = 585
+        Align = alCustom
+        Anchors = [akTop, akLeft, akRight, akBottom]
+        BorderSpacing.Right = 12
+        DragMode = dmAutomatic
+        ItemHeight = 0
+        ParentFont = False
+        TabOrder = 0
+        OnClickCheck = LayersListClickCheck
+        OnDragDrop = LayersListDragDrop
+        OnDragOver = LayersListDragOver
+      end
+      object btnLayersAdd: TSpeedButton
+        AnchorSideTop.Control = lblLayers
+        AnchorSideTop.Side = asrBottom
+        AnchorSideRight.Control = panLayers
+        AnchorSideRight.Side = asrBottom
+        Left = 597
+        Height = 50
+        Top = 60
+        Width = 50
+        Action = actLayersAdd
+        Anchors = [akTop, akRight]
+        AutoSize = True
+        BorderSpacing.Top = 12
+        Images = ImagesCommon
+        ImageIndex = 0
+        Margin = 10
+      end
+      object btnLayersDelete: TSpeedButton
+        AnchorSideLeft.Control = btnLayersAdd
+        AnchorSideTop.Control = btnLayersAdd
+        AnchorSideTop.Side = asrBottom
+        AnchorSideRight.Control = btnLayersAdd
+        AnchorSideRight.Side = asrBottom
+        Left = 597
+        Height = 50
+        Top = 113
+        Width = 50
+        Action = actLayersDelete
+        Anchors = [akTop, akLeft, akRight]
+        AutoSize = True
+        BorderSpacing.Top = 3
+        Images = ImagesCommon
+        ImageIndex = 1
+        Margin = 10
+      end
+      object btnLayersUp: TSpeedButton
+        AnchorSideLeft.Control = btnLayersDelete
+        AnchorSideLeft.Side = asrCenter
+        AnchorSideTop.Control = btnLayersDelete
+        AnchorSideTop.Side = asrBottom
+        Left = 597
+        Height = 50
+        Top = 193
+        Width = 50
+        Action = actLayersUp
+        AutoSize = True
+        BorderSpacing.Top = 30
+        Images = ImagesCommon
+        ImageIndex = 8
+        Margin = 10
+      end
+      object btnLayersDown: TSpeedButton
+        AnchorSideLeft.Control = btnLayersUp
+        AnchorSideLeft.Side = asrCenter
+        AnchorSideTop.Control = btnLayersUp
+        AnchorSideTop.Side = asrBottom
+        Left = 597
+        Height = 50
+        Top = 246
+        Width = 50
+        Action = actLayersDown
+        AutoSize = True
+        BorderSpacing.Top = 3
+        Images = ImagesCommon
+        ImageIndex = 9
+        Margin = 10
       end
     end
     object panCache: TPanel
@@ -347,18 +272,18 @@ object fMain: TfMain
       AnchorSideTop.Side = asrBottom
       AnchorSideRight.Control = panAreas
       AnchorSideRight.Side = asrBottom
-      Left = 15
-      Height = 64
-      Top = 450
-      Width = 424
+      Left = 22
+      Height = 93
+      Top = 571
+      Width = 647
       Anchors = [akTop, akLeft, akRight]
       AutoSize = True
-      BorderSpacing.Top = 15
+      BorderSpacing.Top = 22
       BevelOuter = bvNone
-      ClientHeight = 64
-      ClientWidth = 424
+      ClientHeight = 93
+      ClientWidth = 647
       ParentBackground = False
-      TabOrder = 2
+      TabOrder = 1
       object DirectoryCache: TDirectoryEdit
         AnchorSideLeft.Control = panCache
         AnchorSideTop.Control = lblCache
@@ -367,16 +292,16 @@ object fMain: TfMain
         AnchorSideRight.Side = asrBottom
         AnchorSideBottom.Side = asrBottom
         Left = 0
-        Height = 27
-        Top = 37
-        Width = 424
+        Height = 33
+        Top = 60
+        Width = 647
         ShowHidden = False
-        ButtonWidth = 54
+        ButtonWidth = 81
         NumGlyphs = 1
         Images = ImagesCommon
         ImageIndex = 5
         Anchors = [akTop, akLeft, akRight]
-        BorderSpacing.Top = 8
+        BorderSpacing.Top = 12
         MaxLength = 0
         TabOrder = 0
         OnChange = DirectoryCacheChange
@@ -385,11 +310,11 @@ object fMain: TfMain
         AnchorSideLeft.Control = panCache
         AnchorSideTop.Control = panCache
         Left = 0
-        Height = 29
+        Height = 48
         Top = 0
-        Width = 75
+        Width = 96
         Caption = 'Cache'
-        Font.Height = -24
+        Font.Height = -36
         ParentFont = False
       end
       object chkCache: TCheckBox
@@ -398,11 +323,11 @@ object fMain: TfMain
         AnchorSideTop.Control = lblCache
         AnchorSideTop.Side = asrCenter
         AnchorSideRight.Side = asrBottom
-        Left = 83
-        Height = 21
-        Top = 4
-        Width = 21
-        BorderSpacing.Left = 8
+        Left = 108
+        Height = 24
+        Top = 12
+        Width = 25
+        BorderSpacing.Left = 12
         DoubleBuffered = False
         ParentDoubleBuffered = False
         TabOrder = 1
@@ -414,20 +339,20 @@ object fMain: TfMain
       AnchorSideTop.Control = mvScrollBox
       AnchorSideRight.Control = mvScrollBox
       AnchorSideRight.Side = asrBottom
-      Left = 15
-      Height = 64
-      Top = 15
-      Width = 424
+      Left = 22
+      Height = 93
+      Top = 22
+      Width = 647
       Anchors = [akTop, akLeft, akRight]
       AutoSize = True
-      BorderSpacing.Left = 15
-      BorderSpacing.Top = 15
-      BorderSpacing.Right = 15
+      BorderSpacing.Left = 22
+      BorderSpacing.Top = 22
+      BorderSpacing.Right = 22
       BevelOuter = bvNone
-      ClientHeight = 64
-      ClientWidth = 424
+      ClientHeight = 93
+      ClientWidth = 647
       ParentBackground = False
-      TabOrder = 3
+      TabOrder = 2
       object ProviderVariationsMap: TComboBox
         AnchorSideLeft.Control = panProviderMap
         AnchorSideTop.Control = lblProviderMap
@@ -436,13 +361,13 @@ object fMain: TfMain
         AnchorSideRight.Side = asrBottom
         AnchorSideBottom.Side = asrBottom
         Left = 0
-        Height = 27
-        Top = 37
-        Width = 424
+        Height = 33
+        Top = 60
+        Width = 647
         Align = alCustom
         Anchors = [akTop, akLeft, akRight]
-        BorderSpacing.Top = 8
-        ItemHeight = 0
+        BorderSpacing.Top = 12
+        ItemHeight = 25
         ItemIndex = 0
         Items.Strings = (
           'OpenStreetMap Mapnik'
@@ -460,11 +385,11 @@ object fMain: TfMain
         AnchorSideLeft.Control = panProviderMap
         AnchorSideTop.Control = panProviderMap
         Left = 0
-        Height = 29
+        Height = 48
         Top = 0
-        Width = 99
+        Width = 133
         Caption = 'Provider'
-        Font.Height = -24
+        Font.Height = -36
         ParentFont = False
       end
     end
@@ -474,161 +399,166 @@ object fMain: TfMain
       AnchorSideTop.Side = asrBottom
       AnchorSideRight.Control = panProviderMap
       AnchorSideRight.Side = asrBottom
-      Left = 15
-      Height = 341
-      Top = 94
-      Width = 424
+      Left = 22
+      Height = 412
+      Top = 137
+      Width = 647
       Anchors = [akTop, akLeft, akRight]
       AutoSize = True
-      BorderSpacing.Top = 15
+      BorderSpacing.Top = 22
       BevelOuter = bvNone
-      ClientHeight = 341
-      ClientWidth = 424
+      ClientHeight = 412
+      ClientWidth = 647
       ParentBackground = False
-      TabOrder = 4
+      TabOrder = 3
+      object lblAreas: TLabel
+        AnchorSideLeft.Control = panAreas
+        AnchorSideTop.Control = panAreas
+        Left = 0
+        Height = 48
+        Top = 0
+        Width = 88
+        Caption = 'Areas'
+        Font.Height = -36
+        ParentFont = False
+      end
+      object AreasList: TListBox
+        AnchorSideLeft.Control = panAreas
+        AnchorSideTop.Control = lblAreas
+        AnchorSideTop.Side = asrBottom
+        AnchorSideRight.Control = btnAddArea
+        AnchorSideBottom.Control = btnAreasDown
+        AnchorSideBottom.Side = asrBottom
+        Left = 0
+        Height = 289
+        Top = 60
+        Width = 585
+        Anchors = [akTop, akLeft, akRight, akBottom]
+        BorderSpacing.Top = 12
+        BorderSpacing.Right = 12
+        ItemHeight = 0
+        MultiSelect = True
+        TabOrder = 0
+        OnDblClick = AreasListDblClick
+        OnSelectionChange = AreasListSelectionChange
+      end
       object btnAddArea: TSpeedButton
-        AnchorSideTop.Control = AreasList
+        AnchorSideTop.Control = lblAreas
+        AnchorSideTop.Side = asrBottom
         AnchorSideRight.Control = panAreas
         AnchorSideRight.Side = asrBottom
-        Left = 382
-        Height = 42
-        Top = 37
-        Width = 42
+        Left = 597
+        Height = 50
+        Top = 60
+        Width = 50
         Action = actAreasAdd
         Anchors = [akTop, akRight]
         AutoSize = True
+        BorderSpacing.Top = 12
         Images = ImagesCommon
         ImageIndex = 0
         Margin = 10
       end
       object btnDeleteArea: TSpeedButton
         AnchorSideLeft.Control = btnAddArea
+        AnchorSideLeft.Side = asrCenter
         AnchorSideTop.Control = btnAddArea
         AnchorSideTop.Side = asrBottom
-        AnchorSideRight.Control = btnAddArea
         AnchorSideRight.Side = asrBottom
-        Left = 382
-        Height = 42
-        Top = 81
-        Width = 42
+        Left = 597
+        Height = 50
+        Top = 113
+        Width = 50
         Action = actAreasDelete
-        Anchors = [akTop, akLeft, akRight]
         AutoSize = True
-        BorderSpacing.Top = 2
+        BorderSpacing.Top = 3
         Images = ImagesCommon
         ImageIndex = 1
         Margin = 10
       end
-      object lblAreas: TLabel
-        AnchorSideLeft.Control = panAreas
-        AnchorSideTop.Control = panAreas
-        Left = 0
-        Height = 29
-        Top = 0
-        Width = 68
-        Caption = 'Areas'
-        Font.Height = -24
-        ParentFont = False
-      end
-      object btnExportAreas: TSpeedButton
+      object btnAreasExport: TSpeedButton
         AnchorSideTop.Control = AreasList
         AnchorSideTop.Side = asrBottom
         AnchorSideRight.Control = AreasList
         AnchorSideRight.Side = asrBottom
-        Left = 282
-        Height = 42
-        Top = 299
-        Width = 92
+        AnchorSideBottom.Side = asrBottom
+        Left = 474
+        Height = 51
+        Top = 361
+        Width = 111
         Action = actAreasExport
         Anchors = [akTop, akRight]
         AutoSize = True
-        BorderSpacing.Top = 8
+        BorderSpacing.Top = 12
         Images = ImagesCommon
         ImageIndex = 4
         Layout = blGlyphRight
         Margin = 10
         Spacing = 10
       end
-      object btnImportAreas: TSpeedButton
+      object btnAreasImport: TSpeedButton
         AnchorSideLeft.Control = AreasList
-        AnchorSideTop.Control = btnExportAreas
+        AnchorSideTop.Control = btnAreasExport
         AnchorSideTop.Side = asrCenter
         Left = 0
-        Height = 42
-        Top = 299
-        Width = 93
+        Height = 51
+        Top = 361
+        Width = 115
         Action = actAreasImport
         AutoSize = True
-        BorderSpacing.Right = 8
+        BorderSpacing.Right = 12
         Images = ImagesCommon
         ImageIndex = 4
         Layout = blGlyphRight
         Margin = 10
         Spacing = 10
-      end
-      object AreasList: TListBox
-        AnchorSideLeft.Control = panAreas
-        AnchorSideTop.Control = lblAreas
-        AnchorSideTop.Side = asrBottom
-        AnchorSideBottom.Side = asrBottom
-        Left = 0
-        Height = 254
-        Top = 37
-        Width = 374
-        Anchors = [akTop, akLeft, akRight, akBottom]
-        BorderSpacing.Top = 8
-        BorderSpacing.Right = 8
-        ItemHeight = 0
-        MultiSelect = True
-        TabOrder = 0
-        TopIndex = -1
-        OnDblClick = AreasListDblClick
-        OnSelectionChange = AreasListSelectionChange
       end
       object btnAreasEdit: TSpeedButton
         AnchorSideLeft.Control = btnDeleteArea
         AnchorSideLeft.Side = asrCenter
         AnchorSideTop.Control = btnDeleteArea
         AnchorSideTop.Side = asrBottom
-        Left = 382
-        Height = 42
-        Top = 125
-        Width = 42
+        Left = 597
+        Height = 50
+        Top = 166
+        Width = 50
         Action = actAreasEditName
         AutoSize = True
-        BorderSpacing.Top = 2
+        BorderSpacing.Top = 3
         Images = ImagesCommon
         ImageIndex = 2
         Margin = 10
       end
       object btnAreasUp: TSpeedButton
-        AnchorSideLeft.Control = AreasList
-        AnchorSideLeft.Side = asrBottom
-        AnchorSideBottom.Control = btnAreasDown
-        Left = 382
-        Height = 42
-        Top = 205
-        Width = 42
+        AnchorSideLeft.Control = btnAreasEdit
+        AnchorSideLeft.Side = asrCenter
+        AnchorSideTop.Control = btnAreasEdit
+        AnchorSideTop.Side = asrBottom
+        Left = 597
+        Height = 50
+        Top = 246
+        Width = 50
         Action = actAreasUp
-        Anchors = [akLeft, akBottom]
         AutoSize = True
-        BorderSpacing.Bottom = 2
+        BorderSpacing.Top = 30
+        BorderSpacing.Bottom = 3
         Images = ImagesCommon
         ImageIndex = 8
         Margin = 10
       end
       object btnAreasDown: TSpeedButton
-        AnchorSideLeft.Control = AreasList
-        AnchorSideLeft.Side = asrBottom
-        AnchorSideBottom.Control = AreasList
+        AnchorSideLeft.Control = btnAreasEdit
+        AnchorSideLeft.Side = asrCenter
+        AnchorSideTop.Control = btnAreasUp
+        AnchorSideTop.Side = asrBottom
         AnchorSideBottom.Side = asrBottom
-        Left = 382
-        Height = 42
-        Top = 249
-        Width = 42
+        Left = 597
+        Height = 50
+        Top = 299
+        Width = 50
         Action = actAreasDown
-        Anchors = [akLeft, akBottom]
         AutoSize = True
+        BorderSpacing.Top = 3
         Images = ImagesCommon
         ImageIndex = 9
         Margin = 10
@@ -641,58 +571,79 @@ object fMain: TfMain
       AnchorSideRight.Control = mvScrollBox
       AnchorSideRight.Side = asrBottom
       Left = 0
-      Height = 10
-      Top = 841
-      Width = 454
+      Height = 15
+      Top = 982
+      Width = 691
       Anchors = [akTop, akLeft, akRight]
       BevelOuter = bvNone
       ParentBackground = False
-      TabOrder = 5
+      TabOrder = 4
     end
   end
   object MVDECache: TMVDECache
-    Left = 248
-    Top = 201
+    Left = 372
+    Top = 302
   end
-  object ActionList: TActionList
-    Left = 664
-    Top = 496
+  object ActionsLayers: TActionList
+    Images = ImagesCommon
+    OnUpdate = ActionsLayersUpdate
+    Left = 996
+    Top = 744
+    object actLayersAdd: TAction
+      ImageIndex = 0
+      OnExecute = actLayersAddExecute
+    end
+    object actLayersDelete: TAction
+      Enabled = False
+      ImageIndex = 1
+      OnExecute = actLayersDeleteExecute
+    end
+    object actLayersUp: TAction
+      Enabled = False
+      ImageIndex = 8
+      OnExecute = actLayersUpExecute
+    end
+    object actLayersDown: TAction
+      Enabled = False
+      ImageIndex = 9
+      OnExecute = actLayersDownExecute
+    end
   end
   object MvBGRADrawingEngine: TMvBGRADrawingEngine
-    Left = 248
-    Top = 120
+    Left = 372
+    Top = 180
   end
   object PopupMapView: TPopupMenu
-    Left = 664
-    Top = 576
+    Left = 996
+    Top = 864
   end
   object MVDEFPC: TMVDEFPC
     ProxyPort = 0
-    Left = 248
-    Top = 288
+    Left = 372
+    Top = 432
   end
   object MvPluginManager: TMvPluginManager
-    Left = 248
-    Top = 48
+    Left = 372
+    Top = 72
     object TileInfoPlugin: TTileInfoPlugin
       MapView = MapView
       InfoMask = '%0:d:%1:d'
     end
   end
   object OpenDialog: TOpenDialog
-    Left = 248
-    Top = 456
+    Left = 372
+    Top = 684
   end
   object SaveDialog: TSaveDialog
     DefaultExt = '.ini'
-    Left = 248
-    Top = 564
+    Left = 372
+    Top = 846
   end
   object ActionsAreas: TActionList
     Images = ImagesCommon
     OnUpdate = ActionsAreasUpdate
-    Left = 664
-    Top = 672
+    Left = 996
+    Top = 1008
     object actAreasAdd: TAction
       ImageIndex = 0
       OnExecute = actAreasAddExecute
@@ -731,8 +682,8 @@ object fMain: TfMain
   end
   object ImagesCommon: TImageList
     Scaled = True
-    Left = 664
-    Top = 48
+    Left = 996
+    Top = 72
     Bitmap = {
       4C7A0A0000001000000010000000A50500000000000078DAED99096C145518C7
       BB4777BBDD657B1FDBD26EB7BBBDB75B7A6F8BF41068A187581015A8550382B4
@@ -4649,5 +4600,14 @@ object fMain: TfMain
       0000000000000000000000000000000000000000000000000000000000000000
       000000000000000000000000000000FC38F0367623
     }
+  end
+  object ActionsCommon: TActionList
+    Left = 996
+    Top = 1109
+    object actSelectAll: TAction
+      Caption = 'Select all'
+      ShortCut = 16449
+      OnExecute = actSelectAllExecute
+    end
   end
 end

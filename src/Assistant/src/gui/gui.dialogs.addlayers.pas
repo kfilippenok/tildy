@@ -21,6 +21,7 @@ type
     btnCancel: TSpeedButton;
     procedure btnAddClick(Sender: TObject);
     procedure btnCancelClick(Sender: TObject);
+    procedure ProvidersListSelectionChange(Sender: TObject; User: boolean);
   private
     MapView: TMapView;
   public
@@ -39,6 +40,12 @@ implementation
 procedure TfAddLayers.btnCancelClick(Sender: TObject);
 begin
   Self.Close;
+end;
+
+procedure TfAddLayers.ProvidersListSelectionChange(Sender: TObject;
+  User: boolean);
+begin
+  btnAdd.Enabled := True;
 end;
 
 procedure TfAddLayers.btnAddClick(Sender: TObject);
