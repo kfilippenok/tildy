@@ -86,19 +86,20 @@
         <ResourceBaseClass Value="Form"/>
       </Unit>
       <Unit>
-        <Filename Value="src/gui/DlgAddLayers.pas"/>
+        <Filename Value="src/gui/gui.dialogs.addlayers.pas"/>
         <IsPartOfProject Value="True"/>
         <ComponentName Value="fAddLayers"/>
         <HasResources Value="True"/>
         <ResourceBaseClass Value="Form"/>
+        <UnitName Value="GUI.Dialogs.AddLayers"/>
       </Unit>
       <Unit>
-        <Filename Value="src/gui/dlgeditareaname.pas"/>
+        <Filename Value="src/gui/gui.dialogs.editareaname.pas"/>
         <IsPartOfProject Value="True"/>
         <ComponentName Value="fEditAreaName"/>
         <HasResources Value="True"/>
         <ResourceBaseClass Value="Form"/>
-        <UnitName Value="DlgEditAreaName"/>
+        <UnitName Value="GUI.Dialogs.EditAreaName"/>
       </Unit>
     </Units>
   </ProjectOptions>

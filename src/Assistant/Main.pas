@@ -7,12 +7,12 @@ interface
 uses
   Classes, SysUtils, process, Forms, Controls, Graphics, Dialogs, ExtCtrls,
   StdCtrls, ComCtrls, ActnList, EditBtn, CheckLst, Buttons, Menus, nullable,
-  indSliders, LazFileUtils,
+  indSliders, LazFileUtils, IniFiles, Types,
   // MapView
   mvMapViewer, mvDLECache, mvEngine, mvTypes, mvDE_BGRA, mvDrawingEngine,
-  mvGpsObj, mvDLEFpc, mvPluginCommon, mvAreaSelectionPlugin,
+  mvGpsObj, mvDLEFpc, mvPluginCommon, mvAreaSelectionPlugin, mvMapProvider,
   // Dialogs
-  DlgAddLayers, DlgCoordinatesHelp, Types;
+  GUI.Dialogs.AddLayers, GUI.Dialogs.EditAreaName;
 
 type
 
@@ -23,16 +23,16 @@ type
   TfMain = class(TForm)
     actAreasAdd: TAction;
     actAreasDelete: TAction;
+    actAreasEditName: TAction;
     actAreasImport: TAction;
     actAreasExport: TAction;
+    Action1: TAction;
     ActionsAreas: TActionList;
-    actStartStop: TAction;
     ActionList: TActionList;
     btnAddArea: TSpeedButton;
     btnDeleteLayer: TSpeedButton;
     btnDeleteArea: TSpeedButton;
     btnImportAreas: TSpeedButton;
-    btnStartDownload: TButton;
     chkCache: TCheckBox;
     AreasUpDown: TUpDown;
     ImagesCommon: TImageList;
@@ -41,13 +41,8 @@ type
     lblCache: TLabel;
     lblLayers: TLabel;
     LayersList: TCheckListBox;
-    chShowFileType: TCheckBox;
-    chkOutput: TCheckBox;
-    chkProviderName: TCheckBox;
-    CoordSecondLatitude: TLabeledEdit;
     AreasList: TListBox;
     MapView: TMapView;
-    miCoordinatesHelp: TMenuItem;
     MvBGRADrawingEngine: TMvBGRADrawingEngine;
     MVDEFPC: TMVDEFPC;
     MvPluginManager: TMvPluginManager;
@@ -57,73 +52,39 @@ type
     panProviderMap: TPanel;
     panCache: TPanel;
     panLayers: TPanel;
-    PathExecutable: TFileNameEdit;
-    groupCoordinates: TGroupBox;
-    groupExecutable: TGroupBox;
-    groupZoom: TGroupBox;
-    CoordFirstLatitude: TLabeledEdit;
-    CoordFirstLongtitude: TLabeledEdit;
-    CoordSecondLongtitude: TLabeledEdit;
     lblDebugZoom: TLabel;
     lblDebugLon: TLabel;
     lblDebugLat: TLabel;
-    lblMaxZoom: TLabel;
-    lblMinZoomValue: TLabel;
-    lblMaxZoomValue: TLabel;
-    lblMinZoom: TLabel;
-    FullyOrPartially: TComboBox;
     panDebug: TPanel;
     PopupMapView: TPopupMenu;
-    ProcessTilesdownloader: TProcess;
     LayersUpDown: TUpDown;
     btnAddLayer: TSpeedButton;
     btnExportAreas: TSpeedButton;
     SaveDialog: TSaveDialog;
-    panZoom2: TPanel;
     btnEditArea: TSpeedButton;
-    btnAreaUp: TSpeedButton;
-    ZoomRange: TMultiSlider;
-    SaveMethodVariations: TComboBox;
     DirectoryCache: TDirectoryEdit;
-    DirectoryOutput: TDirectoryEdit;
-    edDivider: TEdit;
-    groupOutput: TGroupBox;
     groupOther: TGroupBox;
-    groupSaveMethod: TGroupBox;
-    groupProviderTiles: TGroupBox;
-    ProviderName: TLabeledEdit;
-    ConsoleOutput: TMemo;
     MVDECache: TMVDECache;
     panMV: TPanel;
-    ProviderVariationsTiles: TComboBox;
     ProviderVariationsMap: TComboBox;
     mvScrollBox: TScrollBox;
-    tdScrollBox: TScrollBox;
-    Settings: TPageControl;
-    pageSettings: TTabSheet;
-    pageTilesDownloader: TTabSheet;
     mvSsettings: TSplitter;
-    optionsSoutlog: TSplitter;
     procedure actAreasAddExecute(Sender: TObject);
     procedure actAreasDeleteExecute(Sender: TObject);
+    procedure actAreasEditNameExecute(Sender: TObject);
     procedure actAreasExportExecute(Sender: TObject);
     procedure actAreasImportExecute(Sender: TObject);
+    procedure actEditAreaNameExecute(Sender: TObject);
     procedure ActionsAreasUpdate(AAction: TBasicAction; var Handled: Boolean);
-    procedure actStartStopExecute(Sender: TObject);
+    procedure AreasListDblClick(Sender: TObject);
     procedure AreasListSelectionChange(Sender: TObject; User: boolean);
     procedure AreasUpDownClick(Sender: TObject; Button: TUDBtnType);
     procedure btnAddLayerClick(Sender: TObject);
     procedure btnDeleteLayerClick(Sender: TObject);
-    procedure btnEditAreaClick(Sender: TObject);
-    procedure btnStartDownloadClick(Sender: TObject);
     procedure chkCacheChange(Sender: TObject);
-    procedure chkOutputChange(Sender: TObject);
-    procedure chkProviderNameChange(Sender: TObject);
     procedure DirectoryCacheChange(Sender: TObject);
     procedure FormActivate(Sender: TObject);
     procedure FormCreate(Sender: TObject);
-    procedure FullyOrPartiallySelect(Sender: TObject);
-    procedure groupCoordinatesResize(Sender: TObject);
     procedure LayersListClick(Sender: TObject);
     procedure LayersListClickCheck(Sender: TObject);
     procedure LayersListDragDrop(Sender, Source: TObject; X, Y: Integer);
@@ -134,12 +95,8 @@ type
     procedure MapViewMouseMove(Sender: TObject; Shift: TShiftState; X,
       Y: Integer);
     procedure MapViewZoomChange(Sender: TObject);
-    procedure miCoordinatesHelpClick(Sender: TObject);
-    procedure PathExecutableChange(Sender: TObject);
-    procedure PopupMapViewPopup(Sender: TObject);
     procedure ProviderVariationsMapChange(Sender: TObject);
     procedure LayersUpDownClick(Sender: TObject; Button: TUDBtnType);
-    procedure btnCoordinateHelpClick(Sender: TObject);
     procedure ProviderVariationsMapSelect(Sender: TObject);
     procedure OnSelectedAreaBeginChange(Sender: TObject);
   strict private
@@ -174,40 +131,23 @@ implementation
 
 {$R *.lfm}
 
-uses
-  IniFiles, DlgEditAreaName;
-
 { TfMain }
 
-procedure TfMain.actStartStopExecute(Sender: TObject);
+procedure TfMain.AreasListDblClick(Sender: TObject);
 begin
-  MapView.Active := not MapView.Active;
-
-  if MapView.Active then
-    actStartStop.Caption := 'Stop'
-  else
-    actStartStop.Caption := 'Start';
+  actAreasEditName.Execute;
 end;
 
 procedure TfMain.ActionsAreasUpdate(AAction: TBasicAction; var Handled: Boolean);
 var
-  LItemSelected: Boolean;
+  IsItemSelected: Boolean;
 begin
-  LItemSelected := (AreasList.ItemIndex <> -1);
+  IsItemSelected := (AreasList.ItemIndex <> -1);
 
-  btnDeleteArea.Enabled := LItemSelected;
-  btnEditArea.Enabled   := LItemSelected;
-  AreasUpDown.Enabled := btnDeleteArea.Enabled and (AreasList.Count > 1);
-  if AreasList.Count > 0 then
-  begin
-    btnExportAreas.Enabled := True;
-    btnExportAreas.ImageIndex := ImgIndFileSave;
-  end
-  else
-  begin
-    btnExportAreas.Enabled := False;
-    btnExportAreas.ImageIndex := ImgIndFileSaveOff;
-  end;
+  actAreasDelete.Enabled   := IsItemSelected;
+  actAreasEditName.Enabled := IsItemSelected;
+  AreasUpDown.Enabled      := IsItemSelected and (AreasList.Count > 1);
+  actAreasExport.Enabled   := AreasList.Count > 0;
 
   Handled := True;
 end;
@@ -301,6 +241,19 @@ begin
   end;
 end;
 
+procedure TfMain.actEditAreaNameExecute(Sender: TObject);
+begin
+  fEditAreaName.AreaName := AreasList.Items[AreasList.ItemIndex];
+  fEditAreaName.ShowModal;
+  if fEditAreaName.ModalResult = mrOK then
+  begin
+    AreasList.Items[AreasList.ItemIndex] := fEditAreaName.AreaName;
+    try
+      (AreasList.Items.Objects[AreasList.ItemIndex] as TAreaSelectionPlugin).Caption := fEditAreaName.AreaName;
+    finally end;
+  end;
+end;
+
 procedure TfMain.actAreasExportExecute(Sender: TObject);
 const
   _SectionStr = '[Area]';
@@ -360,6 +313,19 @@ begin
   end;
 
   MapView.Refresh;
+end;
+
+procedure TfMain.actAreasEditNameExecute(Sender: TObject);
+begin
+  fEditAreaName.AreaName := AreasList.Items[AreasList.ItemIndex];
+  fEditAreaName.ShowModal;
+  if fEditAreaName.ModalResult = mrOK then
+  begin
+    AreasList.Items[AreasList.ItemIndex] := fEditAreaName.AreaName;
+    try
+      (AreasList.Items.Objects[AreasList.ItemIndex] as TAreaSelectionPlugin).Caption := fEditAreaName.AreaName;
+    finally end;
+  end;
 end;
 
 procedure TfMain.AreasListSelectionChange(Sender: TObject; User: boolean);
@@ -465,62 +431,6 @@ begin
   LayersUpDown.Enabled := btnDeleteLayer.Enabled;
 end;
 
-procedure TfMain.btnEditAreaClick(Sender: TObject);
-begin
-  fEditAreaName.AreaName := AreasList.Items[AreasList.ItemIndex];
-  fEditAreaName.ShowModal;
-  if fEditAreaName.ModalResult = mrOK then
-  begin
-    AreasList.Items[AreasList.ItemIndex] := fEditAreaName.AreaName;
-    try
-      (AreasList.Items.Objects[AreasList.ItemIndex] as TAreaSelectionPlugin).Caption := fEditAreaName.AreaName;
-    finally end;
-  end;
-end;
-
-procedure TfMain.btnStartDownloadClick(Sender: TObject);
-var
-  StrVariation: String;
-begin
-  ProcessTilesdownloader.Executable := PathExecutable.FileName;
-  ProcessTilesdownloader.Options := [poWaitOnExit, poUsePipes];
-
-  // -provider
-  StrVariation := ProviderVariationsTiles.Items[ProviderVariationsTiles.ItemIndex];
-  case StrVariation of
-    'OpenStreetMap Mapnik'      : StrVariation := 'osm';
-    'Open Topo Map'             : StrVariation := 'otm';
-    'OpenStreetMap.fr Cycle Map': StrVariation := 'osm-cycle';
-    'OpenRailwayMap'            : StrVariation := 'railway';
-  end;
-  ProcessTilesdownloader.Parameters.Add('-provider ' + StrVariation);
-
-  // -provider-name
-  if chkProviderName.Checked then
-    ProcessTilesdownloader.Parameters.Add('-provider-name ' + ProviderName.Text);
-
-  // -output
-  if chkOutput.Checked then
-    ProcessTilesdownloader.Parameters.Add('-output ' + DirectoryOutput.Directory);
-
-  // -save-method
-  StrVariation := SaveMethodVariations.Items[SaveMethodVariations.ItemIndex];
-  case StrVariation of
-    'pattern': ProcessTilesdownloader.Parameters.Add('-save-method pattern ' + '-divider ' + edDivider.Text);
-  end;
-
-  // coordinates or full-map
-  StrVariation := FullyOrPartially.Items[FullyOrPartially.ItemIndex];
-  case StrVariation of
-    'Full map': ProcessTilesdownloader.Parameters.Add('-full-map');
-    'Coordinates' :;
-  end;
-
-  ProcessTilesdownloader.Execute;
-
-  ConsoleOutput.Lines.LoadFromStream(ProcessTilesdownloader.Output);
-end;
-
 procedure TfMain.chkCacheChange(Sender: TObject);
 begin
   MapView.Engine.ClearCache;
@@ -538,16 +448,6 @@ begin
   MapView.Invalidate;
 end;
 
-procedure TfMain.chkOutputChange(Sender: TObject);
-begin
-  DirectoryOutput.Enabled := chkOutput.Checked;
-end;
-
-procedure TfMain.chkProviderNameChange(Sender: TObject);
-begin
-  ProviderName.Enabled := chkProviderName.Checked;
-end;
-
 procedure TfMain.DirectoryCacheChange(Sender: TObject);
 begin
   MapView.CacheLocation := clCustom;
@@ -556,8 +456,7 @@ end;
 
 procedure TfMain.FormActivate(Sender: TObject);
 begin
-  MapView.GetMapProviders(ProviderVariationsMap.Items);
-  MapView.GetMapProviders(ProviderVariationsTiles.Items);
+  MapProvidersToSortedStrings(ProviderVariationsMap.Items);
   ReloadLayersList;
 end;
 
@@ -568,32 +467,6 @@ begin
   FormatSettings.DecimalSeparator := '.';
   FPluginCount := 0;
   FPrevAreaIndex.Clear;
-end;
-
-procedure TfMain.FullyOrPartiallySelect(Sender: TObject);
-begin
-  case FullyOrPartially.ItemIndex of
-    0:
-      begin
-        CoordFirstLatitude.Enabled := False;
-        CoordFirstLongtitude.Enabled := False;
-        CoordSecondLatitude.Enabled := False;
-        CoordSecondLongtitude.Enabled := False;
-      end;
-    1:
-      begin
-        CoordFirstLatitude.Enabled := True;
-        CoordFirstLongtitude.Enabled := True;
-        CoordSecondLatitude.Enabled := True;
-        CoordSecondLongtitude.Enabled := True;
-      end;
-  end;
-end;
-
-procedure TfMain.groupCoordinatesResize(Sender: TObject);
-begin
-  CoordFirstLatitude.Width := Trunc(FullyOrPartially.Width / 2) - 3;
-  CoordSecondLatitude.Width := Trunc(FullyOrPartially.Width / 2) - 2;
 end;
 
 procedure TfMain.LayersListClick(Sender: TObject);
@@ -665,29 +538,6 @@ begin
   lblDebugZoom.Caption := 'Zoom: ' + MapView.Zoom.ToString;
 end;
 
-procedure TfMain.miCoordinatesHelpClick(Sender: TObject);
-begin
-  fCoordinatesHelp.ShowModal;
-end;
-
-procedure TfMain.PathExecutableChange(Sender: TObject);
-begin
-  if FileIsExecutable(PathExecutable.FileName) then
-  begin
-    btnStartDownload.Enabled := True
-  end
-  else
-    btnStartDownload.Enabled := False;
-end;
-
-procedure TfMain.PopupMapViewPopup(Sender: TObject);
-begin
-  if Length(SelectedCoordinates) > 0 then
-    miCoordinatesHelp.Enabled := True
-  else
-    miCoordinatesHelp.Enabled := False;
-end;
-
 procedure TfMain.ProviderVariationsMapChange(Sender: TObject);
 begin
   with ProviderVariationsMap do
@@ -720,11 +570,6 @@ begin
         LayersList.Selected[NewIndex] := True;
       end;
   end;
-end;
-
-procedure TfMain.btnCoordinateHelpClick(Sender: TObject);
-begin
-  fCoordinatesHelp.ShowModal;
 end;
 
 procedure TfMain.ProviderVariationsMapSelect(Sender: TObject);

@@ -60,7 +60,7 @@ object fAddLayers: TfAddLayers
       AutoSize = True
       Caption = 'Cancel'
       Images = fMain.ImagesCommon
-      ImageIndex = 9
+      ImageIndex = 7
       Layout = blGlyphRight
       Margin = 10
       Spacing = 10

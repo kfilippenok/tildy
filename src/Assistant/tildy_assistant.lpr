@@ -10,7 +10,9 @@ uses
   athreads,
   {$ENDIF}
   Interfaces, // this includes the LCL widgetset
-  Forms, Main, DlgAddLayers, DlgEditAreaName;
+  Forms, Main,
+  // GUI
+  GUI.Dialogs.EditAreaName;
 
 {$R *.res}
 

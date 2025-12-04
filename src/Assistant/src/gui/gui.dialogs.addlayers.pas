@@ -1,4 +1,4 @@
-unit DlgAddLayers;
+unit GUI.Dialogs.AddLayers;
 
 {$mode ObjFPC}{$H+}
 
@@ -6,7 +6,9 @@ interface
 
 uses
   Classes, SysUtils, Forms, Controls, Graphics, Dialogs, StdCtrls, ExtCtrls,
-  Buttons, mvMapViewer, mvDrawingEngine;
+  Buttons,
+  // MapView
+  mvMapViewer, mvDrawingEngine, mvMapProvider;
 
 type
 
@@ -63,7 +65,7 @@ begin
   inherited Create(Application);
 
   MapView := AMapView;
-  MapView.GetMapProviders(ProvidersList.Items);
+  MapProvidersToSortedStrings(ProvidersList.Items);
 end;
 
 end.

@@ -41,7 +41,7 @@ object fEditAreaName: TfEditAreaName
     BorderSpacing.Bottom = 10
     Caption = 'Apply'
     Images = fMain.ImagesCommon
-    ImageIndex = 8
+    ImageIndex = 6
     Layout = blGlyphRight
     Margin = 10
     Spacing = 10
@@ -61,7 +61,7 @@ object fEditAreaName: TfEditAreaName
     BorderSpacing.Right = 10
     Caption = 'Cancel'
     Images = fMain.ImagesCommon
-    ImageIndex = 9
+    ImageIndex = 7
     Layout = blGlyphRight
     Margin = 10
     Spacing = 10

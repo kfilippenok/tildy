@@ -1,4 +1,4 @@
-unit DlgEditAreaName;
+unit GUI.Dialogs.EditAreaName;
 
 {$mode ObjFPC}{$H+}
 
