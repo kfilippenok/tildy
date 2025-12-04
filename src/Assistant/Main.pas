@@ -35,8 +35,7 @@ type
     btnStartDownload: TButton;
     chkCache: TCheckBox;
     AreasUpDown: TUpDown;
-    ImagesDark: TImageList;
-    ImagesLight: TImageList;
+    ImagesCommon: TImageList;
     lblAreas: TLabel;
     lblProviderMap: TLabel;
     lblCache: TLabel;
@@ -82,6 +81,7 @@ type
     SaveDialog: TSaveDialog;
     panZoom2: TPanel;
     btnEditArea: TSpeedButton;
+    btnAreaUp: TSpeedButton;
     ZoomRange: TMultiSlider;
     SaveMethodVariations: TComboBox;
     DirectoryCache: TDirectoryEdit;
@@ -147,12 +147,8 @@ type
     FConcreteArea: TRealArea;
     FPluginCount: Integer;
     FPrevAreaIndex: TNullableInt;
-    function GetImagesCurrent: TImageList;
     procedure ReloadLayersList;
     procedure SetEnableAreaConrols;
-    function IsDarkTheme: Boolean;
-  published
-    property ImagesCurrent: TImageList read GetImagesCurrent;
   end;
 
 const
@@ -572,16 +568,6 @@ begin
   FormatSettings.DecimalSeparator := '.';
   FPluginCount := 0;
   FPrevAreaIndex.Clear;
-
-  { Setting Imagages depend on system theme }
-  LImages := ImagesCurrent;
-  btnAddLayer.Images    := LImages;
-  btnDeleteLayer.Images := LImages;
-  btnAddArea.Images     := LImages;
-  btnDeleteArea.Images  := LImages;
-  btnExportAreas.Images := LImages;
-  btnImportAreas.Images := LImages;
-  btnEditArea.Images    := LImages;
 end;
 
 procedure TfMain.FullyOrPartiallySelect(Sender: TObject);
@@ -771,14 +757,6 @@ begin
   end;
 end;
 
-function TfMain.GetImagesCurrent: TImageList;
-begin
-  if IsDarkTheme then
-    Result := ImagesDark
-  else
-    Result := ImagesLight;
-end;
-
 procedure TfMain.SetEnableAreaConrols;
 var
   LItemSelected: Boolean;
@@ -788,17 +766,6 @@ begin
   btnDeleteArea.Enabled := LItemSelected;
   btnEditArea.Enabled   := LItemSelected;
   AreasUpDown.Enabled := btnDeleteArea.Enabled and (AreasList.Count > 1);
-end;
-
-// by "Hansaplast" & "Alextp" from Lazarus forum
-// source: https://wiki.freepascal.org/Dark_theme#:~:text=%3B%0Aend%3B-,Example%202,-//%20by%20%22Hansaplast%22%20%26%20%22Alextp
-function TfMain.IsDarkTheme: Boolean;
-  function _Level(C: TColor): double;
-  begin
-    Result:= Red(C)*0.3 + Green(C)*0.59 + Blue(C)*0.11;
-  end;
-begin
-  Result:= _Level(ColorToRGB(clWindow)) < _Level(ColorToRGB(clWindowText));
 end;
 
 end.

@@ -18,7 +18,6 @@ type
     procedure btnApplyClick(Sender: TObject);
     procedure btnCloseClick(Sender: TObject);
     procedure edAreaNameChange(Sender: TObject);
-    procedure FormCreate(Sender: TObject);
   strict private
     FAreaName: String;
     procedure SetAreaName(AAreaName: String);
@@ -41,15 +40,6 @@ uses
 procedure TfEditAreaName.edAreaNameChange(Sender: TObject);
 begin
   FAreaName := edAreaName.Text;
-end;
-
-procedure TfEditAreaName.FormCreate(Sender: TObject);
-var
-  LImages: TImageList;
-begin
-  LImages := fMain.ImagesCurrent;
-  btnApply.Images := LImages;
-  btnClose.Images := LImages;
 end;
 
 procedure TfEditAreaName.btnCloseClick(Sender: TObject);
