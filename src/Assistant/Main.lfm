@@ -650,6 +650,9 @@ object fMain: TfMain
     Top = 72
     object TileInfoPlugin: TTileInfoPlugin
       MapView = MapView
+      BackgroundColor = 14978106
+      BackgroundOpacity = 0.699999988079071
+      Font.Color = clWhite
       InfoMask = '%0:d:%1:d'
     end
   end
