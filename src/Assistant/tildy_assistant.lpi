@@ -23,7 +23,7 @@
           </Target>
           <SearchPaths>
             <IncludeFiles Value="$(ProjOutDir)"/>
-            <OtherUnitFiles Value="src/gui"/>
+            <OtherUnitFiles Value="src/gui;src/common"/>
             <UnitOutputDirectory Value="lib/$(TargetCPU)-$(TargetOS)"/>
           </SearchPaths>
           <CodeGeneration>
@@ -101,6 +101,11 @@
         <ResourceBaseClass Value="Form"/>
         <UnitName Value="GUI.Dialogs.EditAreaName"/>
       </Unit>
+      <Unit>
+        <Filename Value="src/common/common.colors.pas"/>
+        <IsPartOfProject Value="True"/>
+        <UnitName Value="Common.Colors"/>
+      </Unit>
     </Units>
   </ProjectOptions>
   <CompilerOptions>
@@ -110,7 +115,7 @@
     </Target>
     <SearchPaths>
       <IncludeFiles Value="$(ProjOutDir)"/>
-      <OtherUnitFiles Value="src/gui"/>
+      <OtherUnitFiles Value="src/gui;src/common"/>
       <UnitOutputDirectory Value="lib/$(TargetCPU)-$(TargetOS)"/>
     </SearchPaths>
     <Parsing>

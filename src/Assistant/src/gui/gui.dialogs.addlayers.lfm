@@ -44,7 +44,6 @@ object fAddLayers: TfAddLayers
       BorderSpacing.Around = 15
       Caption = 'Add'
       Enabled = False
-      Images = fMain.ImagesCommon
       ImageIndex = 0
       Layout = blGlyphRight
       Margin = 10
@@ -62,7 +61,6 @@ object fAddLayers: TfAddLayers
       Anchors = [akTop, akRight]
       AutoSize = True
       Caption = 'Cancel'
-      Images = fMain.ImagesCommon
       ImageIndex = 7
       Layout = blGlyphRight
       Margin = 10

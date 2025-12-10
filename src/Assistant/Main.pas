@@ -12,6 +12,8 @@ uses
   mvMapViewer, mvDLECache, mvEngine, mvTypes, mvDE_BGRA, mvDrawingEngine,
   mvDLEFpc, mvPluginCommon, mvAreaSelectionPlugin, mvPlugins,
   mvMapProvider,
+  // Common
+  Common.Colors,
   // Dialogs
   GUI.Dialogs.AddLayers, GUI.Dialogs.EditAreaName;
 
@@ -29,6 +31,7 @@ type
     actAreasExport: TAction;
     actAreasUp: TAction;
     actAreasDown: TAction;
+    actTileInfo: TAction;
     actZoomIn: TAction;
     actZoomOut: TAction;
     actSelectAll: TAction;
@@ -47,7 +50,8 @@ type
     btnLayersDown: TSpeedButton;
     btnZoomOut: TSpeedButton;
     chkCache: TCheckBox;
-    ImagesCommon: TImageList;
+    ImagesPrimary: TImageList;
+    ImagesDark: TImageList;
     lblAreas: TLabel;
     lblProviderMap: TLabel;
     lblCache: TLabel;
@@ -61,6 +65,7 @@ type
     btnAreasUp: TSpeedButton;
     btnLayersUp: TSpeedButton;
     btnZoomIn: TSpeedButton;
+    btnTileInfo: TSpeedButton;
     TileInfoPlugin: TTileInfoPlugin;
     OpenDialog: TOpenDialog;
     panAreas: TPanel;
@@ -99,6 +104,7 @@ type
     procedure actLayersDownExecute(Sender: TObject);
     procedure actLayersUpExecute(Sender: TObject);
     procedure actSelectAllExecute(Sender: TObject);
+    procedure actTileInfoExecute(Sender: TObject);
     procedure actZoomInExecute(Sender: TObject);
     procedure actZoomOutExecute(Sender: TObject);
     procedure AreasListDblClick(Sender: TObject);
@@ -123,9 +129,16 @@ type
     procedure ProviderVariationsMapSelect(Sender: TObject);
     procedure OnSelectedAreaBeginChange(Sender: TObject);
   strict private
+    FCurrentImageList: TImageList;
     FPluginCount: Integer;
     FPrevAreaIndex: TNullableInt;
+    FShowTileInfo: Boolean;
+    procedure SetShowTileInfo(AValue: Boolean);
     procedure ReloadLayersList;
+    procedure DetectAndApplyTheme;
+    property ShowTileInfo: Boolean read FShowTileInfo write SetShowTileInfo;
+  public
+    property CurrentImages: TImageList read FCurrentImageList;
   end;
 
 var
@@ -134,6 +147,9 @@ var
 implementation
 
 {$R *.lfm}
+
+const
+  ImgIndTileInfo: array[Boolean] of Integer = (12, 13);
 
 { TfMain }
 
@@ -225,6 +241,11 @@ begin
   if not AreasList.Focused then Exit;
 
   AreasList.SelectAll;
+end;
+
+procedure TfMain.actTileInfoExecute(Sender: TObject);
+begin
+  ShowTileInfo := not ShowTileInfo;
 end;
 
 procedure TfMain.actZoomInExecute(Sender: TObject);
@@ -598,12 +619,12 @@ begin
 end;
 
 procedure TfMain.FormCreate(Sender: TObject);
-var
-  LImages: TImageList;
 begin
   FormatSettings.DecimalSeparator := '.';
   FPluginCount := 0;
   FPrevAreaIndex.Clear;
+  DetectAndApplyTheme;
+  ShowTileInfo := False;
 end;
 
 procedure TfMain.LayersListClickCheck(Sender: TObject);
@@ -733,6 +754,14 @@ begin
   AreasList.ItemIndex := LIndex;
 end;
 
+procedure TfMain.SetShowTileInfo(AValue: Boolean);
+begin
+  FShowTileInfo := AValue;
+
+  btnTileInfo.ImageIndex := ImgIndTileInfo[FShowTileInfo];
+  TileInfoPlugin.Enabled := FShowTileInfo;
+end;
+
 procedure TfMain.ReloadLayersList;
 var
   il: Integer;
@@ -746,6 +775,14 @@ begin
     if MapLayer.Visible then
       LayersList.Checked[il] := True;
   end;
+end;
+
+procedure TfMain.DetectAndApplyTheme;
+var
+  i: Integer;
+begin
+  if IsDarkTheme then
+    ImagesPrimary.Assign(ImagesDark);
 end;
 
 end.
