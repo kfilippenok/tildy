@@ -1,0 +1,72 @@
+object fEditAreaName: TfEditAreaName
+  Left = 540
+  Height = 188
+  Top = 37
+  Width = 790
+  AutoSize = True
+  BorderStyle = bsDialog
+  Caption = 'Edit Area name'
+  ClientHeight = 188
+  ClientWidth = 790
+  DesignTimePPI = 144
+  ParentFont = True
+  Position = poOwnerFormCenter
+  LCLVersion = '4.5.0.0'
+  object edAreaName: TEdit
+    AnchorSideLeft.Control = Owner
+    AnchorSideTop.Control = Owner
+    AnchorSideRight.Control = Owner
+    AnchorSideRight.Side = asrBottom
+    Left = 15
+    Height = 33
+    Top = 15
+    Width = 760
+    HelpType = htKeyword
+    Anchors = [akTop, akLeft, akRight]
+    BorderSpacing.Around = 15
+    Constraints.MinWidth = 600
+    TabOrder = 0
+    OnChange = edAreaNameChange
+  end
+  object btnApply: TSpeedButton
+    AnchorSideTop.Control = edAreaName
+    AnchorSideTop.Side = asrBottom
+    AnchorSideRight.Control = Owner
+    AnchorSideRight.Side = asrBottom
+    Left = 702
+    Height = 51
+    Top = 63
+    Width = 73
+    Anchors = [akTop, akRight]
+    AutoSize = True
+    BorderSpacing.Right = 15
+    BorderSpacing.Bottom = 15
+    Caption = 'Apply'
+    Images = fMain.ImagesPrimary
+    ImageIndex = 6
+    Layout = blGlyphRight
+    Margin = 10
+    Spacing = 10
+    OnClick = btnApplyClick
+  end
+  object btnClose: TSpeedButton
+    AnchorSideTop.Control = btnApply
+    AnchorSideTop.Side = asrCenter
+    AnchorSideRight.Control = btnApply
+    Left = 610
+    Height = 51
+    Top = 63
+    Width = 77
+    Anchors = [akTop, akRight]
+    AutoSize = True
+    BorderSpacing.Left = 15
+    BorderSpacing.Right = 15
+    Caption = 'Cancel'
+    Images = fMain.ImagesPrimary
+    ImageIndex = 7
+    Layout = blGlyphRight
+    Margin = 10
+    Spacing = 10
+    OnClick = btnCloseClick
+  end
+end

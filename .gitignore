@@ -8,11 +8,12 @@ backup/
 lib/
 *.exe
 tildy
+tildy_gui
 *.lps
 tiles/
 cache/
-mapviewer
-out/
+build/
+bin/
 
 # lazbuild
 *.swp
