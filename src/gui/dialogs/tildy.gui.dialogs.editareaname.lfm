@@ -5,13 +5,14 @@ object fEditAreaName: TfEditAreaName
   Width = 790
   AutoSize = True
   BorderStyle = bsDialog
-  Caption = 'Edit Area name'
+  Caption = 'Edit area name'
   ClientHeight = 188
   ClientWidth = 790
   DesignTimePPI = 144
   ParentFont = True
   Position = poOwnerFormCenter
   LCLVersion = '4.5.0.0'
+  OnCreate = FormCreate
   object edAreaName: TEdit
     AnchorSideLeft.Control = Owner
     AnchorSideTop.Control = Owner
@@ -33,15 +34,14 @@ object fEditAreaName: TfEditAreaName
     AnchorSideTop.Side = asrBottom
     AnchorSideRight.Control = Owner
     AnchorSideRight.Side = asrBottom
-    Left = 702
-    Height = 51
+    Left = 725
+    Height = 50
     Top = 63
-    Width = 73
+    Width = 50
     Anchors = [akTop, akRight]
     AutoSize = True
     BorderSpacing.Right = 15
     BorderSpacing.Bottom = 15
-    Caption = 'Apply'
     Images = fMain.ImagesPrimary
     ImageIndex = 6
     Layout = blGlyphRight
@@ -49,24 +49,23 @@ object fEditAreaName: TfEditAreaName
     Spacing = 10
     OnClick = btnApplyClick
   end
-  object btnClose: TSpeedButton
+  object btnCancel: TSpeedButton
     AnchorSideTop.Control = btnApply
     AnchorSideTop.Side = asrCenter
     AnchorSideRight.Control = btnApply
-    Left = 610
-    Height = 51
+    Left = 660
+    Height = 50
     Top = 63
-    Width = 77
+    Width = 50
     Anchors = [akTop, akRight]
     AutoSize = True
     BorderSpacing.Left = 15
     BorderSpacing.Right = 15
-    Caption = 'Cancel'
     Images = fMain.ImagesPrimary
     ImageIndex = 7
     Layout = blGlyphRight
     Margin = 10
     Spacing = 10
-    OnClick = btnCloseClick
+    OnClick = btnCancelClick
   end
 end

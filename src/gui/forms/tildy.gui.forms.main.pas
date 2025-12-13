@@ -6,10 +6,12 @@ interface
 
 uses
   Classes, SysUtils, Forms, Controls, Graphics, Dialogs, ExtCtrls, StdCtrls,
-  ComCtrls, ActnList, EditBtn, CheckLst, Buttons, Menus, ButtonPanel, nullable,
-  indSliders, LazFileUtils, IniFiles, Types, System.UITypes,
+  ComCtrls, ActnList, EditBtn, CheckLst, Buttons, Menus,nullable,
+  LazFileUtils, IniFiles, Types, System.UITypes,
+  // Translate
+  LCLTranslator, Tildy.GUI.i18n.Runtime, Tildy.GUI.i18n.StrConsts,
   // MapView
-  mvMapViewer, mvDLECache, mvEngine, mvTypes, mvDE_BGRA, mvDrawingEngine,
+  mvMapViewer, mvDLECache, mvEngine, mvTypes, mvDE_BGRA,
   mvDLEFpc, mvPluginCommon, mvAreaSelectionPlugin, mvPlugins,
   mvMapProvider,
   // Brand
@@ -23,7 +25,7 @@ type
 
   { TfMain }
 
-  TfMain = class(TForm)
+  TfMain = class(TForm, ILocalizableForm)
     actAreasAdd: TAction;
     actAreasDelete: TAction;
     actAreasEditName: TAction;
@@ -58,7 +60,11 @@ type
     lblLayers: TLabel;
     LayersList: TCheckListBox;
     AreasList: TListBox;
+    MainMenu: TMainMenu;
     MapView: TMapView;
+    miLangaugeEn: TMenuItem;
+    miLangaugeRu: TMenuItem;
+    miLanguage: TMenuItem;
     MvBGRADrawingEngine: TMvBGRADrawingEngine;
     MVDEFPC: TMVDEFPC;
     MvPluginManager: TMvPluginManager;
@@ -124,6 +130,8 @@ type
       Y: Integer);
     procedure MapViewResize(Sender: TObject);
     procedure MapViewZoomChange(Sender: TObject);
+    procedure miLangaugeEnClick(Sender: TObject);
+    procedure miLangaugeRuClick(Sender: TObject);
     procedure ProviderVariationsMapChange(Sender: TObject);
     procedure LayersUpDownClick(Sender: TObject; Button: TUDBtnType);
     procedure ProviderVariationsMapSelect(Sender: TObject);
@@ -136,9 +144,12 @@ type
     procedure SetShowTileInfo(AValue: Boolean);
     procedure ReloadLayersList;
     procedure DetectAndApplyTheme;
+    procedure UpdateDebugZoom;
+    procedure UpdateDebugCursorCoordinate(const X, Y: Integer);
     procedure PrepareAreaSelectionPlugin(AAreaSelectionPlugin: TAreaSelectionPlugin);
     property ShowTileInfo: Boolean read FShowTileInfo write SetShowTileInfo;
   public
+    procedure ApplyLanguage;
     property CurrentImages: TImageList read FCurrentImageList;
   end;
 
@@ -628,6 +639,11 @@ begin
   FPrevAreaIndex.Clear;
   DetectAndApplyTheme;
   ShowTileInfo := False;
+
+  lblDebugZoom.Caption := SZoom;
+  lblDebugLat.Caption  := SLat;
+  lblDebugLon.Caption  := SLon;
+  miLanguage.Caption   := SLanguage;
 end;
 
 procedure TfMain.LayersListClickCheck(Sender: TObject);
@@ -674,15 +690,8 @@ end;
 
 procedure TfMain.MapViewMouseMove(Sender: TObject; Shift: TShiftState; X,
   Y: Integer);
-var
-  LRealPoint: TRealPoint;
-  LPoint: TPoint;
-  i: Integer;
 begin
-  LPoint.X := X; LPoint.Y := Y;
-  LRealPoint := MapView.Engine.ScreenToLatLon(LPoint);
-  lblDebugLat.Caption := 'Lat: ' + Format('%13.10f', [LRealPoint.Lat]);
-  lblDebugLon.Caption := 'Lon: ' + Format('%14.10f', [LRealPoint.Lon]);
+  UpdateDebugCursorCoordinate(X, Y);
 end;
 
 procedure TfMain.MapViewResize(Sender: TObject);
@@ -700,7 +709,17 @@ end;
 
 procedure TfMain.MapViewZoomChange(Sender: TObject);
 begin
-  lblDebugZoom.Caption := 'Zoom: ' + MapView.Zoom.ToString;
+  UpdateDebugZoom;
+end;
+
+procedure TfMain.miLangaugeEnClick(Sender: TObject);
+begin
+  ApplyGUILanguage('en');
+end;
+
+procedure TfMain.miLangaugeRuClick(Sender: TObject);
+begin
+  ApplyGUILanguage('ru');
 end;
 
 procedure TfMain.ProviderVariationsMapChange(Sender: TObject);
@@ -714,6 +733,7 @@ begin
   MapView.ZoomMax     := LMaxZoom;
   MapView.OnMouseMove := @MapViewMouseMove;
   MapView.Active      := True;
+  MapViewZoomChange(Self);
 end;
 
 procedure TfMain.LayersUpDownClick(Sender: TObject; Button: TUDBtnType);
@@ -781,11 +801,26 @@ begin
 end;
 
 procedure TfMain.DetectAndApplyTheme;
-var
-  i: Integer;
 begin
   if IsDarkTheme then
     ImagesPrimary.Assign(ImagesDark);
+end;
+
+procedure TfMain.UpdateDebugZoom;
+begin
+  lblDebugZoom.Caption := SZoom + ': ' + MapView.Zoom.ToString;
+end;
+
+procedure TfMain.UpdateDebugCursorCoordinate(const X, Y: Integer);
+var
+  LRealPoint: TRealPoint;
+  LPoint: TPoint;
+  i: Integer;
+begin
+  LPoint.X := X; LPoint.Y := Y;
+  LRealPoint := MapView.Engine.ScreenToLatLon(LPoint);
+  lblDebugLat.Caption := SLat + ': ' + Format('%13.10f', [LRealPoint.Lat]);
+  lblDebugLon.Caption := SLon + ': ' + Format('%14.10f', [LRealPoint.Lon]);
 end;
 
 procedure TfMain.PrepareAreaSelectionPlugin(AAreaSelectionPlugin: TAreaSelectionPlugin);
@@ -793,6 +828,17 @@ begin
   AAreaSelectionPlugin.BackgroundColor := BrandColors.Secondary;
   AAreaSelectionPlugin.Pen.Color       := BrandColors.Accent;
   AAreaSelectionPlugin.Font.Color      := clWhite;
+end;
+
+procedure TfMain.ApplyLanguage;
+var
+  LPoint: TPoint;
+begin
+  LPoint := MapView.ScreenToClient(Mouse.CursorPos);
+
+  miLanguage.Caption := SLanguage;
+  UpdateDebugZoom;
+  UpdateDebugCursorCoordinate(LPoint.X, LPoint.Y)
 end;
 
 end.

@@ -12,7 +12,15 @@
         <DpiAware Value="True"/>
       </XPManifest>
       <Icon Value="0"/>
+      <Resources Count="2">
+        <Resource_0 FileName="..\resources\language\tildy_gui.ru.po" Type="RCDATA" ResourceName="TILDY_GUI.RU"/>
+        <Resource_1 FileName="..\resources\language\tildy_gui.en.po" Type="RCDATA" ResourceName="TILDY_GUI.EN"/>
+      </Resources>
     </General>
+    <i18n>
+      <EnableI18N Value="True"/>
+      <OutDir Value="../resources/language"/>
+    </i18n>
     <BuildModes>
       <Item Name="Debug" Default="True"/>
       <Item Name="Release">
@@ -23,7 +31,7 @@
           </Target>
           <SearchPaths>
             <IncludeFiles Value="$(ProjOutDir)"/>
-            <OtherUnitFiles Value="dialogs;forms;brand"/>
+            <OtherUnitFiles Value="dialogs;forms;brand;i18n"/>
             <UnitOutputDirectory Value="../../build/$(TargetOS)/release"/>
           </SearchPaths>
           <CodeGeneration>
@@ -106,6 +114,16 @@
         <ResourceBaseClass Value="Form"/>
         <UnitName Value="Tildy.GUI.Dialogs.EditAreaName"/>
       </Unit>
+      <Unit>
+        <Filename Value="i18n/tildy.gui.i18n.strconsts.pas"/>
+        <IsPartOfProject Value="True"/>
+        <UnitName Value="Tildy.GUI.i18n.StrConsts"/>
+      </Unit>
+      <Unit>
+        <Filename Value="i18n/tildy.gui.i18n.runtime.pas"/>
+        <IsPartOfProject Value="True"/>
+        <UnitName Value="Tildy.GUI.i18n.Runtime"/>
+      </Unit>
     </Units>
   </ProjectOptions>
   <CompilerOptions>
@@ -115,7 +133,7 @@
     </Target>
     <SearchPaths>
       <IncludeFiles Value="$(ProjOutDir)"/>
-      <OtherUnitFiles Value="dialogs;forms;brand"/>
+      <OtherUnitFiles Value="dialogs;forms;brand;i18n"/>
       <UnitOutputDirectory Value="../../build/$(TargetOS)/debug"/>
     </SearchPaths>
     <Parsing>

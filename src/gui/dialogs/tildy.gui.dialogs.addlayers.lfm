@@ -4,15 +4,16 @@ object fAddLayers: TfAddLayers
   Top = 32
   Width = 1080
   BorderStyle = bsDialog
-  Caption = 'fAddLayers'
+  Caption = 'Add layer'
   ClientHeight = 810
   ClientWidth = 1080
   DesignTimePPI = 144
   Position = poOwnerFormCenter
   LCLVersion = '4.5.0.0'
+  OnCreate = FormCreate
   object ProvidersList: TListBox
     Left = 0
-    Height = 727
+    Height = 728
     Top = 0
     Width = 1080
     Align = alClient
@@ -24,25 +25,24 @@ object fAddLayers: TfAddLayers
   end
   object panControl: TPanel
     Left = 0
-    Height = 83
-    Top = 727
+    Height = 82
+    Top = 728
     Width = 1080
     Align = alBottom
     AutoSize = True
-    ClientHeight = 83
+    ClientHeight = 82
     ClientWidth = 1080
     TabOrder = 1
     object btnAdd: TSpeedButton
       AnchorSideRight.Control = panControl
       AnchorSideRight.Side = asrBottom
-      Left = 970
-      Height = 51
+      Left = 1014
+      Height = 50
       Top = 16
-      Width = 94
+      Width = 50
       Anchors = [akTop, akRight]
       AutoSize = True
       BorderSpacing.Around = 15
-      Caption = 'Add'
       Enabled = False
       Images = fMain.ImagesPrimary
       ImageIndex = 6
@@ -55,13 +55,12 @@ object fAddLayers: TfAddLayers
       AnchorSideTop.Control = btnAdd
       AnchorSideTop.Side = asrCenter
       AnchorSideRight.Control = btnAdd
-      Left = 844
-      Height = 51
+      Left = 949
+      Height = 50
       Top = 16
-      Width = 111
+      Width = 50
       Anchors = [akTop, akRight]
       AutoSize = True
-      Caption = 'Cancel'
       Images = fMain.ImagesPrimary
       ImageIndex = 7
       Layout = blGlyphRight

@@ -1,0 +1,15 @@
+{"version":1,"strings":[
+{"hash":5964473,"name":"tfmain.caption","sourcebytes":[84,105,108,100,121],"value":"Tildy"},
+{"hash":7766822,"name":"tfmain.panmv.caption","sourcebytes":[112,97,110,77,86],"value":"panMV"},
+{"hash":86572179,"name":"tfmain.lbllayers.caption","sourcebytes":[76,97,121,101,114,115],"value":"Layers"},
+{"hash":4815333,"name":"tfmain.lblcache.caption","sourcebytes":[67,97,99,104,101],"value":"Cache"},
+{"hash":171246139,"name":"tfmain.providervariationsmap.text","sourcebytes":[79,112,101,110,83,116,114,101,101,116,77,97,112,32,77,97,112,110,105,107],"value":"OpenStreetMap Mapnik"},
+{"hash":158138290,"name":"tfmain.lblprovidermap.caption","sourcebytes":[80,114,111,118,105,100,101,114],"value":"Provider"},
+{"hash":4754307,"name":"tfmain.lblareas.caption","sourcebytes":[65,114,101,97,115],"value":"Areas"},
+{"hash":8170820,"name":"tfmain.tileinfoplugin.infomask","sourcebytes":[37,48,58,100,58,37,49,58,100],"value":"%0:d:%1:d"},
+{"hash":84178580,"name":"tfmain.actareasimport.caption","sourcebytes":[73,109,112,111,114,116],"value":"Import"},
+{"hash":80705172,"name":"tfmain.actareasexport.caption","sourcebytes":[69,120,112,111,114,116],"value":"Export"},
+{"hash":195296268,"name":"tfmain.actselectall.caption","sourcebytes":[83,101,108,101,99,116,32,97,108,108],"value":"Select all"},
+{"hash":206450904,"name":"tfmain.milangaugeen.caption","sourcebytes":[69,110,103,108,105,115,104],"value":"English"},
+{"hash":52901513,"name":"tfmain.milangaugeru.caption","sourcebytes":[208,160,209,131,209,129,209,129,208,186,208,184,208,185],"value":"\u0420\u0443\u0441\u0441\u043A\u0438\u0439"}
+]}

@@ -7,6 +7,8 @@ interface
 uses
   Classes, SysUtils, Forms, Controls, Graphics, Dialogs, StdCtrls, ExtCtrls,
   Buttons,
+  // Translate
+  LCLTranslator, Tildy.GUI.i18n.Runtime, Tildy.GUI.i18n.StrConsts,
   // MapView
   mvMapViewer, mvDrawingEngine, mvMapProvider;
 
@@ -14,18 +16,20 @@ type
 
   { TfAddLayers }
 
-  TfAddLayers = class(TForm)
+  TfAddLayers = class(TForm, ILocalizableForm)
     ProvidersList: TListBox;
     panControl: TPanel;
     btnAdd: TSpeedButton;
     btnCancel: TSpeedButton;
     procedure btnAddClick(Sender: TObject);
     procedure btnCancelClick(Sender: TObject);
+    procedure FormCreate(Sender: TObject);
     procedure ProvidersListDblClick(Sender: TObject);
     procedure ProvidersListSelectionChange(Sender: TObject; User: boolean);
   private
     MapView: TMapView;
   public
+    procedure ApplyLanguage;
     constructor Create(AMapView: TMapView); reintroduce;
   end;
 
@@ -43,6 +47,11 @@ begin
   Self.Close;
 end;
 
+procedure TfAddLayers.FormCreate(Sender: TObject);
+begin
+  ApplyLanguage;
+end;
+
 procedure TfAddLayers.ProvidersListDblClick(Sender: TObject);
 begin
   if (ProvidersList.ItemIndex = -1) then Exit;
@@ -54,6 +63,12 @@ procedure TfAddLayers.ProvidersListSelectionChange(Sender: TObject;
   User: boolean);
 begin
   btnAdd.Enabled := True;
+end;
+
+procedure TfAddLayers.ApplyLanguage;
+begin
+  btnAdd.Caption    := SAdd;
+  btnCancel.Caption := SCancel;
 end;
 
 procedure TfAddLayers.btnAddClick(Sender: TObject);
