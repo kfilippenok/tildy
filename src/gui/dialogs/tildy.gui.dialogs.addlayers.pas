@@ -29,7 +29,7 @@ type
   private
     MapView: TMapView;
   public
-    procedure ApplyLanguage;
+    procedure TranslationChanged;
     constructor Create(AMapView: TMapView); reintroduce;
   end;
 
@@ -49,7 +49,7 @@ end;
 
 procedure TfAddLayers.FormCreate(Sender: TObject);
 begin
-  ApplyLanguage;
+  TranslationChanged;
 end;
 
 procedure TfAddLayers.ProvidersListDblClick(Sender: TObject);
@@ -65,7 +65,7 @@ begin
   btnAdd.Enabled := True;
 end;
 
-procedure TfAddLayers.ApplyLanguage;
+procedure TfAddLayers.TranslationChanged;
 begin
   btnAdd.Caption    := SAdd;
   btnCancel.Caption := SCancel;

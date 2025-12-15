@@ -15,20 +15,20 @@ uses
 type
   ILocalizableForm = interface
     ['{3C92427E-D847-4FDC-932F-E4733B1625E2}']
-    procedure ApplyLanguage;
+    procedure TranslationChanged;
   end;
 
 var
-  DefaultLanguageCode: String = 'en';
+  DefaultGUILanguageCode: String = 'en';
 
-function TranslateFromResource(const ABaseName, ALanguage: string;
+function SetGUILanguageFromResource(const ABaseName, ALanguageCode: string;
   AForm: TCustomForm = nil): Boolean;
-procedure ApplyGUILanguage(const ALanguageCode: string = '');
-procedure InitGUILanguageFromSystem;
+procedure SetGUILanguage(const ALanguageCode: string = '');
+procedure SetGUILanguageFromSystem;
 
 implementation
 
-function TranslateFromResource(const ABaseName, ALanguage: string;
+function SetGUILanguageFromResource(const ABaseName, ALanguageCode: string;
   AForm: TCustomForm = nil): Boolean;
 var
   ResStream  : TResourceStream = nil;
@@ -43,9 +43,9 @@ var
 begin
   Result := False;
 
-  LangToTry := Trim(ALanguage);
+  LangToTry := Trim(ALanguageCode);
   if LangToTry.IsEmpty then
-    LangToTry := DefaultLanguageCode;
+    LangToTry := DefaultGUILanguageCode;
 
   try
     try
@@ -55,7 +55,7 @@ begin
     except
       FreeAndNil(ResStream);
       ResStream := TResourceStream.Create(HInstance,
-        ABaseName + '.' + DefaultLanguageCode, RT_RCDATA);
+        ABaseName + '.' + DefaultGUILanguageCode, RT_RCDATA);
     end;
 
     PoStream := TStringStream.Create('');
@@ -82,7 +82,7 @@ begin
       begin
         Translator.UpdateTranslation(Screen.CustomForms[i]);
         if Supports(Screen.CustomForms[I], ILocalizableForm, LocForm) then
-          LocForm.ApplyLanguage;
+          LocForm.TranslationChanged;
       end;
       for i := 0 to Screen.DataModuleCount - 1 do
         Translator.UpdateTranslation(Screen.DataModules[i]);
@@ -105,17 +105,17 @@ begin
   end;
 end;
 
-procedure ApplyGUILanguage(const ALanguageCode: string);
+procedure SetGUILanguage(const ALanguageCode: string);
 begin
   if ALanguageCode.IsEmpty then
-    TranslateFromResource('tildy_gui', DefaultLanguageCode)
+    SetGUILanguageFromResource('tildy_gui', DefaultGUILanguageCode)
   else
-    TranslateFromResource('tildy_gui', ALanguageCode);
+    SetGUILanguageFromResource('tildy_gui', ALanguageCode);
 end;
 
-procedure InitGUILanguageFromSystem;
+procedure SetGUILanguageFromSystem;
 begin
-  ApplyGUILanguage(GetLanguageID.LanguageCode);
+  SetGUILanguage(GetLanguageID.LanguageCode);
 end;
 
 end.

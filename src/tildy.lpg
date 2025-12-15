@@ -2,16 +2,15 @@
 <CONFIG>
   <ProjectGroup FileVersion="2">
     <Targets>
-      <Target FileName="src/tildy.lpi">
+      <Target FileName="gui\tildy_gui.lpi">
         <BuildModes>
-          <Mode Name="Debug" Compile="True"/>
+          <Mode Name="Debug"/>
           <Mode Name="Release"/>
         </BuildModes>
       </Target>
-      <Target FileName="src/Assistent/tildy_assistant.lpi">
+      <Target FileName="cli\tildy_cli.lpi">
         <BuildModes>
-          <Mode Name="Default" Compile="True"/>
-          <Mode Name="Debug"/>
+          <Mode Name="Debug" Compile="True"/>
           <Mode Name="Release"/>
         </BuildModes>
       </Target>

@@ -27,9 +27,8 @@ begin
   Application.Scaled:=True;
   Application.{%H-}MainFormOnTaskbar := True;
   Application.Initialize;
+  SetGUILanguageFromSystem;
   Application.CreateForm(TfMain, fMain);
-  ApplyGUILanguage('ru');
-  //InitGUILanguageFromSystem;
   Application.Run;
 end.
 

@@ -25,7 +25,7 @@ type
     FAreaName: String;
     procedure SetAreaName(AAreaName: String);
   public
-    procedure ApplyLanguage;
+    procedure TranslationChanged;
     property AreaName: String read FAreaName write SetAreaName;
   end;
 
@@ -45,7 +45,7 @@ end;
 
 procedure TfEditAreaName.FormCreate(Sender: TObject);
 begin
-  ApplyLanguage;
+  TranslationChanged;
 end;
 
 procedure TfEditAreaName.btnCancelClick(Sender: TObject);
@@ -66,7 +66,7 @@ begin
   edAreaName.Text := FAreaName;
 end;
 
-procedure TfEditAreaName.ApplyLanguage;
+procedure TfEditAreaName.TranslationChanged;
 begin
   btnApply.Caption  := SAdd;
   btnCancel.Caption := SCancel;

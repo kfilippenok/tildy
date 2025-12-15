@@ -149,7 +149,7 @@ type
     procedure PrepareAreaSelectionPlugin(AAreaSelectionPlugin: TAreaSelectionPlugin);
     property ShowTileInfo: Boolean read FShowTileInfo write SetShowTileInfo;
   public
-    procedure ApplyLanguage;
+    procedure TranslationChanged;
     property CurrentImages: TImageList read FCurrentImageList;
   end;
 
@@ -714,12 +714,12 @@ end;
 
 procedure TfMain.miLangaugeEnClick(Sender: TObject);
 begin
-  ApplyGUILanguage('en');
+  SetGUILanguage('en');
 end;
 
 procedure TfMain.miLangaugeRuClick(Sender: TObject);
 begin
-  ApplyGUILanguage('ru');
+  SetGUILanguage('ru');
 end;
 
 procedure TfMain.ProviderVariationsMapChange(Sender: TObject);
@@ -830,7 +830,7 @@ begin
   AAreaSelectionPlugin.Font.Color      := clWhite;
 end;
 
-procedure TfMain.ApplyLanguage;
+procedure TfMain.TranslationChanged;
 var
   LPoint: TPoint;
 begin
