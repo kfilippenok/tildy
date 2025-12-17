@@ -16,6 +16,7 @@
 unit Tildy.CLI.Options;
 
 {$mode ObjFPC}{$H+}
+{$modeswitch typehelpers}
 
 interface
 
@@ -69,71 +70,80 @@ type
 
   TOptions = Set of TOptionKind;
 
-  function getOptionName(Option: TOptionKind): String;
-  function getOptionIdent(Option: TOptionKind): String;
+  { THelperOptionKind }
+
+  THelperOptionKind = type Helper for TOptionKind
+    function Name : String;
+    function Ident: String;
+  end;
+
+const
+  OptionName: array [TOptionKind] of String =
+  (
+    'help',
+    'provider',
+    'providers',
+    'layers',
+    'out',
+    'min-zoom',
+    'max-zoom',
+    'left',
+    'top',
+    'right',
+    'bottom',
+    'show-file-type',
+    'tile-res',
+    'skip-missing',
+    'skip-existing',
+    'filter',
+    'version',
+    'bbox',
+    'cache',
+    'use,cache-only',
+    'areas',
+    'monochrome',
+    'monochromes'
+  );
+
+  OptionIdent: array [TOptionKind] of String =
+  (
+    'h',
+    'p',
+    'ps',
+    'ls',
+    'o',
+    'z',
+    'Z',
+    'l',
+    't',
+    'r',
+    'b',
+    'sft',
+    'res',
+    'skm',
+    'ske',
+    'f',
+    'v',
+    'bb',
+    'c',
+    'uco',
+    'as',
+    'm',
+    'ms'
+  );
 
 implementation
 
-function getOptionName(Option: TOptionKind): String;
+{ THelperOptionKind }
+
+function THelperOptionKind.Name: String;
 begin
-  case Option of
-    okHelp          : Exit('help');
-    okProvider      : Exit('provider');
-    okProviders     : Exit('providers');
-    okLayers        : Exit('layers');
-    okOut           : Exit('out');
-    okMinZoom       : Exit('min-zoom');
-    okMaxZoom       : Exit('max-zoom');
-    okLeft          : Exit('left');
-    okTop           : Exit('top');
-    okRight         : Exit('right');
-    okBottom        : Exit('bottom');
-    okShowFileType  : Exit('show-file-type');
-    okTileRes       : Exit('tile-res');
-    okSkipMissing   : Exit('skip-missing');
-    okSkipExisting  : Exit('skip-existing');
-    okFilter        : Exit('filter');
-    okVersion       : Exit('version');
-    okBoundingBox   : Exit('bbox');
-    okCache         : Exit('cache');
-    okUseCacheOnly  : Exit('use-cache-only');
-    okAreas         : Exit('areas');
-    okMonochrome    : Exit('monochrome');
-    okMonochromes   : Exit('monochromes');
-  else
-    Exit('unknown');
-  end;
+  Result := OptionName[Self];
 end;
 
-function getOptionIdent(Option: TOptionKind): String;
+function THelperOptionKind.Ident: String;
 begin
-  case Option of
-    okHelp          : Exit('h');
-    okProvider      : Exit('p');
-    okProviders     : Exit('ps');
-    okLayers        : Exit('ls');
-    okOut           : Exit('o');
-    okMinZoom       : Exit('z');
-    okMaxZoom       : Exit('Z');
-    okLeft          : Exit('l');
-    okTop           : Exit('t');
-    okRight         : Exit('r');
-    okBottom        : Exit('b');
-    okShowFileType  : Exit('sft');
-    okTileRes       : Exit('res');
-    okSkipMissing   : Exit('skm');
-    okSkipExisting  : Exit('ske');
-    okFilter        : Exit('f');
-    okVersion       : Exit('v');
-    okBoundingBox   : Exit('bb');
-    okCache         : Exit('c');
-    okUseCacheOnly  : Exit('uco');
-    okAreas         : Exit('as');
-    okMonochrome    : Exit('m');
-    okMonochromes   : Exit('ms');
-  else
-    Exit('unknown');
-  end;
+  Result := OptionIdent[Self];
 end;
 
 end.

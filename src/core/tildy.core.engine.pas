@@ -15,6 +15,7 @@
 
 unit Tildy.Core.Engine;
 
+{$CODEPAGE UTF-8}
 {$mode ObjFPC}{$H+}{$MODESWITCH ADVANCEDRECORDS}
 
 interface
@@ -208,9 +209,44 @@ type
   end;
 
   ETildyEngine = class(Exception);
-  ETMSave = class(ETildyEngine);
-  ETMDownload = class(ETildyEngine);
-  ETMMonochrome = class(ETildyEngine);
+  ETESave = class(ETildyEngine);
+  ETEDownload = class(ETildyEngine);
+  ETEMonochrome = class(ETildyEngine);
+
+  TTile = record
+    X, Y: Integer;
+    Zoom: Integer;
+  end;
+
+  TArea = record
+    Left  : Extended;
+    Top   : Extended;
+    Right : Extended;
+    Bottom: Extended;
+  end;
+
+  TAreaBounds = record
+    Left  : QWord;
+    Top   : QWord;
+    Right : QWord;
+    Bottom: QWord;
+  end;
+
+  TDownloadStatus = (
+    dsOK,
+    dsSkipExist,
+    dsSkipMonochrome,
+    dsNotLoaded,
+    dsNotSaved
+  );
+
+  TDownloadInfo = record
+    Status  : TDownloadStatus;
+    ErrorMsg: String;
+  end;
+
+  TProgressEvent = procedure (const AZoom, X, Y: QWord; const ACurrentCount, ATotalCount, AZoomCurrentCount,
+    AZoomTotalCount: QWord; const AMilliSeconds: Int64; const ADownloadInfo: TDownloadInfo) of object;
 
   { TTildyEngine }
 
@@ -233,6 +269,7 @@ type
     FTileRes: Word;
     FUseOtherTileRes: Boolean;
   strict private // Getters and Setters
+    FOnProgress: TProgressEvent;
     procedure SetTileRes(AValue: Word);
   protected
     function ProcessPath(const AProviderName: String; const AZoom: Integer; const AX, AY: Integer): String;
@@ -241,25 +278,29 @@ type
     procedure ResizeIfNeeded(var ATileImg: TBGRABitmap);
     procedure SaveTile(const ATileImg: TBGRABitmap; AFilePath: String);
   public // Calculations
-    class function CalcRowTilesCount(const AMinX, AMaxX: QWord): QWord; overload; static;
+    class function CalcRowTilesCount(const AMinX, AMaxX: QWord): QWord; static;
     class function CalcColumnTilesCount(const AMinY, AMaxY: QWord): QWord; static;
     class function CalcZoomTilesCount(AProjecion: IProjection; const AZoom: Byte; const AMinLatitude, AMaxLatitude, AMinLongitude, AMaxLongitude: Float): QWord; static;
     class function CalcTotalTilesCount(AProjecion: IProjection; const AMinZoom, AMaxZoom: Byte; const AMinLatitude, AMaxLatitude, AMinLongitude, AMaxLongitude: Float): QWord; static;
+    function CalcAreaBounds(const AZoom: Integer; const AArea: TArea): TAreaBounds;
   public // Create and Destroy
     constructor Create; virtual;
     destructor Destroy; override;
   public
-    procedure Download(const AZoom: Integer); virtual;
-    procedure Download(const AMinZoom, AMaxZoom: Integer); virtual;
+    function DownloadTile(ATile: TTile): TDownloadInfo;
+    procedure Download(const AZoom: Integer); virtual; overload;
+    procedure Download(const AMinZoom, AMaxZoom: Integer); virtual; overload;
+    procedure Download(const AMinZoom, AMaxZoom: Integer; const AArea: TArea); virtual; overload;
     procedure Download(const AMinZoom, AMaxZoom: Integer; const AMinLatitude, AMaxLatitude, AMinLongitude, AMaxLongitude: Float); virtual; overload;
   public
-    property Layers         : TLayers      read FLayers          write FLayers;
-    property Monochromes    : TMonochromes read FMonochromes     write FMonochromes;
-    property Path           : String       read FPath            write FPath;
-    property ShowFileType   : Boolean      read FShowFileType    write FShowFileType    default defShowFileType;
-    property SkipExisting   : Boolean      read FSkipExisting    write FSkipExisting    default defSkipExisting;
-    property SkipMissing    : Boolean      read FSkipMissing     write FSkipMissing     default defSkipMissing;
-    property TileRes        : Word         read FTileRes         write SetTileRes;
+    property Layers      : TLayers        read FLayers          write FLayers;
+    property Monochromes : TMonochromes   read FMonochromes     write FMonochromes;
+    property Path        : String         read FPath            write FPath;
+    property ShowFileType: Boolean        read FShowFileType    write FShowFileType    default defShowFileType;
+    property SkipExisting: Boolean        read FSkipExisting    write FSkipExisting    default defSkipExisting;
+    property SkipMissing : Boolean        read FSkipMissing     write FSkipMissing     default defSkipMissing;
+    property TileRes     : Word           read FTileRes         write SetTileRes;
+    property OnProgress  : TProgressEvent read FOnProgress      write FOnProgress;
   end;
 
 implementation
@@ -283,13 +324,10 @@ procedure TProviderClient.AutoSelectUserAgent(const AURL: String);
 var
   i: Integer;
 begin
-  Write('Setting up connection... ');
-
   for i := 0 to FUserAgents.Count-1 do
     try
       Self.AddHeader('User-Agent', FUserAgents[i]);
       Self.Get(AURL);
-      WriteLn('Ok');
       FUASelected := True;
       Break;
     except
@@ -297,17 +335,12 @@ begin
       begin
         if i = FUserAgents.Count-1 then
         begin
-          WriteLn('Fail');
           raise;
         end
         else
           Continue;
       end;
     end;
-
-  {$IFDEF DEBUG}
-  WriteLn(FUserAgent);
-  {$ENDIF}
 end;
 
 constructor TProviderClient.Create(AOwner: TComponent);
@@ -343,7 +376,6 @@ begin
         raise;
     end;
 
-  Write(Format('TileLink: %s', [AURL]));
   try
     LMemoryStream := TMemoryStream.Create;
     while True do
@@ -453,7 +485,6 @@ function TProvider.GiveTile(AZoom: Integer; AX, AY: Integer): TBGRABitmap;
 var
   LFilePath: String;
 begin
-  Write(Name + ': ');
   Result := nil;
   try
     LFilePath := GetTilePath(AZoom, AX, AY);
@@ -521,20 +552,15 @@ begin
 end;
 
 procedure TLayer.Load(const AZoom: Integer; const AX, AY: Integer);
-var
-  LStartTime, LFinishTime: Int64;
 begin
   if Assigned(FBuffer) then
     FreeAndNil(FBuffer);
   try
-    LStartTime := GetTickCountMS;
     FBuffer := Provider.GiveTile(AZoom, AX, AY);
     if not Assigned(FBuffer) then
       raise ELayer.Create('Layer of ' + Provider.Name + ' did not load.');
     if Assigned(Filter) then
       Filter.Transform(FBuffer);
-    LFinishTime := GetTickCountMS;
-    WriteLn(' ' + Format('%d', [LFinishTime - LStartTime]));
   except
     on E: Exception do
       raise ELayer.Create(E.Message);
@@ -681,12 +707,9 @@ end;
 procedure TTildyEngine.SaveTile(const ATileImg: TBGRABitmap; AFilePath: String);
 var
   LFileStream: TFileStream = nil;
-  LSaveStartTime, LSaveFinishTime: Int64;
 begin
-  LSaveStartTime := GetTickCountMS;
-  Write(Format('FilePath: %s', [AFilePath]));
   if not ForceDirectories(ExtractFilePath(AFilePath)) then
-    raise ETMSave.Create('Failed create dirs.');
+    raise ETESave.Create('Failed create dirs.');
   try
     LFileStream := TFileStream.Create(AFilePath, fmCreate or fmOpenWrite);
     ATileImg.SaveToStreamAsPng(LFileStream);
@@ -694,14 +717,10 @@ begin
   except
     on E: Exception do
     begin
-      WriteLn('');
-      WriteLn(E.Message);
       if Assigned(LFileStream) then FreeAndNil(LFileStream);
-      raise ETMSave.Create('Failed save file.');
+      raise ETESave.Create('Failed save file with error: ' + E.Message);
     end;
   end;
-  LSaveFinishTime := GetTickCountMS;
-  WriteLn(' ' + Format('%d', [LSaveFinishTime - LSaveStartTime]));
 end;
 
 procedure TTildyEngine.SetTileRes(AValue: Word);
@@ -743,6 +762,18 @@ begin
     Result := Result + CalcZoomTilesCount(AProjecion, iz, AMinLatitude, AMaxLatitude, AMinLongitude, AMaxLongitude);
 end;
 
+function TTildyEngine.CalcAreaBounds(const AZoom: Integer; const AArea: TArea): TAreaBounds;
+begin
+  Result := Default(TAreaBounds);
+
+  if FLayers.Count = 0 then Exit;
+
+  Result.Left   := FLayers[0].Provider.Projection.CalcTileY(AZoom, AArea.Left);
+  Result.Top    := FLayers[0].Provider.Projection.CalcTileY(AZoom, AArea.Top);
+  Result.Right  := FLayers[0].Provider.Projection.CalcTileY(AZoom, AArea.Right);
+  Result.Bottom := FLayers[0].Provider.Projection.CalcTileY(AZoom, AArea.Bottom);
+end;
+
 constructor TTildyEngine.Create;
 begin
   inherited Create;
@@ -765,6 +796,59 @@ begin
   FreeAndNil(FMonochromes);
 end;
 
+function TTildyEngine.DownloadTile(ATile: TTile): TDownloadInfo;
+var
+  LBuffer  : TBGRABitmap = nil;
+  il       : Integer;
+  LSavePath: String;
+begin
+  Result.Status   := dsOK;
+  Result.ErrorMsg := String.Empty;
+
+  LSavePath := ProcessPath(Layers[0].Provider.Name, ATile.Zoom, ATile.X, ATile.Y);
+
+  if (SkipExisting and FileExists(LSavePath)) then
+  begin
+    Result.Status := dsSkipExist;
+    Exit;
+  end;
+
+  try
+    try
+      if Assigned(LBuffer) then FreeAndNil(LBuffer);
+      for il := 0 to Layers.Count-1 do
+      begin
+        Layers[il].Load(ATile.Zoom, ATile.X, ATile.Y);
+        if not Assigned(LBuffer) then
+        begin
+          LBuffer := Layers[il].Buffer.Duplicate(True);
+          ResizeIfNeeded(LBuffer);
+          Continue;
+        end
+        else
+          Layers[il].ResampleAndPaintTo(LBuffer);
+      end;
+
+      if FSkipMonochrome and IsMonochrome(LBuffer) and InMonochromes(LBuffer) then
+        raise ETEMonochrome.Create('');
+
+      SaveTile(LBuffer, LSavePath);
+      FreeAndNil(LBuffer);
+    except
+      on E: Exception do
+        Result.ErrorMsg := E.Message;
+      on E: ELayer do
+        Result.Status := dsNotLoaded;
+      on E: ETESave do
+        Result.Status := dsNotSaved;
+      on E: ETEMonochrome do
+        Result.Status := dsSkipMonochrome;
+    end;
+  finally
+    FreeAndNil(LBuffer);
+  end;
+end;
+
 procedure TTildyEngine.Download(const AZoom: Integer);
 begin
   if FLayers.Count < 1 then Exit;
@@ -782,20 +866,24 @@ begin
   Download(AMinZoom, AMaxZoom, LMainProjection.MinLat, LMainProjection.MaxLat, LMainProjection.MinLon, LMainProjection.MaxLon);
 end;
 
+procedure TTildyEngine.Download(const AMinZoom, AMaxZoom: Integer;
+  const AArea: TArea);
+begin
+  Download(AMinZoom, AMaxZoom, AArea.Left, AArea.Right, AArea.Top, AArea.Bottom);
+end;
+
 procedure TTildyEngine.Download(const AMinZoom, AMaxZoom: Integer; const AMinLatitude, AMaxLatitude, AMinLongitude, AMaxLongitude: Float);
 var
   MinX, MaxX, MinY, MaxY: QWord;
   iz: Byte;
-  ix, iy, il: Longword;
+  ix, iy: Longword;
   LZoomCurrentCount, LZoomTotalCount, LCurrentCount, LTotalCount: QWord;
   LMainProjection: IProjection;
-  LBuffer: TBGRABitmap = nil;
-  LSavePath: String;
   LBeginTime, LEndTime: Int64;
+  LTile: TTile;
+  LDownloadInfo: TDownloadInfo;
 begin
-  if FLayers.Count < 1 then Exit;
-
-  LBeginTime := GetTickCountMS;
+  if FLayers.Count = 0 then Exit;
 
   LMainProjection := FLayers[0].Provider.Projection;
   LTotalCount := CalcTotalTilesCount(LMainProjection, AMinZoom, AMaxZoom, AMinLatitude, AMaxLatitude, AMinLongitude, AMaxLongitude);
@@ -815,67 +903,31 @@ begin
       MaxY := LMainProjection.CalcTileY(iz, AMinLatitude);
       for iy := MinY to MaxY do
       begin
-        LSavePath := ProcessPath(Layers[0].Provider.Name, iz, ix, iy);
+        LTile.X    := ix;
+        LTile.Y    := iy;
+        LTile.Zoom := iz;
 
-        if not (SkipExisting and FileExists(LSavePath)) then
-          try
-            if Assigned(LBuffer) then FreeAndNil(LBuffer);
-            for il := 0 to Layers.Count-1 do
-            begin
-              Layers[il].Load(iz, ix, iy);
-              if not Assigned(LBuffer) then
-              begin
-                LBuffer := Layers[il].Buffer.Duplicate(True);
-                ResizeIfNeeded(LBuffer);
-                Continue;
-              end
-              else
-                Layers[il].ResampleAndPaintTo(LBuffer);
-            end;
+        LBeginTime := GetTickCountMS;
+        LDownloadInfo := DownloadTile(LTile);
+        LEndTime := GetTickCountMS;
 
-            if FSkipMonochrome and IsMonochrome(LBuffer) and InMonochromes(LBuffer) then
-              raise ETMMonochrome.Create('');
+        if (LDownloadInfo.Status in [dsOK, dsSkipExist]) then
+        begin
+          Inc(LCurrentCount);
+          Inc(LZoomCurrentCount);
+        end;
 
-            SaveTile(LBuffer, LSavePath);
-            FreeAndNil(LBuffer);
-          except
-            on E: ELayer do
-              begin
-                if Assigned(LBuffer) then FreeAndNil(LBuffer);
-                if SkipMissing then
-                begin
-                  WriteLn('! Skip missing tile');
-                  Continue;
-                end;
+        if Assigned(FOnProgress) then
+          FOnProgress(iz, ix, iy, LCurrentCount, LTotalCount, LZoomCurrentCount, LZoomTotalCount, LEndTime - LBeginTime, LDownloadInfo);
 
-                WriteLn;
-                WriteLn('Error: ', E.Message);
-                Exit;
-              end;
-            on E: ETMSave do
-              begin
-                if Assigned(LBuffer) then FreeAndNil(LBuffer);
-                WriteLn;
-                WriteLn('Error: ', E.Message);
-                Exit;
-              end;
-            on E: ETMMonochrome do
-              begin
-                if Assigned(LBuffer) then FreeAndNil(LBuffer);
-                WriteLn('! Skip monochrome tile');
-                Continue;
-              end;
-          end
-        else
-          WriteLn('! SkipExisting');
-        Inc(LCurrentCount);
-        Inc(LZoomCurrentCount);
-        WriteLn(Format('Total: %d/%d <- (Zoom %d: %d/%d)', [LCurrentCount, LTotalCount, iz, LZoomCurrentCount, LZoomTotalCount]));
+        case LDownloadInfo.Status of
+          dsNotLoaded:
+            if not SkipMissing then ETEDownload.Create('Error occured while downloading.');
+          dsNotSaved: ETESave.Create('Error occured while downloading.');
+        end;
       end;
     end;
   end;
-  LEndTime := GetTickCountMS;
-  WriteLn('Time: ' + Format('%d', [LEndTime - LBeginTime]));
 end;
 
 end.

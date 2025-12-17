@@ -21,7 +21,7 @@ uses
   {$IFDEF UNIX}
   cthreads,
   {$ENDIF}
-  SysUtils, Classes, CustApp, IniFiles, fileinfo, 
+  SysUtils, Classes, CustApp, IniFiles, fileinfo, Math,
   // CLI
   Tildy.CLI.Options,
   // Core
@@ -37,9 +37,6 @@ type
 
   ATildy = class(TCustomApplication)
   type
-    TArea = record
-      Left, Top, Right, Bottom: Extended;
-    end;
     TAreaArray = array of TArea;
   strict private
     FProviders: TProviders;
@@ -49,6 +46,8 @@ type
     procedure SetupFilters;
     procedure ParseParameters;
     procedure ParseBoundingBox(ABoundingBoxString: String; out ABottom, ATop, ALeft, ARight: Extended);
+    procedure ProgressCLI(const AZoom, X, Y: QWord; const ACurrentCount, ATotalCount, AZoomCurrentCount,
+    AZoomTotalCount: QWord; const AMilliSeconds: Int64; const ADownloadInfo: TDownloadInfo);
   protected
     procedure DoRun; override;
   public
@@ -80,38 +79,38 @@ type
 
   procedure ATildy.ParseParameters;
   var
-    OptionKind: TOptionKind;
+    Option: TOptionKind;
   begin
-    for OptionKind := Low(TOptionKind) to High(TOptionKind) do
+    for Option := Low(TOptionKind) to High(TOptionKind) do
     begin
       {$IFDEF DEBUG}
-      write(getOptionName(OptionKind));
+      write(Option.Name);
       {$ENDIF}
-      if HasOption(getOptionName(OptionKind)) then
+      if HasOption(Option.Name) then
       begin
-        Include(glOptions, OptionKind);
+        Include(glOptions, Option);
         {$IFDEF DEBUG}
         write(' finded, value = ');
         {$ENDIF}
         try
-          OptionParameter[OptionKind] := getOptionValue(getOptionName(OptionKind));
+          OptionParameter[Option] := getOptionValue(Option.Name);
         finally end;
         {$IFDEF DEBUG}
-        writeLn(OptionParameter[OptionKind]);
+        writeLn(OptionParameter[Option]);
         {$ENDIF}
         Continue;
       end
-      else if HasOption(getOptionIdent(OptionKind)) then
+      else if HasOption(Option.Ident) then
       begin
-        Include(glOptions, OptionKind);
+        Include(glOptions, Option);
         {$IFDEF DEBUG}
         write(' finded, value = ');
         {$ENDIF}
         try
-          OptionParameter[OptionKind] := getOptionValue(getOptionIdent(OptionKind));
+          OptionParameter[Option] := getOptionValue(Option.Ident);
         finally end;
         {$IFDEF DEBUG}
-        writeLn(OptionParameter[OptionKind]);
+        writeLn(OptionParameter[Option]);
         {$ENDIF}
       end
       else
@@ -146,6 +145,51 @@ type
     ATop := Copy(ABoundingBoxString, StartPosition, EndPosition - StartPosition).ToExtended;
   end;
 
+  procedure ATildy.ProgressCLI(const AZoom, X, Y: QWord; const ACurrentCount, ATotalCount, AZoomCurrentCount,
+    AZoomTotalCount: QWord; const AMilliSeconds: Int64; const ADownloadInfo: TDownloadInfo);
+  const
+    EmptyProgress: String = '░';
+    FillProgress: String = '█';
+
+    function getProgressString(AProcents: QWord): String;
+    var
+      LFillCount: Byte;
+      i: Byte;
+    begin
+      Result := String.Empty;
+      LFillCount := Floor(AProcents / 10);
+      for i := 1 to LFillCount do
+        Result := Result + FillProgress;
+      for i := 1 to (10 - LFillCount) do
+        Result := Result + EmptyProgress;
+    end;
+
+
+  var
+    LTotalProcents, LZoomProcents: Byte;
+  begin
+    LTotalProcents := Floor((ACurrentCount / ATotalCount) * 100);
+    LZoomProcents  := Floor((AZoomCurrentCount / AZoomTotalCount) * 100);
+    WriteLn(
+      Format(
+        'Total: %s %d%% (%d/%d)',
+        [getProgressString(LTotalProcents), LTotalProcents, ACurrentCount, ATotalCount]
+      )
+      + ' | ' +
+      Format(
+        'Zoom: %s %d%% (%d/%d)',
+        [getProgressString(LZoomProcents), LZoomProcents, AZoomCurrentCount, AZoomTotalCount]
+
+      )
+      + ' | ' +
+      Format(
+        '%d ms',
+        [AMilliSeconds]
+
+      )
+    );
+  end;
+
   procedure ATildy.DoRun;
   var
     TildyEngine: TTildyEngine = nil;
@@ -158,14 +202,14 @@ type
     ia, LAreasCount: Integer;
     LProgramVersion: TProgramVersion;
   begin
-    if hasOption(getOptionName(okHelp)) or hasOption(getOptionIdent(okHelp)) then
+    if hasOption(OptionName[okHelp]) or hasOption(OptionIdent[okHelp]) then
     begin
       writeHelp;
       Terminate;
       Exit;
     end;
 
-    if hasOption(getOptionName(okVersion)) or hasOption(getOptionIdent(okVersion)) then
+    if hasOption(OptionName[okVersion]) or hasOption(OptionIdent[okVersion]) then
     begin
       GetProgramVersion(LProgramVersion);
       WriteLn(Format('tildy %d.%d', [LProgramVersion.Major, LProgramVersion.Minor]));
@@ -376,6 +420,7 @@ type
         end;
       end;
 
+      TildyEngine.OnProgress := @ProgressCLI;
       if LUseArea then
         TildyEngine.Download(LMinZoom, LMaxZoom, LBottom, LTop, LLeft, LRight)
       else if LUseRects then
