@@ -75,7 +75,7 @@ var
 begin
   if AZoom = 0 then Exit(0);
 
-  n := Power(2, AZoom);
+  n := 1 shl AZoom;
   Result := Trunc(((ALongitude + 180) / 360) * n);
 end;
 
@@ -85,7 +85,7 @@ var
 begin
   if AZoom = 0 then Exit(0);
 
-  n := Power(2, AZoom);
+  n := 1 shl AZoom;
   lat_rad := DegToRad(ALatitude);
   x1 := Tan(lat_rad);
   x2 := ArcSinH(x1);
