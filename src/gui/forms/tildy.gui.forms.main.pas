@@ -6,8 +6,8 @@ interface
 
 uses
   Classes, SysUtils, Forms, Controls, Graphics, Dialogs, ExtCtrls, StdCtrls,
-  ComCtrls, ActnList, EditBtn, CheckLst, Buttons, Menus,nullable,
-  LazFileUtils, IniFiles, Types, System.UITypes,
+  ComCtrls, ActnList, EditBtn, CheckLst, Buttons, Menus, nullable,
+  LazFileUtils, IniFiles, Types, System.UITypes, LCLType,
   // Translate
   LCLTranslator, Tildy.GUI.i18n.Runtime, Tildy.GUI.i18n.StrConsts,
   // MapView
@@ -17,11 +17,11 @@ uses
   // Brand
   Tildy.GUI.Brand.Colors,
   // Dialogs
-  Tildy.GUI.Dialogs.AddLayers, Tildy.GUI.Dialogs.EditAreaName;
+  Tildy.GUI.Dialogs.AddLayers, Tildy.GUI.Dialogs.EditAreaName,
+  // Plugins
+  Tildy.GUI.Plugins.MapViewer.AreaEditor;
 
 type
-
-  TNullableInt = specialize TNullable<Integer>;
 
   { TfMain }
 
@@ -38,17 +38,17 @@ type
     actZoomOut: TAction;
     actSelectAll: TAction;
     ActionsCommon: TActionList;
-    actLayersAdd: TAction;
+    actLayersNew: TAction;
     actLayersDelete: TAction;
     actLayersDown: TAction;
     actLayersUp: TAction;
     ActionsAreas: TActionList;
     ActionsLayers: TActionList;
-    btnAddArea: TSpeedButton;
-    btnAreasDown: TSpeedButton;
+    btnNewArea: TSpeedButton;
+    btnDownArea: TSpeedButton;
     btnLayersDelete: TSpeedButton;
     btnDeleteArea: TSpeedButton;
-    btnAreasImport: TSpeedButton;
+    btnImportAreas: TSpeedButton;
     btnLayersDown: TSpeedButton;
     btnZoomOut: TSpeedButton;
     chkCache: TCheckBox;
@@ -62,18 +62,21 @@ type
     AreasList: TListBox;
     MainMenu: TMainMenu;
     MapView: TMapView;
+    miDeleteArea: TMenuItem;
+    miRenameArea: TMenuItem;
+    miNewArea: TMenuItem;
     miLangaugeEn: TMenuItem;
     miLangaugeRu: TMenuItem;
     miLanguage: TMenuItem;
     MvBGRADrawingEngine: TMvBGRADrawingEngine;
     MVDEFPC: TMVDEFPC;
     MvPluginManager: TMvPluginManager;
-    btnAreasUp: TSpeedButton;
+    btnUpArea: TSpeedButton;
     btnLayersUp: TSpeedButton;
     btnZoomIn: TSpeedButton;
     btnTileInfo: TSpeedButton;
     TileInfoPlugin: TTileInfoPlugin;
-    OpenDialog: TOpenDialog;
+    dlgOpen: TOpenDialog;
     panAreas: TPanel;
     panOffsetBottom: TPanel;
     panProviderMap: TPanel;
@@ -85,9 +88,9 @@ type
     panDebug: TPanel;
     PopupMapView: TPopupMenu;
     btnLayersAdd: TSpeedButton;
-    btnAreasExport: TSpeedButton;
-    SaveDialog: TSaveDialog;
-    btnAreasEdit: TSpeedButton;
+    btnExportAreas: TSpeedButton;
+    dlgSave: TSaveDialog;
+    btnRenameArea: TSpeedButton;
     DirectoryCache: TDirectoryEdit;
     MVDECache: TMVDECache;
     panMV: TPanel;
@@ -105,7 +108,7 @@ type
     procedure ActionsAreasUpdate(AAction: TBasicAction; var Handled: Boolean);
     procedure ActionsCommonUpdate(AAction: TBasicAction; var Handled: Boolean);
     procedure ActionsLayersUpdate(AAction: TBasicAction; var Handled: Boolean);
-    procedure actLayersAddExecute(Sender: TObject);
+    procedure actLayersNewExecute(Sender: TObject);
     procedure actLayersDeleteExecute(Sender: TObject);
     procedure actLayersDownExecute(Sender: TObject);
     procedure actLayersUpExecute(Sender: TObject);
@@ -126,31 +129,30 @@ type
       State: TDragState; var Accept: Boolean);
     procedure MapViewCenterMoving(Sender: TObject; var NewCenter: TRealPoint;
       var Allow: Boolean);
+    procedure MapViewKeyDown(Sender: TObject; var Key: Word; Shift: TShiftState
+      );
     procedure MapViewMouseMove(Sender: TObject; Shift: TShiftState; X,
       Y: Integer);
     procedure MapViewResize(Sender: TObject);
     procedure MapViewZoomChange(Sender: TObject);
     procedure miLangaugeEnClick(Sender: TObject);
     procedure miLangaugeRuClick(Sender: TObject);
+    procedure PopupMapViewPopup(Sender: TObject);
     procedure ProviderVariationsMapChange(Sender: TObject);
     procedure LayersUpDownClick(Sender: TObject; Button: TUDBtnType);
     procedure ProviderVariationsMapSelect(Sender: TObject);
-    procedure OnSelectedAreaBeginChange(Sender: TObject);
+    procedure AreaEditorSelectionChanged(Sender: TObject; const OldArea, NewArea: TMapLabeledArea);
   strict private
-    FCurrentImageList: TImageList;
-    FPluginCount: Integer;
-    FPrevAreaIndex: TNullableInt;
+    FAreaEditor: TAreaEditorPlugin;
     FShowTileInfo: Boolean;
     procedure SetShowTileInfo(AValue: Boolean);
     procedure ReloadLayersList;
     procedure DetectAndApplyTheme;
     procedure UpdateDebugZoom;
     procedure UpdateDebugCursorCoordinate(const X, Y: Integer);
-    procedure PrepareAreaSelectionPlugin(AAreaSelectionPlugin: TAreaSelectionPlugin);
     property ShowTileInfo: Boolean read FShowTileInfo write SetShowTileInfo;
   public
     procedure TranslationChanged;
-    property CurrentImages: TImageList read FCurrentImageList;
   end;
 
 var
@@ -208,7 +210,7 @@ begin
   Handled := True;
 end;
 
-procedure TfMain.actLayersAddExecute(Sender: TObject);
+procedure TfMain.actLayersNewExecute(Sender: TObject);
 begin
   fAddLayers := TfAddLayers.Create(MapView);
   if fAddLayers.ShowModal = mrOK then
@@ -274,124 +276,91 @@ procedure TfMain.actAreasImportExecute(Sender: TObject);
 const
     _SectionStr = 'Area';
 var
-  LIniFile: TMemIniFile = nil;
-  LSection: TStringList = nil;
-  LMemoryStream: TMemoryStream = nil;
-  LCount: Integer = 0;
-  LAllValuesExists: Boolean = False;
-  LStringList: TStringList = nil;
-  LRealAreaArray: array of TRealArea;
-  LNameArray: array of String;
-  LAreaSelectionPlugin: TAreaSelectionPlugin;
+  AreaNames: TStringList = nil;
+  Section: TStringList = nil;
+  IniFile: TMemIniFile = nil;
+  MemoryStream: TMemoryStream = nil;
+  RealAreaArray: array of TRealArea = nil;
+  Area: TMapLabeledArea = nil;
+  CountAreas: Integer = 0;
   i: Integer;
+  AllValuesExists: Boolean = False;
 begin
-  if not OpenDialog.Execute then Exit;
+  if not dlgOpen.Execute then Exit;
 
   try
-    LStringList := TStringList.Create;
-    LMemoryStream := TMemoryStream.Create;
-    LSection := TStringList.Create;
+    Section := TStringList.Create;
+    MemoryStream := TMemoryStream.Create;
+    AreaNames := TStringList.Create;
     try
-      LMemoryStream.LoadFromFile(OpenDialog.FileName);
-      LIniFile := TMemIniFile.Create(LMemoryStream);
-      SetLength(LRealAreaArray, LCount);
+      MemoryStream.LoadFromFile(dlgOpen.FileName);
+      IniFile := TMemIniFile.Create(MemoryStream);
+      SetLength(RealAreaArray, CountAreas);
 
-      LIniFile.ReadSection(_SectionStr, LSection);
-      while LSection.Count > 0 do
+      IniFile.ReadSection(_SectionStr, Section);
+      while Section.Count > 0 do
       begin
-        Inc(LCount);
-        SetLength(LRealAreaArray, LCount);
-        SetLength(LNameArray    , LCount);
-        LAllValuesExists :=  LIniFile.ValueExists(_SectionStr, 'left')
-                         and LIniFile.ValueExists(_SectionStr, 'top')
-                         and LIniFile.ValueExists(_SectionStr, 'right')
-                         and LIniFile.ValueExists(_SectionStr, 'bottom');
-        if not LAllValuesExists then
-          raise Exception.Create(_SectionStr + ' number ' + LCount.ToString + ' has not all values');
+        Inc(CountAreas);
+        SetLength(RealAreaArray, CountAreas);
+        AllValuesExists :=  IniFile.ValueExists(_SectionStr, 'left')
+                         and IniFile.ValueExists(_SectionStr, 'top')
+                         and IniFile.ValueExists(_SectionStr, 'right')
+                         and IniFile.ValueExists(_SectionStr, 'bottom');
+        if not AllValuesExists then
+          raise Exception.Create(Format(SAreasErrImport, [dlgOpen.FileName]));
 
-        if LIniFile.ValueExists(_SectionStr, 'name') then
-          LStringList.Add(LIniFile.ReadString(_SectionStr, 'name', ''))
+        if IniFile.ValueExists(_SectionStr, 'name') then
+          AreaNames.Add(IniFile.ReadString(_SectionStr, 'name', ''))
         else
-          LStringList.Add(String.Empty);
-        LRealAreaArray[LCount-1].TopLeft.Lon := LIniFile.ReadFloat(_SectionStr, 'left', 0.0);
-        LRealAreaArray[LCount-1].TopLeft.Lat := LIniFile.ReadFloat(_SectionStr, 'top', 0.0);
-        LRealAreaArray[LCount-1].BottomRight.Lon := LIniFile.ReadFloat(_SectionStr, 'right', 0.0);
-        LRealAreaArray[LCount-1].BottomRight.Lat := LIniFile.ReadFloat(_SectionStr, 'bottom', 0.0);
+          AreaNames.Add(String.Empty);
+        RealAreaArray[CountAreas-1].TopLeft.Lon := IniFile.ReadFloat(_SectionStr, 'left', 0.0);
+        RealAreaArray[CountAreas-1].TopLeft.Lat := IniFile.ReadFloat(_SectionStr, 'top', 0.0);
+        RealAreaArray[CountAreas-1].BottomRight.Lon := IniFile.ReadFloat(_SectionStr, 'right', 0.0);
+        RealAreaArray[CountAreas-1].BottomRight.Lat := IniFile.ReadFloat(_SectionStr, 'bottom', 0.0);
 
-        LIniFile.EraseSection(_SectionStr);
-        LIniFile.ReadSection(_SectionStr, LSection);
+        IniFile.EraseSection(_SectionStr);
+        IniFile.ReadSection(_SectionStr, Section);
       end;
 
-      for i := 0 to AreasList.Count-1 do
-      begin
-        LAreaSelectionPlugin := AreasList.Items.Objects[i] as TAreaSelectionPlugin;
-        MvPluginManager.PluginList.Delete(MvPluginManager.PluginList.IndexOf(LAreaSelectionPlugin));
-      end;
+      FAreaEditor.ClearAreas;
+      AreasList.Clear;
 
-      if LStringList.Count > 0 then
+      if AreaNames.Count > 0 then
       begin
-        FPrevAreaIndex.Clear;
-        AreasList.Clear;
-        for i := 0 to LStringList.Count-1 do
+        for i := 0 to AreaNames.Count-1 do
         begin
-          LAreaSelectionPlugin := TAreaSelectionPlugin.Create(MvPluginManager);
-          LAreaSelectionPlugin.MapView := MapView;
-          LAreaSelectionPlugin.OnSelectedAreaBeginChange := @OnSelectedAreaBeginChange;
-          LAreaSelectionPlugin.SelectedArea.Area := LRealAreaArray[i];
-          if LStringList[i].IsEmpty then
-            LAreaSelectionPlugin.Caption := 'Area' + i.ToString
+          Area := FAreaEditor.AddArea;
+          Area.Area := RealAreaArray[i];
+          if AreaNames[i].IsEmpty then
+            Area.Caption := SPluginAreaEditorAreaName + i.ToString
           else
-            LAreaSelectionPlugin.Caption := LStringList[i];
-          AreasList.AddItem(LAreaSelectionPlugin.Caption, LAreaSelectionPlugin);
+            Area.Caption := AreaNames[i];
+          AreasList.AddItem(Area.Caption, nil);
         end;
       end;
     except
       on E: Exception do
-      begin
-        WriteLn(E.ClassName + ': ' + E.Message);
-      end;
+        ShowMessage(E.Message);
     end;
   finally
-    LStringList.Free;
-    LSection.Free;
-    LIniFile.Free;
-    LMemoryStream.Free;
+    Section.Free;
+    AreaNames.Free;
+    IniFile.Free;
+    MemoryStream.Free;
   end;
 end;
 
 procedure TfMain.actAreasUpExecute(Sender: TObject);
-
-  procedure _MovePrevAreaSelectionPlugin(AAreaSelectionPlugin: TAreaSelectionPlugin);
-  var
-    LCurPluginPos: Integer;
-    i: Integer;
-    PrevAreaSelectionPlugin: TAreaSelectionPlugin = nil;
-  begin
-    LCurPluginPos := MvPluginManager.PluginList.IndexOf(AAreaSelectionPlugin);
-    for i := LCurPluginPos downto 0 do
-    if MvPluginManager.PluginList[i] is TAreaSelectionPlugin then
-    begin
-      PrevAreaSelectionPlugin := MvPluginManager.PluginList[i] as TAreaSelectionPlugin;
-      break;
-    end;
-    if not Assigned(PrevAreaSelectionPlugin) then Exit;
-    MvPluginManager.PluginList.Move(LCurPluginPos, i);
-  end;
-
 var
-  LNewStringPos: Integer;
-  LAreaSelectionPlugin: TAreaSelectionPlugin;
+  LNewItemIndex: Integer;
 begin
   if AreasList.ItemIndex < 1 then Exit;
 
-  { Move plugin first }
-  LAreaSelectionPlugin := AreasList.Items.Objects[AreasList.ItemIndex] as TAreaSelectionPlugin;
-  _MovePrevAreaSelectionPlugin(LAreaSelectionPlugin);
-  { Move item in AreasList then }
-  LNewStringPos := AreasList.ItemIndex - 1;
-  AreasList.Items.Move(AreasList.ItemIndex, LNewStringPos);
-  AreasList.ItemIndex := LNewStringPos;
-  AreasList.Selected[LNewStringPos] := True;
+  LNewItemIndex := AreasList.ItemIndex - 1;
+  AreasList.Items.Move(AreasList.ItemIndex, LNewItemIndex);
+  AreasList.ItemIndex := LNewItemIndex;
+  AreasList.Selected[LNewItemIndex] := True;
+  FAreaEditor.MovePrev(AreasList.Items.Objects[LNewItemIndex] as TMapLabeledArea);
 end;
 
 procedure TfMain.actEditAreaNameExecute(Sender: TObject);
@@ -411,58 +380,49 @@ procedure TfMain.actAreasExportExecute(Sender: TObject);
 const
   _SectionStr = '[Area]';
 var
-  LStringList: TStringList = nil;
-  LAreaSelectionPlugin: TAreaSelectionPlugin;
+  ConfigStrings: TStringList = nil;
+  Area: TMapLabeledArea;
   i: Integer;
 begin
-  if not SaveDialog.Execute then Exit;
+  if not dlgSave.Execute then Exit;
 
   try
-    LStringList := TStringList.Create;
-    for i := 0 to AreasList.Count-1 do
+    ConfigStrings := TStringList.Create;
+    for i := 0 to FAreaEditor.CountAreas - 1 do
     begin
-      LStringList.Add(_SectionStr);
-      LAreaSelectionPlugin := AreasList.Items.Objects[i] as TAreaSelectionPlugin;
-      LStringList.Add('name=' + LAreaSelectionPlugin.Caption);
-      LStringList.Add('left=' + LAreaSelectionPlugin.SelectedArea.West.ToString);
-      LStringList.Add('top=' + LAreaSelectionPlugin.SelectedArea.North.ToString);
-      LStringList.Add('right=' + LAreaSelectionPlugin.SelectedArea.East.ToString);
-      LStringList.Add('bottom=' + LAreaSelectionPlugin.SelectedArea.South.ToString);
-      LStringList.Add('');
+      ConfigStrings.Add(_SectionStr);
+      Area := FAreaEditor[i];
+      ConfigStrings.Add('name=' + Area.Caption);
+      ConfigStrings.Add('left=' + Area.West.ToString);
+      ConfigStrings.Add('top=' + Area.North.ToString);
+      ConfigStrings.Add('right=' + Area.East.ToString);
+      ConfigStrings.Add('bottom=' + Area.South.ToString);
+      ConfigStrings.Add('');
     end;
-    LStringList.SaveToFile(SaveDialog.FileName);
+    ConfigStrings.SaveToFile(dlgSave.FileName);
   finally
-    if Assigned(LStringList) then FreeAndNil(LStringList);
+    ConfigStrings.Free;
   end;
 end;
 
 procedure TfMain.actAreasAddExecute(Sender: TObject);
 var
-  LAreaSelectPlugin: TAreaSelectionPlugin;
+  Area: TMapLabeledArea;
 begin
-  LAreaSelectPlugin := TAreaSelectionPlugin.Create(MvPluginManager);
-  LAreaSelectPlugin.MapView := MapView;
-  LAreaSelectPlugin.OnSelectedAreaBeginChange := @OnSelectedAreaBeginChange;
-  Inc(FPluginCount);
-  LAreaSelectPlugin.Caption := 'Area' + FPluginCount.ToString;
-  AreasList.AddItem(LAreaSelectPlugin.Caption, LAreaSelectPlugin);
-  PrepareAreaSelectionPlugin(LAreaSelectPlugin);
+  Area := FAreaEditor.AddArea;
+  AreasList.AddItem(Area.Caption, Area);
 end;
 
 procedure TfMain.actAreasDeleteExecute(Sender: TObject);
 var
-  LMvCustomPlugin: TMvCustomPlugin;
   i: Integer;
 begin
-  if AreasList.ItemIndex = FPrevAreaIndex.Value then
-    FPrevAreaIndex.Clear;
 
   for i := AreasList.Count - 1 downto 0 do
   begin
     if not AreasList.Selected[i] then Continue;
 
-    LMvCustomPlugin := AreasList.Items.Objects[i] as TMvCustomPlugin;
-    MvPluginManager.PluginList.Delete(MvPluginManager.PluginList.IndexOf(LMvCustomPlugin));
+    FAreaEditor.DeleteArea(i);
     AreasList.Items.Delete(i);
   end;
 
@@ -470,38 +430,16 @@ begin
 end;
 
 procedure TfMain.actAreasDownExecute(Sender: TObject);
-
-  procedure _MoveNextAreaSelectionPlugin(AAreaSelectionPlugin: TAreaSelectionPlugin);
-  var
-    LCurPluginPos: Integer;
-    i: Integer;
-    NextAreaSelectionPlugin: TAreaSelectionPlugin = nil;
-  begin
-    LCurPluginPos := MvPluginManager.PluginList.IndexOf(AAreaSelectionPlugin);
-    for i := LCurPluginPos to MvPluginManager.PluginList.Count - 1 do
-    if MvPluginManager.PluginList[i] is TAreaSelectionPlugin then
-    begin
-      NextAreaSelectionPlugin := MvPluginManager.PluginList[i] as TAreaSelectionPlugin;
-      break;
-    end;
-    if not Assigned(NextAreaSelectionPlugin) then Exit;
-    MvPluginManager.PluginList.Move(LCurPluginPos, i);
-  end;
-
 var
-  LNewStringPos: Integer;
-  LAreaSelectionPlugin: TAreaSelectionPlugin;
+  LNewItemIndex: Integer;
 begin
-  if AreasList.ItemIndex = -1 then Exit;
+  if AreasList.ItemIndex >= (AreasList.Count - 1) then Exit;
 
-  if (AreasList.ItemIndex = (AreasList.Count - 1)) then Exit;
-  { Move plugin first }
-  LAreaSelectionPlugin := AreasList.Items.Objects[AreasList.ItemIndex] as TAreaSelectionPlugin;
-  _MoveNextAreaSelectionPlugin(LAreaSelectionPlugin);
-  { Move item in AreasList then }
-  LNewStringPos := AreasList.ItemIndex + 1;
-  AreasList.Items.Move(AreasList.ItemIndex, LNewStringPos);
-  AreasList.ItemIndex := LNewStringPos;
+  LNewItemIndex := AreasList.ItemIndex + 1;
+  AreasList.Items.Move(AreasList.ItemIndex, LNewItemIndex);
+  AreasList.ItemIndex := LNewItemIndex;
+  AreasList.Selected[LNewItemIndex] := True;
+  FAreaEditor.MoveNext(AreasList.Items.Objects[LNewItemIndex] as TMapLabeledArea);
 end;
 
 procedure TfMain.actAreasEditNameExecute(Sender: TObject);
@@ -512,27 +450,17 @@ begin
   begin
     AreasList.Items[AreasList.ItemIndex] := fEditAreaName.AreaName;
     try
-      (AreasList.Items.Objects[AreasList.ItemIndex] as TAreaSelectionPlugin).Caption := fEditAreaName.AreaName;
+      FAreaEditor.Areas[AreasList.ItemIndex].Caption := fEditAreaName.AreaName;
     finally end;
   end;
   FreeAndNil(fEditAreaName);
 end;
 
 procedure TfMain.AreasListSelectionChange(Sender: TObject; User: boolean);
-var
-  LAreaSelectPlugin: TAreaSelectionPlugin;
 begin
   if AreasList.ItemIndex = -1 then Exit;
 
-  if FPrevAreaIndex.HasValue then
-  begin
-    LAreaSelectPlugin := AreasList.Items.Objects[FPrevAreaIndex.Value] as TAreaSelectionPlugin;
-    LAreaSelectPlugin.Pen.Color := BrandColors.Accent;
-  end;
-
-  LAreaSelectPlugin := AreasList.Items.Objects[AreasList.ItemIndex] as TAreaSelectionPlugin;
-  LAreaSelectPlugin.Pen.Color := TColorRec.Orange;
-  FPrevAreaIndex := AreasList.ItemIndex;
+  FAreaEditor.SelectedArea := FAreaEditor[AreasList.ItemIndex];
 end;
 
 procedure TfMain.AreasUpDownClick(Sender: TObject; Button: TUDBtnType);
@@ -635,15 +563,14 @@ end;
 procedure TfMain.FormCreate(Sender: TObject);
 begin
   FormatSettings.DecimalSeparator := '.';
-  FPluginCount := 0;
-  FPrevAreaIndex.Clear;
   DetectAndApplyTheme;
   ShowTileInfo := False;
+  FAreaEditor := TAreaEditorPlugin.Create(MvPluginManager);
+  FAreaEditor.MapView := MapView;
+  FAreaEditor.Enabled := True;
+  FAreaEditor.OnSelectionChanged := @AreaEditorSelectionChanged;
 
-  lblDebugZoom.Caption := SZoom;
-  lblDebugLat.Caption  := SLat;
-  lblDebugLon.Caption  := SLon;
-  miLanguage.Caption   := SLanguage;
+  TranslationChanged;
 end;
 
 procedure TfMain.LayersListClickCheck(Sender: TObject);
@@ -688,6 +615,36 @@ begin
   Allow := True;
 end;
 
+procedure TfMain.MapViewKeyDown(Sender: TObject; var Key: Word;
+  Shift: TShiftState);
+const
+  StepPx = 5;
+var
+  DX, DY: Integer;
+begin
+  DX := 0;
+  DY := 0;
+
+  case Key of
+    VK_LEFT:  DX := -StepPx;
+    VK_RIGHT: DX :=  StepPx;
+    VK_UP:    DY := -StepPx;
+    VK_DOWN:  DY :=  StepPx;
+  else
+    Exit;
+  end;
+
+  // Speed-up
+  if ssShift in Shift then
+  begin
+    DX := DX * StepPx;
+    DY := DY * StepPx;
+  end;
+
+  FAreaEditor.MoveSelectedByPixels(MapView, DX, DY);
+end;
+
+
 procedure TfMain.MapViewMouseMove(Sender: TObject; Shift: TShiftState; X,
   Y: Integer);
 begin
@@ -714,12 +671,21 @@ end;
 
 procedure TfMain.miLangaugeEnClick(Sender: TObject);
 begin
-  SetGUILanguage('en');
+  SetLanguage('en');
 end;
 
 procedure TfMain.miLangaugeRuClick(Sender: TObject);
 begin
-  SetGUILanguage('ru');
+  SetLanguage('ru');
+end;
+
+procedure TfMain.PopupMapViewPopup(Sender: TObject);
+var
+  IsAreaSelected: Boolean;
+begin
+  IsAreaSelected := Assigned(FAreaEditor.SelectedArea);
+  miRenameArea.Enabled := IsAreaSelected;
+  miDeleteArea.Enabled := IsAreaSelected;
 end;
 
 procedure TfMain.ProviderVariationsMapChange(Sender: TObject);
@@ -767,14 +733,15 @@ begin
   MapView.Active := True;
 end;
 
-procedure TfMain.OnSelectedAreaBeginChange(Sender: TObject);
-var
-  LAreaSelectPlugin: TAreaSelectionPlugin;
-  LIndex: Integer;
+procedure TfMain.AreaEditorSelectionChanged(Sender: TObject; const OldArea, NewArea: TMapLabeledArea);
 begin
-  LAreaSelectPlugin := Sender as TAreaSelectionPlugin;
-  LIndex := AreasList.Items.IndexOfObject(LAreaSelectPlugin);
-  AreasList.ItemIndex := LIndex;
+  if not Assigned(NewArea) then
+    AreasList.ClearSelection
+  else
+  begin
+    AreasList.ItemIndex := FAreaEditor.IndexOfArea(NewArea);
+    AreasList.Selected[AreasList.ItemIndex] := True;
+  end;
 end;
 
 procedure TfMain.SetShowTileInfo(AValue: Boolean);
@@ -823,20 +790,43 @@ begin
   lblDebugLon.Caption := SLon + ': ' + Format('%14.10f', [LRealPoint.Lon]);
 end;
 
-procedure TfMain.PrepareAreaSelectionPlugin(AAreaSelectionPlugin: TAreaSelectionPlugin);
-begin
-  AAreaSelectionPlugin.BackgroundColor := BrandColors.Secondary;
-  AAreaSelectionPlugin.Pen.Color       := BrandColors.Accent;
-  AAreaSelectionPlugin.Font.Color      := clWhite;
-end;
-
 procedure TfMain.TranslationChanged;
 var
   LPoint: TPoint;
 begin
   LPoint := MapView.ScreenToClient(Mouse.CursorPos);
 
-  miLanguage.Caption := SLanguage;
+  { Menu }
+
+  // Language
+  miLanguage.Caption := SMenuLanguage;
+  miLanguage.Hint := SHMenuLanguage;
+
+  { Areas }
+
+  // New
+  miNewArea.Caption := SAreasAdd;
+  miNewArea.Hint := SHAreasAdd;
+  btnNewArea.Hint := SHAreasAdd;
+
+  // Rename
+  miRenameArea.Caption := SAreasRename;
+  miRenameArea.Hint := SHAreasRename;
+  btnRenameArea.Hint := SHAreasRename;
+
+  // Delete
+  miDeleteArea.Caption := SAreasDelete;
+  miDeleteArea.Hint := SHAreasDelete;
+  btnDeleteArea.Hint := SHAreasDelete;
+
+  // Import
+  btnImportAreas.Caption := SAreasImport;
+  btnImportAreas.Hint := SHAreasImport;
+
+  // Export
+  btnExportAreas.Caption := SAreasExport;
+  btnExportAreas.Hint := SHAreasExport;
+
   UpdateDebugZoom;
   UpdateDebugCursorCoordinate(LPoint.X, LPoint.Y)
 end;

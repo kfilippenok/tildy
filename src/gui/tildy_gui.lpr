@@ -13,9 +13,6 @@ uses
   Forms,
   // Forms
   Tildy.GUI.Forms.Main,
-  // Dialogs
-  Tildy.GUI.Dialogs.AddLayers,
-  Tildy.GUI.Dialogs.EditAreaName,
   // Translate
   Tildy.GUI.i18n.Runtime;
 
@@ -23,11 +20,11 @@ uses
 
 begin
   RequireDerivedFormResource :=True;
-  Application.Title:='Tildy';
+  Application.Title := 'Tildy';
   Application.Scaled:=True;
   Application.{%H-}MainFormOnTaskbar := True;
   Application.Initialize;
-  SetGUILanguageFromSystem;
+  SetLanguageFromSystem;
   Application.CreateForm(TfMain, fMain);
   Application.Run;
 end.

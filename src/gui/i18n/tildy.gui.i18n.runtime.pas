@@ -19,16 +19,16 @@ type
   end;
 
 var
-  DefaultGUILanguageCode: String = 'en';
+  DefaultLanguageCode: String = 'en';
 
-function SetGUILanguageFromResource(const ABaseName, ALanguageCode: string;
+function SetLanguageFromResource(const ABaseName, ALanguageCode: string;
   AForm: TCustomForm = nil): Boolean;
-procedure SetGUILanguage(const ALanguageCode: string = '');
-procedure SetGUILanguageFromSystem;
+procedure SetLanguage(const ALanguageCode: string = '');
+procedure SetLanguageFromSystem;
 
 implementation
 
-function SetGUILanguageFromResource(const ABaseName, ALanguageCode: string;
+function SetLanguageFromResource(const ABaseName, ALanguageCode: string;
   AForm: TCustomForm = nil): Boolean;
 var
   ResStream  : TResourceStream = nil;
@@ -45,7 +45,7 @@ begin
 
   LangToTry := Trim(ALanguageCode);
   if LangToTry.IsEmpty then
-    LangToTry := DefaultGUILanguageCode;
+    LangToTry := DefaultLanguageCode;
 
   try
     try
@@ -55,7 +55,7 @@ begin
     except
       FreeAndNil(ResStream);
       ResStream := TResourceStream.Create(HInstance,
-        ABaseName + '.' + DefaultGUILanguageCode, RT_RCDATA);
+        ABaseName + '.' + DefaultLanguageCode, RT_RCDATA);
     end;
 
     PoStream := TStringStream.Create('');
@@ -105,17 +105,17 @@ begin
   end;
 end;
 
-procedure SetGUILanguage(const ALanguageCode: string);
+procedure SetLanguage(const ALanguageCode: string);
 begin
   if ALanguageCode.IsEmpty then
-    SetGUILanguageFromResource('tildy_gui', DefaultGUILanguageCode)
+    SetLanguageFromResource('tildy_gui', DefaultLanguageCode)
   else
-    SetGUILanguageFromResource('tildy_gui', ALanguageCode);
+    SetLanguageFromResource('tildy_gui', ALanguageCode);
 end;
 
-procedure SetGUILanguageFromSystem;
+procedure SetLanguageFromSystem;
 begin
-  SetGUILanguage(GetLanguageID.LanguageCode);
+  SetLanguage(GetLanguageID.LanguageCode);
 end;
 
 end.

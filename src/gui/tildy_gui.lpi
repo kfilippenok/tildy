@@ -31,7 +31,7 @@
           </Target>
           <SearchPaths>
             <IncludeFiles Value="$(ProjOutDir)"/>
-            <OtherUnitFiles Value="dialogs;forms;brand;i18n"/>
+            <OtherUnitFiles Value="dialogs;forms;brand;i18n;plugins/mapviewer"/>
             <UnitOutputDirectory Value="../../build/$(TargetOS)/release"/>
           </SearchPaths>
           <CodeGeneration>
@@ -124,6 +124,21 @@
         <IsPartOfProject Value="True"/>
         <UnitName Value="Tildy.GUI.i18n.Runtime"/>
       </Unit>
+      <Unit>
+        <Filename Value="plugins/mapviewer/tildy.gui.plugins.mapviewer.tilepicker.pas"/>
+        <IsPartOfProject Value="True"/>
+        <UnitName Value="Tildy.GUI.Plugins.MapViewer.TilePicker"/>
+      </Unit>
+      <Unit>
+        <Filename Value="plugins/mapviewer/tildy.gui.plugins.mapviewer.areaeditor.pas"/>
+        <IsPartOfProject Value="True"/>
+        <UnitName Value="Tildy.GUI.Plugins.MapViewer.AreaEditor"/>
+      </Unit>
+      <Unit>
+        <Filename Value="plugins/mapviewer/tildy.gui.plugins.mapviewer.debugofposition.pas"/>
+        <IsPartOfProject Value="True"/>
+        <UnitName Value="Tildy.GUI.Plugins.MapViewer.DebugOfPosition"/>
+      </Unit>
     </Units>
   </ProjectOptions>
   <CompilerOptions>
@@ -133,7 +148,7 @@
     </Target>
     <SearchPaths>
       <IncludeFiles Value="$(ProjOutDir)"/>
-      <OtherUnitFiles Value="dialogs;forms;brand;i18n"/>
+      <OtherUnitFiles Value="dialogs;forms;brand;i18n;plugins/mapviewer"/>
       <UnitOutputDirectory Value="../../build/$(TargetOS)/debug"/>
     </SearchPaths>
     <Parsing>
@@ -173,6 +188,12 @@
       </Item>
       <Item>
         <Name Value="EFOpenError"/>
+      </Item>
+      <Item>
+        <Name Value="ESocketError"/>
+      </Item>
+      <Item>
+        <Name Value="EHTTPClient"/>
       </Item>
     </Exceptions>
   </Debugging>

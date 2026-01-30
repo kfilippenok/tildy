@@ -10,6 +10,7 @@ object fMain: TfMain
   DesignTimePPI = 144
   Menu = MainMenu
   Position = poDesktopCenter
+  ShowHint = True
   LCLVersion = '4.5.0.0'
   OnActivate = FormActivate
   OnCreate = FormCreate
@@ -18,7 +19,7 @@ object fMain: TfMain
     AnchorSideRight.Side = asrBottom
     AnchorSideBottom.Control = Owner
     AnchorSideBottom.Side = asrBottom
-    Left = 1203
+    Left = 1141
     Height = 1220
     Top = 0
     Width = 22
@@ -37,25 +38,25 @@ object fMain: TfMain
     Left = 0
     Height = 1220
     Top = 0
-    Width = 1203
+    Width = 1141
     Align = alCustom
     Anchors = [akTop, akLeft, akRight, akBottom]
     Caption = 'panMV'
     ClientHeight = 1220
-    ClientWidth = 1203
+    ClientWidth = 1141
     ParentBackground = False
     TabOrder = 1
     object panDebug: TPanel
       Left = 1
       Height = 28
       Top = 1191
-      Width = 1201
+      Width = 1139
       Align = alBottom
       Anchors = [akLeft, akRight]
       AutoSize = True
       BevelOuter = bvLowered
       ClientHeight = 28
-      ClientWidth = 1201
+      ClientWidth = 1139
       Color = clForm
       ParentBackground = False
       ParentColor = False
@@ -66,7 +67,7 @@ object fMain: TfMain
         AnchorSideTop.Control = panDebug
         AnchorSideTop.Side = asrCenter
         AnchorSideRight.Control = lblDebugLon
-        Left = 1174
+        Left = 1112
         Height = 1
         Top = 14
         Width = 1
@@ -80,7 +81,7 @@ object fMain: TfMain
         AnchorSideTop.Side = asrCenter
         AnchorSideRight.Control = panDebug
         AnchorSideRight.Side = asrBottom
-        Left = 1187
+        Left = 1125
         Height = 1
         Top = 14
         Width = 1
@@ -103,7 +104,7 @@ object fMain: TfMain
       Left = 1
       Height = 1190
       Top = 1
-      Width = 1201
+      Width = 1139
       Align = alClient
       CacheOnDisk = False
       CacheLocation = clTemp
@@ -114,9 +115,11 @@ object fMain: TfMain
       ParentFont = False
       PluginManager = MvPluginManager
       POITextBgOpacity = 0.550000011920929
+      PopupMenu = PopupMapView
       TabOrder = 1
       TransparentMap = True
       OnZoomChange = MapViewZoomChange
+      OnKeyDown = MapViewKeyDown
       OnResize = MapViewResize
       object btnZoomIn: TSpeedButton
         Left = 1128
@@ -144,7 +147,7 @@ object fMain: TfMain
         AnchorSideTop.Control = MapView
         AnchorSideRight.Control = MapView
         AnchorSideRight.Side = asrBottom
-        Left = 1131
+        Left = 1069
         Height = 50
         Top = 20
         Width = 50
@@ -166,10 +169,10 @@ object fMain: TfMain
     AnchorSideRight.Side = asrBottom
     AnchorSideBottom.Control = Owner
     AnchorSideBottom.Side = asrBottom
-    Left = 1225
+    Left = 1163
     Height = 1220
     Top = 0
-    Width = 691
+    Width = 753
     HorzScrollBar.Page = 194
     VertScrollBar.Increment = 99
     VertScrollBar.Page = 997
@@ -180,7 +183,7 @@ object fMain: TfMain
     AutoSize = True
     BorderStyle = bsNone
     ClientHeight = 1220
-    ClientWidth = 691
+    ClientWidth = 753
     Color = clWindow
     ParentBackground = False
     ParentColor = False
@@ -194,13 +197,13 @@ object fMain: TfMain
       Left = 22
       Height = 296
       Top = 686
-      Width = 647
+      Width = 709
       Anchors = [akTop, akLeft, akRight]
       AutoSize = True
       BorderSpacing.Top = 22
       BevelOuter = bvNone
       ClientHeight = 296
-      ClientWidth = 647
+      ClientWidth = 709
       ParentBackground = False
       TabOrder = 0
       object lblLayers: TLabel
@@ -223,7 +226,7 @@ object fMain: TfMain
         Left = 0
         Height = 236
         Top = 60
-        Width = 585
+        Width = 647
         Align = alCustom
         Anchors = [akTop, akLeft, akRight, akBottom]
         BorderSpacing.Right = 12
@@ -240,11 +243,11 @@ object fMain: TfMain
         AnchorSideTop.Side = asrBottom
         AnchorSideRight.Control = panLayers
         AnchorSideRight.Side = asrBottom
-        Left = 597
+        Left = 659
         Height = 50
         Top = 60
         Width = 50
-        Action = actLayersAdd
+        Action = actLayersNew
         Anchors = [akTop, akRight]
         AutoSize = True
         BorderSpacing.Top = 12
@@ -258,7 +261,7 @@ object fMain: TfMain
         AnchorSideTop.Side = asrBottom
         AnchorSideRight.Control = btnLayersAdd
         AnchorSideRight.Side = asrBottom
-        Left = 597
+        Left = 659
         Height = 50
         Top = 113
         Width = 50
@@ -275,7 +278,7 @@ object fMain: TfMain
         AnchorSideLeft.Side = asrCenter
         AnchorSideTop.Control = btnLayersDelete
         AnchorSideTop.Side = asrBottom
-        Left = 597
+        Left = 659
         Height = 50
         Top = 193
         Width = 50
@@ -291,7 +294,7 @@ object fMain: TfMain
         AnchorSideLeft.Side = asrCenter
         AnchorSideTop.Control = btnLayersUp
         AnchorSideTop.Side = asrBottom
-        Left = 597
+        Left = 659
         Height = 50
         Top = 246
         Width = 50
@@ -312,13 +315,13 @@ object fMain: TfMain
       Left = 22
       Height = 93
       Top = 571
-      Width = 647
+      Width = 709
       Anchors = [akTop, akLeft, akRight]
       AutoSize = True
       BorderSpacing.Top = 22
       BevelOuter = bvNone
       ClientHeight = 93
-      ClientWidth = 647
+      ClientWidth = 709
       ParentBackground = False
       TabOrder = 1
       object DirectoryCache: TDirectoryEdit
@@ -331,7 +334,7 @@ object fMain: TfMain
         Left = 0
         Height = 33
         Top = 60
-        Width = 647
+        Width = 709
         ShowHidden = False
         ButtonWidth = 81
         NumGlyphs = 1
@@ -378,7 +381,7 @@ object fMain: TfMain
       Left = 22
       Height = 93
       Top = 22
-      Width = 647
+      Width = 709
       Anchors = [akTop, akLeft, akRight]
       AutoSize = True
       BorderSpacing.Left = 22
@@ -386,7 +389,7 @@ object fMain: TfMain
       BorderSpacing.Right = 22
       BevelOuter = bvNone
       ClientHeight = 93
-      ClientWidth = 647
+      ClientWidth = 709
       ParentBackground = False
       TabOrder = 2
       object ProviderVariationsMap: TComboBox
@@ -399,7 +402,7 @@ object fMain: TfMain
         Left = 0
         Height = 33
         Top = 60
-        Width = 647
+        Width = 709
         Align = alCustom
         Anchors = [akTop, akLeft, akRight]
         BorderSpacing.Top = 12
@@ -438,13 +441,13 @@ object fMain: TfMain
       Left = 22
       Height = 412
       Top = 137
-      Width = 647
+      Width = 709
       Anchors = [akTop, akLeft, akRight]
       AutoSize = True
       BorderSpacing.Top = 22
       BevelOuter = bvNone
       ClientHeight = 412
-      ClientWidth = 647
+      ClientWidth = 709
       ParentBackground = False
       TabOrder = 3
       object lblAreas: TLabel
@@ -462,13 +465,13 @@ object fMain: TfMain
         AnchorSideLeft.Control = panAreas
         AnchorSideTop.Control = lblAreas
         AnchorSideTop.Side = asrBottom
-        AnchorSideRight.Control = btnAddArea
-        AnchorSideBottom.Control = btnAreasDown
+        AnchorSideRight.Control = btnNewArea
+        AnchorSideBottom.Control = btnDownArea
         AnchorSideBottom.Side = asrBottom
         Left = 0
         Height = 289
         Top = 60
-        Width = 585
+        Width = 647
         Anchors = [akTop, akLeft, akRight, akBottom]
         BorderSpacing.Top = 12
         BorderSpacing.Right = 12
@@ -478,12 +481,12 @@ object fMain: TfMain
         OnDblClick = AreasListDblClick
         OnSelectionChange = AreasListSelectionChange
       end
-      object btnAddArea: TSpeedButton
+      object btnNewArea: TSpeedButton
         AnchorSideTop.Control = lblAreas
         AnchorSideTop.Side = asrBottom
         AnchorSideRight.Control = panAreas
         AnchorSideRight.Side = asrBottom
-        Left = 597
+        Left = 659
         Height = 50
         Top = 60
         Width = 50
@@ -496,12 +499,12 @@ object fMain: TfMain
         Margin = 10
       end
       object btnDeleteArea: TSpeedButton
-        AnchorSideLeft.Control = btnAddArea
+        AnchorSideLeft.Control = btnNewArea
         AnchorSideLeft.Side = asrCenter
-        AnchorSideTop.Control = btnAddArea
+        AnchorSideTop.Control = btnNewArea
         AnchorSideTop.Side = asrBottom
         AnchorSideRight.Side = asrBottom
-        Left = 597
+        Left = 659
         Height = 50
         Top = 113
         Width = 50
@@ -512,13 +515,13 @@ object fMain: TfMain
         ImageIndex = 1
         Margin = 10
       end
-      object btnAreasExport: TSpeedButton
+      object btnExportAreas: TSpeedButton
         AnchorSideTop.Control = AreasList
         AnchorSideTop.Side = asrBottom
         AnchorSideRight.Control = AreasList
         AnchorSideRight.Side = asrBottom
         AnchorSideBottom.Side = asrBottom
-        Left = 474
+        Left = 536
         Height = 51
         Top = 361
         Width = 111
@@ -532,9 +535,9 @@ object fMain: TfMain
         Margin = 10
         Spacing = 10
       end
-      object btnAreasImport: TSpeedButton
+      object btnImportAreas: TSpeedButton
         AnchorSideLeft.Control = AreasList
-        AnchorSideTop.Control = btnAreasExport
+        AnchorSideTop.Control = btnExportAreas
         AnchorSideTop.Side = asrCenter
         Left = 0
         Height = 51
@@ -549,12 +552,12 @@ object fMain: TfMain
         Margin = 10
         Spacing = 10
       end
-      object btnAreasEdit: TSpeedButton
+      object btnRenameArea: TSpeedButton
         AnchorSideLeft.Control = btnDeleteArea
         AnchorSideLeft.Side = asrCenter
         AnchorSideTop.Control = btnDeleteArea
         AnchorSideTop.Side = asrBottom
-        Left = 597
+        Left = 659
         Height = 50
         Top = 166
         Width = 50
@@ -565,12 +568,12 @@ object fMain: TfMain
         ImageIndex = 2
         Margin = 10
       end
-      object btnAreasUp: TSpeedButton
-        AnchorSideLeft.Control = btnAreasEdit
+      object btnUpArea: TSpeedButton
+        AnchorSideLeft.Control = btnRenameArea
         AnchorSideLeft.Side = asrCenter
-        AnchorSideTop.Control = btnAreasEdit
+        AnchorSideTop.Control = btnRenameArea
         AnchorSideTop.Side = asrBottom
-        Left = 597
+        Left = 659
         Height = 50
         Top = 246
         Width = 50
@@ -582,13 +585,13 @@ object fMain: TfMain
         ImageIndex = 8
         Margin = 10
       end
-      object btnAreasDown: TSpeedButton
-        AnchorSideLeft.Control = btnAreasEdit
+      object btnDownArea: TSpeedButton
+        AnchorSideLeft.Control = btnRenameArea
         AnchorSideLeft.Side = asrCenter
-        AnchorSideTop.Control = btnAreasUp
+        AnchorSideTop.Control = btnUpArea
         AnchorSideTop.Side = asrBottom
         AnchorSideBottom.Side = asrBottom
-        Left = 597
+        Left = 659
         Height = 50
         Top = 299
         Width = 50
@@ -609,7 +612,7 @@ object fMain: TfMain
       Left = 0
       Height = 15
       Top = 982
-      Width = 691
+      Width = 753
       Anchors = [akTop, akLeft, akRight]
       BevelOuter = bvNone
       ParentBackground = False
@@ -625,9 +628,9 @@ object fMain: TfMain
     OnUpdate = ActionsLayersUpdate
     Left = 996
     Top = 744
-    object actLayersAdd: TAction
+    object actLayersNew: TAction
       ImageIndex = 0
-      OnExecute = actLayersAddExecute
+      OnExecute = actLayersNewExecute
     end
     object actLayersDelete: TAction
       Enabled = False
@@ -650,8 +653,19 @@ object fMain: TfMain
     Top = 180
   end
   object PopupMapView: TPopupMenu
+    Images = ImagesPrimary
+    OnPopup = PopupMapViewPopup
     Left = 996
     Top = 864
+    object miNewArea: TMenuItem
+      Action = actAreasAdd
+    end
+    object miRenameArea: TMenuItem
+      Action = actAreasEditName
+    end
+    object miDeleteArea: TMenuItem
+      Action = actAreasDelete
+    end
   end
   object MVDEFPC: TMVDEFPC
     ProxyPort = 0
@@ -669,11 +683,11 @@ object fMain: TfMain
       InfoMask = '%0:d:%1:d'
     end
   end
-  object OpenDialog: TOpenDialog
+  object dlgOpen: TOpenDialog
     Left = 372
     Top = 684
   end
-  object SaveDialog: TSaveDialog
+  object dlgSave: TSaveDialog
     DefaultExt = '.ini'
     Left = 372
     Top = 846

@@ -12,8 +12,8 @@ type
 
   BrandColors = record
   const
-    Accent   : TColor = TColor($00E48C3A);
-    Secondary: TColor = TColor($00B47A37);
+    Accent: TColor = TColor($00E48C3A); // Hex: #3A8CE4; RGB: 58, 140, 228
+    Secondary: TColor = TColor($00B47A37); // Hex: ;
   end;
 
   function IsDarkTheme: Boolean;
