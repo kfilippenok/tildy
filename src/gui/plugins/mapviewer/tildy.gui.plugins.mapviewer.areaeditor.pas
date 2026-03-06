@@ -412,7 +412,7 @@ end;
 function TAreaEditorPlugin.GetWorldRealArea(AProjection: TProjectionType
   ): TRealArea;
 const
-  // TMapViewerEngine.DegreesToPixelsEPSG3857
+  // TMapViewerEngine.DegreesToPixelsEPSG3395
   WorldAreaEPSG3395: TRealArea = (
     TopLeft: (lon: -180; lat: 80);
     BottomRight: (lon: 180; lat: -84)

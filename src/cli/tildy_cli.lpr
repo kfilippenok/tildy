@@ -23,9 +23,7 @@ uses
   {$ENDIF}
   SysUtils, Classes, CustApp, IniFiles, fileinfo, Math,
   // CLI
-  Tildy.CLI.Options,
-  // Core
-  Tildy.Core.Engine, Tildy.Core.Projections, Tildy.Core.Filters;
+  Tildy.CLI.Options;
 
 var
   OptionParameter: array[TOptionKind] of String;

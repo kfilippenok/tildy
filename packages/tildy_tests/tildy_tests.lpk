@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CONFIG>
+  <Package Version="5">
+    <PathDelim Value="\"/>
+    <Name Value="tildy_tests"/>
+    <Type Value="RunAndDesignTime"/>
+    <CompilerOptions>
+      <Version Value="11"/>
+      <PathDelim Value="\"/>
+      <SearchPaths>
+        <OtherUnitFiles Value="..\..\tests\core;..\..\tests\core\sources;..\..\tests;..\..\tests\core\validators"/>
+        <UnitOutputDirectory Value="..\..\build\$(TargetOS)\tests"/>
+      </SearchPaths>
+    </CompilerOptions>
+    <Files>
+      <Item>
+        <Filename Value="..\..\tests\core\tildy.tests.core.base.pas"/>
+        <UnitName Value="Tildy.Tests.Core.Base"/>
+      </Item>
+      <Item>
+        <Filename Value="..\..\tests\core\sources\tildy.tests.core.sources.base.pas"/>
+        <UnitName Value="Tildy.Tests.Core.Sources.Base"/>
+      </Item>
+      <Item>
+        <Filename Value="..\..\tests\core\sources\tildy.tests.core.sources.filesystem.pas"/>
+        <UnitName Value="Tildy.Tests.Core.Sources.FileSystem"/>
+      </Item>
+      <Item>
+        <Filename Value="..\..\tests\core\sources\tildy.tests.core.sources.http.pas"/>
+        <UnitName Value="Tildy.Tests.Core.Sources.HTTP"/>
+      </Item>
+      <Item>
+        <Filename Value="..\..\tests\core\sources\tildy.tests.core.sources.pas"/>
+        <UnitName Value="Tildy.Tests.Core.Sources"/>
+      </Item>
+      <Item>
+        <Filename Value="..\..\tests\tildy.tests.base.pas"/>
+        <UnitName Value="Tildy.Tests.Base"/>
+      </Item>
+      <Item>
+        <Filename Value="..\..\tests\core\validators\tildy.tests.core.validators.monochrome.pas"/>
+        <UnitName Value="Tildy.Tests.Core.Validators.Monochrome"/>
+      </Item>
+      <Item>
+        <Filename Value="..\..\tests\core\validators\tildy.tests.core.validators.base.pas"/>
+        <UnitName Value="Tildy.Tests.Core.Validators.Base"/>
+      </Item>
+      <Item>
+        <Filename Value="..\..\tests\core\validators\tildy.tests.core.validators.pas"/>
+        <UnitName Value="Tildy.Tests.Core.Validators"/>
+      </Item>
+    </Files>
+    <RequiredPkgs>
+      <Item>
+        <PackageName Value="tildy_core"/>
+      </Item>
+      <Item>
+        <PackageName Value="FCL"/>
+      </Item>
+    </RequiredPkgs>
+    <UsageOptions>
+      <UnitPath Value="$(PkgOutDir)"/>
+    </UsageOptions>
+    <PublishOptions>
+      <Version Value="2"/>
+      <UseFileFilters Value="True"/>
+    </PublishOptions>
+  </Package>
+</CONFIG>

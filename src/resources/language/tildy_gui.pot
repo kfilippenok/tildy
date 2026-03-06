@@ -19,10 +19,12 @@ msgid "Edit area name"
 msgstr ""
 
 #: tfmain.actareasexport.caption
+msgctxt "tfmain.actareasexport.caption"
 msgid "Export"
 msgstr ""
 
 #: tfmain.actareasimport.caption
+msgctxt "tfmain.actareasimport.caption"
 msgid "Import"
 msgstr ""
 
@@ -81,14 +83,67 @@ msgctxt "tildy.gui.i18n.strconsts.sapply"
 msgid "Apply"
 msgstr ""
 
+#: tildy.gui.i18n.strconsts.sareasadd
+msgctxt "tildy.gui.i18n.strconsts.sareasadd"
+msgid "Add"
+msgstr ""
+
+#: tildy.gui.i18n.strconsts.sareasdelete
+msgid "Delete"
+msgstr ""
+
+#: tildy.gui.i18n.strconsts.sareaserrexport
+#, object-pascal-format
+msgid "Error export areas to file: %s"
+msgstr ""
+
+#: tildy.gui.i18n.strconsts.sareaserrimport
+#, object-pascal-format
+msgid "Error import areas from file: %s"
+msgstr ""
+
+#: tildy.gui.i18n.strconsts.sareasexport
+msgctxt "tildy.gui.i18n.strconsts.sareasexport"
+msgid "Export"
+msgstr ""
+
+#: tildy.gui.i18n.strconsts.sareasimport
+msgctxt "tildy.gui.i18n.strconsts.sareasimport"
+msgid "Import"
+msgstr ""
+
+#: tildy.gui.i18n.strconsts.sareasrename
+msgid "Rename"
+msgstr ""
+
 #: tildy.gui.i18n.strconsts.scancel
 msgctxt "tildy.gui.i18n.strconsts.scancel"
 msgid "Cancel"
 msgstr ""
 
-#: tildy.gui.i18n.strconsts.slanguage
-msgctxt "tildy.gui.i18n.strconsts.slanguage"
-msgid "Language"
+#: tildy.gui.i18n.strconsts.shareasadd
+msgctxt "tildy.gui.i18n.strconsts.shareasadd"
+msgid "Add new area"
+msgstr ""
+
+#: tildy.gui.i18n.strconsts.shareasdelete
+msgid "Delete selected area"
+msgstr ""
+
+#: tildy.gui.i18n.strconsts.shareasexport
+msgid "Export areas to file"
+msgstr ""
+
+#: tildy.gui.i18n.strconsts.shareasimport
+msgid "Import areas from file"
+msgstr ""
+
+#: tildy.gui.i18n.strconsts.shareasrename
+msgid "Rename selected area"
+msgstr ""
+
+#: tildy.gui.i18n.strconsts.shmenulanguage
+msgid "Change language"
 msgstr ""
 
 #: tildy.gui.i18n.strconsts.slat
@@ -97,6 +152,23 @@ msgstr ""
 
 #: tildy.gui.i18n.strconsts.slon
 msgid "Longitude"
+msgstr ""
+
+#: tildy.gui.i18n.strconsts.smenulanguage
+msgctxt "tildy.gui.i18n.strconsts.smenulanguage"
+msgid "Language"
+msgstr ""
+
+#: tildy.gui.i18n.strconsts.spluginareaeditorareaname
+msgid "Area"
+msgstr ""
+
+#: tildy.gui.i18n.strconsts.spluginareaeditordescription
+msgid "Plugin for select and edit areas."
+msgstr ""
+
+#: tildy.gui.i18n.strconsts.spluginareaeditorname
+msgid "Area Editor"
 msgstr ""
 
 #: tildy.gui.i18n.strconsts.szoom

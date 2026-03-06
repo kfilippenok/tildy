@@ -12,9 +12,10 @@
         <DpiAware Value="True"/>
       </XPManifest>
       <Icon Value="0"/>
-      <Resources Count="2">
+      <Resources Count="3">
         <Resource_0 FileName="..\resources\language\tildy_gui.ru.po" Type="RCDATA" ResourceName="TILDY_GUI.RU"/>
         <Resource_1 FileName="..\resources\language\tildy_gui.en.po" Type="RCDATA" ResourceName="TILDY_GUI.EN"/>
+        <Resource_2 FileName="..\resources\fonts\JetBrainsMono\JetBrainsMono-Regular.ttf" Type="RCDATA" ResourceName="JETBRAINSMONO-REGULAR"/>
       </Resources>
     </General>
     <i18n>
@@ -31,7 +32,7 @@
           </Target>
           <SearchPaths>
             <IncludeFiles Value="$(ProjOutDir)"/>
-            <OtherUnitFiles Value="dialogs;forms;brand;i18n;plugins/mapviewer"/>
+            <OtherUnitFiles Value="dialogs;forms;brand;i18n;plugins/mapviewer;../utilities"/>
             <UnitOutputDirectory Value="../../build/$(TargetOS)/release"/>
           </SearchPaths>
           <CodeGeneration>
@@ -139,6 +140,16 @@
         <IsPartOfProject Value="True"/>
         <UnitName Value="Tildy.GUI.Plugins.MapViewer.DebugOfPosition"/>
       </Unit>
+      <Unit>
+        <Filename Value="../utilities/tildy.utilities.time.pas"/>
+        <IsPartOfProject Value="True"/>
+        <UnitName Value="Tildy.Utilities.Time"/>
+      </Unit>
+      <Unit>
+        <Filename Value="../utilities/tildy.utilities.throttle.pas"/>
+        <IsPartOfProject Value="True"/>
+        <UnitName Value="Tildy.Utilities.Throttle"/>
+      </Unit>
     </Units>
   </ProjectOptions>
   <CompilerOptions>
@@ -148,7 +159,7 @@
     </Target>
     <SearchPaths>
       <IncludeFiles Value="$(ProjOutDir)"/>
-      <OtherUnitFiles Value="dialogs;forms;brand;i18n;plugins/mapviewer"/>
+      <OtherUnitFiles Value="dialogs;forms;brand;i18n;plugins/mapviewer;../utilities"/>
       <UnitOutputDirectory Value="../../build/$(TargetOS)/debug"/>
     </SearchPaths>
     <Parsing>

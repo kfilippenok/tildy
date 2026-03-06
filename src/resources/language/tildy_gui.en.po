@@ -20,10 +20,12 @@ msgid "Edit area name"
 msgstr "Edit area name"
 
 #: tfmain.actareasexport.caption
+msgctxt "tfmain.actareasexport.caption"
 msgid "Export"
 msgstr "Export"
 
 #: tfmain.actareasimport.caption
+msgctxt "tfmain.actareasimport.caption"
 msgid "Import"
 msgstr "Import"
 
@@ -57,20 +59,20 @@ msgstr "English"
 
 #: tfmain.milangaugeru.caption
 msgid "Русский"
-msgstr ""
+msgstr "Русский"
 
 #: tfmain.panmv.caption
 msgid "panMV"
-msgstr ""
+msgstr "panMV"
 
 #: tfmain.providervariationsmap.text
 msgid "OpenStreetMap Mapnik"
-msgstr ""
+msgstr "OpenStreetMap Mapnik"
 
 #: tfmain.tileinfoplugin.infomask
 #, object-pascal-format
 msgid "%0:d:%1:d"
-msgstr ""
+msgstr "%0:d:%1:d"
 
 #: tildy.gui.i18n.strconsts.sadd
 msgctxt "tildy.gui.i18n.strconsts.sadd"
@@ -82,15 +84,68 @@ msgctxt "tildy.gui.i18n.strconsts.sapply"
 msgid "Apply"
 msgstr "Apply"
 
+#: tildy.gui.i18n.strconsts.sareasadd
+msgctxt "tildy.gui.i18n.strconsts.sareasadd"
+msgid "Add"
+msgstr "Add"
+
+#: tildy.gui.i18n.strconsts.sareasdelete
+msgid "Delete"
+msgstr "Delete"
+
+#: tildy.gui.i18n.strconsts.sareaserrexport
+#, object-pascal-format
+msgid "Error export areas to file: %s"
+msgstr "Error export areas to file: %s"
+
+#: tildy.gui.i18n.strconsts.sareaserrimport
+#, object-pascal-format
+msgid "Error import areas from file: %s"
+msgstr "Error import areas from file: %s"
+
+#: tildy.gui.i18n.strconsts.sareasexport
+msgctxt "tildy.gui.i18n.strconsts.sareasexport"
+msgid "Export"
+msgstr "Export"
+
+#: tildy.gui.i18n.strconsts.sareasimport
+msgctxt "tildy.gui.i18n.strconsts.sareasimport"
+msgid "Import"
+msgstr "Import"
+
+#: tildy.gui.i18n.strconsts.sareasrename
+msgid "Rename"
+msgstr "Rename"
+
 #: tildy.gui.i18n.strconsts.scancel
 msgctxt "tildy.gui.i18n.strconsts.scancel"
 msgid "Cancel"
 msgstr "Cancel"
 
-#: tildy.gui.i18n.strconsts.slanguage
-msgctxt "tildy.gui.i18n.strconsts.slanguage"
-msgid "Language"
-msgstr "Language"
+#: tildy.gui.i18n.strconsts.shareasadd
+msgctxt "tildy.gui.i18n.strconsts.shareasadd"
+msgid "Add new area"
+msgstr "Add new area"
+
+#: tildy.gui.i18n.strconsts.shareasdelete
+msgid "Delete selected area"
+msgstr "Delete selected area"
+
+#: tildy.gui.i18n.strconsts.shareasexport
+msgid "Export areas to file"
+msgstr "Export areas to file"
+
+#: tildy.gui.i18n.strconsts.shareasimport
+msgid "Import areas from file"
+msgstr "Import areas from file"
+
+#: tildy.gui.i18n.strconsts.shareasrename
+msgid "Rename selected area"
+msgstr "Rename selected area"
+
+#: tildy.gui.i18n.strconsts.shmenulanguage
+msgid "Change language"
+msgstr "Change language"
 
 #: tildy.gui.i18n.strconsts.slat
 msgid "Latitude"
@@ -100,6 +155,24 @@ msgstr "Latitude"
 msgid "Longitude"
 msgstr "Longitude"
 
+#: tildy.gui.i18n.strconsts.smenulanguage
+msgctxt "tildy.gui.i18n.strconsts.smenulanguage"
+msgid "Language"
+msgstr "Language"
+
+#: tildy.gui.i18n.strconsts.spluginareaeditorareaname
+msgid "Area"
+msgstr "Area"
+
+#: tildy.gui.i18n.strconsts.spluginareaeditordescription
+msgid "Plugin for select and edit areas."
+msgstr "Plugin for select and edit areas."
+
+#: tildy.gui.i18n.strconsts.spluginareaeditorname
+msgid "Area Editor"
+msgstr "Area Editor"
+
 #: tildy.gui.i18n.strconsts.szoom
 msgid "Zoom"
 msgstr "Zoom"
+

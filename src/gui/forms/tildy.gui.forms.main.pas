@@ -6,7 +6,7 @@ interface
 
 uses
   Classes, SysUtils, Forms, Controls, Graphics, Dialogs, ExtCtrls, StdCtrls,
-  ComCtrls, ActnList, EditBtn, CheckLst, Buttons, Menus, nullable,
+  ComCtrls, ActnList, EditBtn, CheckLst, Buttons, Menus,
   LazFileUtils, IniFiles, Types, System.UITypes, LCLType,
   // Translate
   LCLTranslator, Tildy.GUI.i18n.Runtime, Tildy.GUI.i18n.StrConsts,
@@ -19,7 +19,7 @@ uses
   // Dialogs
   Tildy.GUI.Dialogs.AddLayers, Tildy.GUI.Dialogs.EditAreaName,
   // Plugins
-  Tildy.GUI.Plugins.MapViewer.AreaEditor;
+  Tildy.GUI.Plugins.MapViewer.AreaEditor, Tildy.GUI.Plugins.MapViewer.DebugOfPosition;
 
 type
 
@@ -75,6 +75,8 @@ type
     btnLayersUp: TSpeedButton;
     btnZoomIn: TSpeedButton;
     btnTileInfo: TSpeedButton;
+    sttDebugLat: TStaticText;
+    sttDebugLon: TStaticText;
     TileInfoPlugin: TTileInfoPlugin;
     dlgOpen: TOpenDialog;
     panAreas: TPanel;
@@ -83,8 +85,6 @@ type
     panCache: TPanel;
     panLayers: TPanel;
     lblDebugZoom: TLabel;
-    lblDebugLon: TLabel;
-    lblDebugLat: TLabel;
     panDebug: TPanel;
     PopupMapView: TPopupMenu;
     btnLayersAdd: TSpeedButton;
@@ -131,25 +131,24 @@ type
       var Allow: Boolean);
     procedure MapViewKeyDown(Sender: TObject; var Key: Word; Shift: TShiftState
       );
-    procedure MapViewMouseMove(Sender: TObject; Shift: TShiftState; X,
-      Y: Integer);
     procedure MapViewResize(Sender: TObject);
     procedure MapViewZoomChange(Sender: TObject);
     procedure miLangaugeEnClick(Sender: TObject);
     procedure miLangaugeRuClick(Sender: TObject);
     procedure PopupMapViewPopup(Sender: TObject);
-    procedure ProviderVariationsMapChange(Sender: TObject);
     procedure LayersUpDownClick(Sender: TObject; Button: TUDBtnType);
+    procedure ProviderVariationsMapChange(Sender: TObject);
     procedure ProviderVariationsMapSelect(Sender: TObject);
     procedure AreaEditorSelectionChanged(Sender: TObject; const OldArea, NewArea: TMapLabeledArea);
+    procedure DebugOfPosition(Sender: TObject; const AMapCoordinate: TRealPoint);
   strict private
     FAreaEditor: TAreaEditorPlugin;
+    FDebugOfPosition: TDebugOfPositionPlugin;
     FShowTileInfo: Boolean;
     procedure SetShowTileInfo(AValue: Boolean);
     procedure ReloadLayersList;
     procedure DetectAndApplyTheme;
     procedure UpdateDebugZoom;
-    procedure UpdateDebugCursorCoordinate(const X, Y: Integer);
     property ShowTileInfo: Boolean read FShowTileInfo write SetShowTileInfo;
   public
     procedure TranslationChanged;
@@ -563,13 +562,25 @@ end;
 procedure TfMain.FormCreate(Sender: TObject);
 begin
   FormatSettings.DecimalSeparator := '.';
+
+  { Themes }
   DetectAndApplyTheme;
-  ShowTileInfo := False;
+
+  { Plugins }
+  // Area Editor
   FAreaEditor := TAreaEditorPlugin.Create(MvPluginManager);
   FAreaEditor.MapView := MapView;
   FAreaEditor.Enabled := True;
   FAreaEditor.OnSelectionChanged := @AreaEditorSelectionChanged;
+  // Debug of position
+  FDebugOfPosition := TDebugOfPositionPlugin.Create(MvPluginManager);
+  FDebugOfPosition.MapView := MapView;
+  FDebugOfPosition.Enabled := True;
+  FDebugOfPosition.OnDebugOfPosition := @DebugOfPosition;
+  // Tile Info
+  ShowTileInfo := False;
 
+  { i18n }
   TranslationChanged;
 end;
 
@@ -644,13 +655,6 @@ begin
   FAreaEditor.MoveSelectedByPixels(MapView, DX, DY);
 end;
 
-
-procedure TfMain.MapViewMouseMove(Sender: TObject; Shift: TShiftState; X,
-  Y: Integer);
-begin
-  UpdateDebugCursorCoordinate(X, Y);
-end;
-
 procedure TfMain.MapViewResize(Sender: TObject);
 var
   LDistance: Integer;
@@ -695,10 +699,10 @@ begin
   with ProviderVariationsMap do
     MapView.MapProvider := Items[ItemIndex];
   MapProviderByName(MapView.MapProvider).GetZoomInfos(LMinZoom, LMaxZoom);
-  MapView.ZoomMin     := LMinZoom;
-  MapView.ZoomMax     := LMaxZoom;
-  MapView.OnMouseMove := @MapViewMouseMove;
-  MapView.Active      := True;
+  MapView.ZoomMin := LMinZoom;
+  MapView.ZoomMax := LMaxZoom;
+  MapView.Active := True;
+  FDebugOfPosition.UseThrottle := True;
   MapViewZoomChange(Self);
 end;
 
@@ -744,6 +748,13 @@ begin
   end;
 end;
 
+procedure TfMain.DebugOfPosition(Sender: TObject;
+  const AMapCoordinate: TRealPoint);
+begin
+  sttDebugLat.Caption := SLat + ': ' + Format('%-9.6f', [AMapCoordinate.Lat]);
+  sttDebugLon.Caption := SLon + ': ' + Format('%-10.6f', [AMapCoordinate.Lon]);
+end;
+
 procedure TfMain.SetShowTileInfo(AValue: Boolean);
 begin
   FShowTileInfo := AValue;
@@ -778,23 +789,13 @@ begin
   lblDebugZoom.Caption := SZoom + ': ' + MapView.Zoom.ToString;
 end;
 
-procedure TfMain.UpdateDebugCursorCoordinate(const X, Y: Integer);
-var
-  LRealPoint: TRealPoint;
-  LPoint: TPoint;
-  i: Integer;
-begin
-  LPoint.X := X; LPoint.Y := Y;
-  LRealPoint := MapView.Engine.ScreenToLatLon(LPoint);
-  lblDebugLat.Caption := SLat + ': ' + Format('%13.10f', [LRealPoint.Lat]);
-  lblDebugLon.Caption := SLon + ': ' + Format('%14.10f', [LRealPoint.Lon]);
-end;
-
 procedure TfMain.TranslationChanged;
 var
-  LPoint: TPoint;
+  MousePoint: TPoint;
+  MapCoordinate: TRealPoint;
 begin
-  LPoint := MapView.ScreenToClient(Mouse.CursorPos);
+  MousePoint := MapView.ScreenToClient(Mouse.CursorPos);
+  MapCoordinate := MapView.ScreenToLatLon(MousePoint);
 
   { Menu }
 
@@ -828,7 +829,7 @@ begin
   btnExportAreas.Hint := SHAreasExport;
 
   UpdateDebugZoom;
-  UpdateDebugCursorCoordinate(LPoint.X, LPoint.Y)
+  DebugOfPosition(Self, MapCoordinate);
 end;
 
 end.

@@ -20,7 +20,7 @@ uses
 
 begin
   RequireDerivedFormResource :=True;
-  Application.Title := 'Tildy';
+  Application.Title:='Tildy';
   Application.Scaled:=True;
   Application.{%H-}MainFormOnTaskbar := True;
   Application.Initialize;

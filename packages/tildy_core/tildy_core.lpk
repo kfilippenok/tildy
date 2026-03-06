@@ -1,0 +1,133 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CONFIG>
+  <Package Version="5">
+    <PathDelim Value="\"/>
+    <Name Value="tildy_core"/>
+    <Type Value="RunTimeOnly"/>
+    <CompilerOptions>
+      <Version Value="11"/>
+      <PathDelim Value="\"/>
+      <SearchPaths>
+        <OtherUnitFiles Value="..\..\src\core;..\..\src\core\contracts;..\..\src\core\processors;..\..\src\core\projections;..\..\src\core\storage;..\..\src\core\tilingschemes;..\..\src\core\transforms;..\..\src\core\sources;..\..\src\core\validators"/>
+        <UnitOutputDirectory Value="..\..\build\$(TargetOS)\tests"/>
+      </SearchPaths>
+      <Other>
+        <CompilerMessages>
+          <IgnoredMessages idx6058="True" idx3124="True" idx3123="True"/>
+        </CompilerMessages>
+      </Other>
+    </CompilerOptions>
+    <Files>
+      <Item>
+        <Filename Value="..\..\src\core\tildy.core.orchestrator.pas"/>
+        <UnitName Value="Tildy.Core.Orchestrator"/>
+      </Item>
+      <Item>
+        <Filename Value="..\..\src\core\contracts\tildy.core.contracts.pas"/>
+        <UnitName Value="Tildy.Core.Contracts"/>
+      </Item>
+      <Item>
+        <Filename Value="..\..\src\core\contracts\tildy.core.contracts.layers.pas"/>
+        <UnitName Value="Tildy.Core.Contracts.Layers"/>
+      </Item>
+      <Item>
+        <Filename Value="..\..\src\core\contracts\tildy.core.contracts.coordinates.pas"/>
+        <UnitName Value="Tildy.Core.Contracts.Coordinates"/>
+      </Item>
+      <Item>
+        <Filename Value="..\..\src\core\contracts\tildy.core.contracts.source.pas"/>
+        <UnitName Value="Tildy.Core.Contracts.Source"/>
+      </Item>
+      <Item>
+        <Filename Value="..\..\src\core\contracts\tildy.core.contracts.storage.pas"/>
+        <UnitName Value="Tildy.Core.Contracts.Storage"/>
+      </Item>
+      <Item>
+        <Filename Value="..\..\src\core\contracts\tildy.core.contracts.processor.pas"/>
+        <UnitName Value="Tildy.Core.Contracts.Processor"/>
+      </Item>
+      <Item>
+        <Filename Value="..\..\src\core\contracts\tildy.core.contracts.validator.pas"/>
+        <UnitName Value="Tildy.Core.Contracts.Validator"/>
+      </Item>
+      <Item>
+        <Filename Value="..\..\src\core\contracts\tildy.core.contracts.projection.pas"/>
+        <UnitName Value="Tildy.Core.Contracts.Projection"/>
+      </Item>
+      <Item>
+        <Filename Value="..\..\src\core\contracts\tildy.core.contracts.scheme.pas"/>
+        <UnitName Value="Tildy.Core.Contracts.Scheme"/>
+      </Item>
+      <Item>
+        <Filename Value="..\..\src\core\contracts\tildy.core.contracts.transform.pas"/>
+        <UnitName Value="Tildy.Core.Contracts.Transform"/>
+      </Item>
+      <Item>
+        <Filename Value="..\..\src\core\processors\tildy.core.processors.filters.pas"/>
+        <UnitName Value="Tildy.Core.Processors.Filters"/>
+      </Item>
+      <Item>
+        <Filename Value="..\..\src\core\processors\tildy.core.processors.layers.pas"/>
+        <UnitName Value="Tildy.Core.Processors.Layers"/>
+      </Item>
+      <Item>
+        <Filename Value="..\..\src\core\sources\tildy.core.sources.fphttp.pas"/>
+        <UnitName Value="Tildy.Core.Sources.FpHTTP"/>
+      </Item>
+      <Item>
+        <Filename Value="..\..\src\core\sources\tildy.core.sources.fphttps.pas"/>
+        <UnitName Value="Tildy.Core.Sources.FpHTTPS"/>
+      </Item>
+      <Item>
+        <Filename Value="..\..\src\core\processors\tildy.core.processors.pipeline.pas"/>
+        <UnitName Value="Tildy.Core.Processors.Pipeline"/>
+      </Item>
+      <Item>
+        <Filename Value="..\..\src\core\validators\tildy.core.validators.chain.pas"/>
+        <UnitName Value="Tildy.Core.Validators.Chain"/>
+      </Item>
+      <Item>
+        <Filename Value="..\..\src\core\sources\tildy.core.sources.filesystem.pas"/>
+        <UnitName Value="Tildy.Core.Sources.FileSystem"/>
+      </Item>
+      <Item>
+        <Filename Value="..\..\src\core\projections\tildy.core.projections.wsg84.pas"/>
+        <UnitName Value="Tildy.Core.Projections.WSG84"/>
+      </Item>
+      <Item>
+        <Filename Value="..\..\src\core\tilingschemes\tildy.core.schemes.osm.pas"/>
+        <UnitName Value="Tildy.Core.Schemes.OSM"/>
+      </Item>
+      <Item>
+        <Filename Value="..\..\src\core\contracts\tildy.core.contracts.orchestrator.pas"/>
+        <UnitName Value="Tildy.Core.Contracts.Orchestrator"/>
+      </Item>
+      <Item>
+        <Filename Value="..\..\src\core\processors\tildy.core.processors.chain.pas"/>
+        <UnitName Value="Tildy.Core.Processors.Chain"/>
+      </Item>
+      <Item>
+        <Filename Value="..\..\src\core\validators\tildy.core.validators.monochrome.pas"/>
+        <UnitName Value="Tildy.Core.Validators.Monochrome"/>
+      </Item>
+    </Files>
+    <RequiredPkgs>
+      <Item>
+        <PackageName Value="LCLBase"/>
+      </Item>
+      <Item>
+        <PackageName Value="BGRABitmapPack4NoGUI"/>
+      </Item>
+      <Item>
+        <PackageName Value="FCL"/>
+      </Item>
+    </RequiredPkgs>
+    <UsageOptions>
+      <UnitPath Value="$(PkgOutDir)"/>
+    </UsageOptions>
+    <PublishOptions>
+      <Version Value="2"/>
+      <UseFileFilters Value="True"/>
+    </PublishOptions>
+  </Package>
+</CONFIG>

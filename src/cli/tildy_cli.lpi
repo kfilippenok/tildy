@@ -29,7 +29,7 @@
           </Target>
           <SearchPaths>
             <IncludeFiles Value="$(ProjOutDir)"/>
-            <OtherUnitFiles Value="../core;../utilities;../threading"/>
+            <OtherUnitFiles Value="../utilities"/>
             <UnitOutputDirectory Value="../../build/$(TargetOS)"/>
           </SearchPaths>
           <CodeGeneration>
@@ -62,6 +62,9 @@
     </RunParams>
     <RequiredPackages>
       <Item>
+        <PackageName Value="tildy_core"/>
+      </Item>
+      <Item>
         <PackageName Value="BGRABitmapPack4NoGUI"/>
         <MinVersion Major="11" Minor="6" Release="2" Valid="True"/>
       </Item>
@@ -77,27 +80,8 @@
         <UnitName Value="Tildy.CLI.Options"/>
       </Unit>
       <Unit>
-        <Filename Value="../core/tildy.core.engine.pas"/>
-        <IsPartOfProject Value="True"/>
-        <UnitName Value="Tildy.Core.Engine"/>
-      </Unit>
-      <Unit>
-        <Filename Value="../core/tildy.core.filters.pas"/>
-        <IsPartOfProject Value="True"/>
-      </Unit>
-      <Unit>
-        <Filename Value="../core/tildy.core.projections.pas"/>
-        <IsPartOfProject Value="True"/>
-        <UnitName Value="Tildy.Core.Projections"/>
-      </Unit>
-      <Unit>
         <Filename Value="../utilities/tildy.utilities.time.pas"/>
         <IsPartOfProject Value="True"/>
-      </Unit>
-      <Unit>
-        <Filename Value="../threading/tildy.threading.simpledownloader.pas"/>
-        <IsPartOfProject Value="True"/>
-        <UnitName Value="Tildy.Threading.SimpleDownloader"/>
       </Unit>
     </Units>
   </ProjectOptions>
@@ -108,7 +92,7 @@
     </Target>
     <SearchPaths>
       <IncludeFiles Value="$(ProjOutDir)"/>
-      <OtherUnitFiles Value="../core;../utilities;../threading"/>
+      <OtherUnitFiles Value="../utilities"/>
       <UnitOutputDirectory Value="../../build/$(TargetOS)"/>
     </SearchPaths>
     <Parsing>

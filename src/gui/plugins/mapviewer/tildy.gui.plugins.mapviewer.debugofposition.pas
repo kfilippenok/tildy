@@ -9,43 +9,80 @@ interface
 uses
   Classes,
   SysUtils,
+  CustomTimer,
   // MapViewer
   mvMapViewer,
   mvPluginCommon,
-  mvTypes;
+  mvTypes,
+  // Utilities
+  Tildy.Utilities.Throttle;
 
 type
 
-  TDebugOfPositionEvent = procedure (Sender: TObject; AMapCoordinate: TRealPoint) of object;
+  TDebugOfPositionEvent = procedure (Sender: TObject; const AMapCoordinate: TRealPoint) of object;
 
   { TDebugOfPositionPlugin }
 
   TDebugOfPositionPlugin = class(TMvPlugin)
   private
+    FMapCoordinate: TRealPoint;
     FOnDebugOfPosition: TDebugOfPositionEvent;
-    procedure SetOnDebugOfPosition(AValue: TDebugOfPositionEvent);
+    FThrottle: IThrottle;
+    FThrottleInterval: QWord;
+    FUseThrottle: Boolean;
+    procedure SetThrottleInterval(const AValue: QWord);
+    procedure SetUseThrottle(AValue: Boolean);
   protected
     procedure MouseMove(AMapView: TMapView; AShift: TShiftState; X, Y: Integer;
       var Handled: Boolean); override;
   published
-    property OnDebugOfPosition: TDebugOfPositionEvent read FOnDebugOfPosition write SetOnDebugOfPosition;
+    constructor Create(AOwner: TComponent); override;
+    property OnDebugOfPosition: TDebugOfPositionEvent read FOnDebugOfPosition write FOnDebugOfPosition;
+    property UseThrottle: Boolean read FUseThrottle write SetUseThrottle default False;
+    property ThrottleInterval: QWord read FThrottleInterval write SetThrottleInterval default 50;
   end;
 
 implementation
 
 { TDebugOfPositionPlugin }
 
-procedure TDebugOfPositionPlugin.SetOnDebugOfPosition(
-  AValue: TDebugOfPositionEvent);
+procedure TDebugOfPositionPlugin.SetThrottleInterval(const AValue: QWord);
 begin
-  if FOnDebugOfPosition = AValue then Exit;
-  FOnDebugOfPosition := AValue;
+  if FThrottleInterval = AValue then Exit;
+  FThrottleInterval := AValue;
+
+  if Assigned(FThrottle) then
+    FThrottle.Interval := FThrottleInterval;
+end;
+
+procedure TDebugOfPositionPlugin.SetUseThrottle(AValue: Boolean);
+begin
+  if FUseThrottle = AValue then Exit;
+  FUseThrottle := AValue;
+
+  if FUseThrottle then
+    FThrottle := TThrottle.Create(FThrottleInterval)
+  else
+    FThrottle := nil;
 end;
 
 procedure TDebugOfPositionPlugin.MouseMove(AMapView: TMapView;
   AShift: TShiftState; X, Y: Integer; var Handled: Boolean);
 begin
-  inherited MouseMove(AMapView, AShift, X, Y, Handled);
+  FMapCoordinate := AMapView.ScreenToLatLon(Point(X, Y));
+
+  if UseThrottle and not FThrottle.CanExecute then
+    Exit;
+
+  if Assigned(FOnDebugOfPosition) then
+    FOnDebugOfPosition(Self, FMapCoordinate);
+end;
+
+constructor TDebugOfPositionPlugin.Create(AOwner: TComponent);
+begin
+  inherited Create(AOwner);
+  FThrottleInterval := 50;
+  FUseThrottle := False;
 end;
 
 end.

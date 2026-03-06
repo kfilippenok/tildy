@@ -20,7 +20,7 @@ unit Tildy.Core.Projections;
 interface
 
 uses
-  Classes, SysUtils, Tildy.Core.Engine;
+  Classes, SysUtils, Tildy.Core.Contracts;
 
 type
 
